@@ -99,12 +99,22 @@ class PermissionSeeder extends Seeder
         $groupIdMap = [];
         
         foreach ($permissionGroups as $group) {
-            $id = DB::table('permission_groups')->insertGetId([
-                'group_name' => $group['name'],
-                'description' => $group['description']
-            ]);
+            // Check if the group already exists
+            $existingGroup = DB::table('permission_groups')->where('group_name', $group['name'])->first();
             
-            $groupIdMap[$group['name']] = $id;
+            if ($existingGroup) {
+                $groupIdMap[$group['name']] = $existingGroup->group_id;
+            } else {
+                // Create a new group if it doesn't exist
+                $id = DB::table('permission_groups')->insertGetId([
+                    'group_name' => $group['name'],
+                    'description' => $group['description'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                
+                $groupIdMap[$group['name']] = $id;
+            }
         }
 
         // Define all permissions with their groups
@@ -170,6 +180,11 @@ class PermissionSeeder extends Seeder
             [
                 'permission_name' => 'view_system_logs',
                 'description' => 'View system logs',
+                'group_id' => $groupIdMap['System Configuration']
+            ],
+            [
+                'permission_name' => 'view_admin_dashboard',
+                'description' => 'View admin dashboard and analytics',
                 'group_id' => $groupIdMap['System Configuration']
             ],
             
@@ -501,62 +516,110 @@ class PermissionSeeder extends Seeder
         }
 
         // Create a test user for each role
-        $adminId = DB::table('user_detail')->insertGetId([
-            'username' => 'admin',
-            'password_hash' => Hash::make('password'),
-            'email' => 'admin@example.com',
-            'phone_number' => '123-456-7890',
-            'status' => 'active',
-            'first_name' => 'System',
-            'last_name' => 'Administrator',
-            'created_at' => $now,
-            'updated_at' => $now
-        ]);
+        // Check if admin user exists
+        $admin = DB::table('users')->where('username', 'admin')->first();
+        if (!$admin) {
+            $adminId = DB::table('users')->insertGetId([
+                'username' => 'admin',
+                'password_hash' => Hash::make('password'),
+                'email' => 'admin@example.com',
+                'phone_number' => '123-456-7890',
+                'status' => 'active',
+                'first_name' => 'System',
+                'last_name' => 'Administrator',
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        } else {
+            $adminId = $admin->user_id;
+        }
 
-        $landlordId = DB::table('user_detail')->insertGetId([
-            'username' => 'landlord',
-            'password_hash' => Hash::make('password'),
-            'email' => 'landlord@example.com',
-            'phone_number' => '123-456-7891',
-            'status' => 'active',
-            'first_name' => 'Property',
-            'last_name' => 'Owner',
-            'created_at' => $now,
-            'updated_at' => $now
-        ]);
+        // Check if landlord user exists
+        $landlord = DB::table('users')->where('username', 'landlord')->first();
+        if (!$landlord) {
+            $landlordId = DB::table('users')->insertGetId([
+                'username' => 'landlord',
+                'password_hash' => Hash::make('password'),
+                'email' => 'landlord@example.com',
+                'phone_number' => '123-456-7891',
+                'status' => 'active',
+                'first_name' => 'Property',
+                'last_name' => 'Owner',
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        } else {
+            $landlordId = $landlord->user_id;
+        }
 
-        $tenantId = DB::table('user_detail')->insertGetId([
-            'username' => 'tenant',
-            'password_hash' => Hash::make('password'),
-            'email' => 'tenant@example.com',
-            'phone_number' => '123-456-7892',
-            'status' => 'active',
-            'first_name' => 'Rental',
-            'last_name' => 'User',
-            'created_at' => $now,
-            'updated_at' => $now
-        ]);
+        // Check if tenant user exists
+        $tenant = DB::table('users')->where('username', 'tenant')->first();
+        if (!$tenant) {
+            $tenantId = DB::table('users')->insertGetId([
+                'username' => 'tenant',
+                'password_hash' => Hash::make('password'),
+                'email' => 'tenant@example.com',
+                'phone_number' => '123-456-7892',
+                'status' => 'active',
+                'first_name' => 'Rental',
+                'last_name' => 'User',
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        } else {
+            $tenantId = $tenant->user_id;
+        }
 
         // Assign roles to users
-        DB::table('user_roles')->insert([
-            [
+        // Check if roles are already assigned
+        $adminRoleAssigned = DB::table('user_roles')
+            ->where('user_id', $adminId)
+            ->where('role_id', $adminRoleId)
+            ->exists();
+            
+        $landlordRoleAssigned = DB::table('user_roles')
+            ->where('user_id', $landlordId)
+            ->where('role_id', $landlordRoleId)
+            ->exists();
+            
+        $tenantRoleAssigned = DB::table('user_roles')
+            ->where('user_id', $tenantId)
+            ->where('role_id', $tenantRoleId)
+            ->exists();
+
+        // Insert missing role assignments
+        $roleAssignments = [];
+        
+        if (!$adminRoleAssigned) {
+            $roleAssignments[] = [
                 'user_id' => $adminId,
                 'role_id' => $adminRoleId,
                 'created_at' => $now,
                 'updated_at' => $now
-            ],
-            [
+            ];
+        }
+        
+        if (!$landlordRoleAssigned) {
+            $roleAssignments[] = [
                 'user_id' => $landlordId,
                 'role_id' => $landlordRoleId,
                 'created_at' => $now,
                 'updated_at' => $now
-            ],
-            [
+            ];
+        }
+        
+        if (!$tenantRoleAssigned) {
+            $roleAssignments[] = [
                 'user_id' => $tenantId,
                 'role_id' => $tenantRoleId,
                 'created_at' => $now,
                 'updated_at' => $now
-            ]
-        ]);
+            ];
+        }
+        
+        // Only insert if there are new role assignments
+        if (count($roleAssignments) > 0) {
+            DB::table('user_roles')->insert($roleAssignments);
+        }
     }
 }

@@ -117,6 +117,33 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return app(AccessPermission::class)->hasPermission($this, $permission);
+        // Check if user has any roles
+        if (!$this->roles) {
+            return false;
+        }
+        
+        // Get all role IDs for this user
+        $roleIds = $this->roles->pluck('role_id')->toArray();
+        
+        // Check if any of the user's roles have this permission
+        $hasPermission = AccessPermission::whereIn('role_id', $roleIds)
+            ->where('permission_name', $permission)
+            ->exists();
+        
+        return $hasPermission;
+    }
+
+    /**
+     * Get all permissions for this user (through all their roles)
+     */
+    public function getAllPermissions()
+    {
+        // Get all role IDs for this user
+        $roleIds = $this->roles->pluck('role_id')->toArray();
+        
+        // Get all permissions for these roles
+        return AccessPermission::whereIn('role_id', $roleIds)
+            ->with('permissionGroup')
+            ->get();
     }
 }

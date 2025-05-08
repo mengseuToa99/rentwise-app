@@ -2,8 +2,30 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
         
+        <!-- Admin Dashboard Link - Case insensitive check -->
+        @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
+            <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            You have admin privileges. Access the 
+                            <a href="{{ route('admin.dashboard') }}" class="font-medium underline">Admin Dashboard</a>
+                            to manage users, roles, permissions, and system settings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+        
         <!-- Tenant Dashboard View -->
-        @if(auth()->user()->roles->contains('role_name', 'tenant') && !auth()->user()->roles->contains('role_name', 'landlord') && !auth()->user()->roles->contains('role_name', 'admin'))
+        @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }) && 
+            !auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }) && 
+            !auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
         <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <!-- Tenant's Invoices stats -->
             <div class="overflow-hidden rounded-lg bg-white shadow">
@@ -51,7 +73,8 @@
         @endif
 
         <!-- Landlord/Admin Dashboard View -->
-        @if(auth()->user()->roles->contains('role_name', 'landlord') || auth()->user()->roles->contains('role_name', 'admin'))
+        @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }) || 
+            auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
         <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Properties stats -->
             <div class="overflow-hidden rounded-lg bg-white shadow">
@@ -176,6 +199,137 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Admin Only: Detailed Property & Unit Statistics -->
+            @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-4">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Detailed Property & Unit Analysis</h3>
+                    
+                    <!-- Top properties by unit count -->
+                    <div class="mb-8">
+                        <h4 class="text-md font-medium text-gray-800 mb-3">Top Properties by Unit Count</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Units</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied Units</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupancy Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse($stats['topProperties'] as $property)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $property['name'] }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $property['total_units'] }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $property['occupied_units'] }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div class="flex items-center">
+                                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $property['occupancy_rate'] }}%"></div>
+                                                    </div>
+                                                    <span>{{ $property['occupancy_rate'] }}%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Property and Unit Statistics -->
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                        <!-- Top landlords by property count -->
+                        <div>
+                            <h4 class="text-md font-medium text-gray-800 mb-3">Top Landlords by Property Count</h4>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
+                                <ul class="divide-y divide-gray-200">
+                                    @forelse($stats['propertiesByLandlord'] as $landlord)
+                                        <li class="px-4 py-3 flex justify-between items-center">
+                                            <span class="text-sm font-medium text-gray-900">{{ $landlord['landlord_name'] }}</span>
+                                            <span class="text-sm text-gray-600 bg-blue-100 px-2 py-1 rounded-full">{{ $landlord['count'] }} properties</span>
+                                        </li>
+                                    @empty
+                                        <li class="px-4 py-3 text-sm text-gray-500 text-center">No data available</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Unit type distribution -->
+                        <div>
+                            <h4 class="text-md font-medium text-gray-800 mb-3">Unit Types Distribution</h4>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
+                                <ul class="divide-y divide-gray-200">
+                                    @forelse($stats['unitTypeDistribution'] as $unitType)
+                                        <li class="px-4 py-3 flex justify-between items-center">
+                                            <span class="text-sm font-medium text-gray-900">{{ $unitType['type'] }}</span>
+                                            <span class="text-sm text-gray-600 bg-green-100 px-2 py-1 rounded-full">{{ $unitType['count'] }} units</span>
+                                        </li>
+                                    @empty
+                                        <li class="px-4 py-3 text-sm text-gray-500 text-center">No data available</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Units by Status -->
+                        <div>
+                            <h4 class="text-md font-medium text-gray-800 mb-3">Units by Status</h4>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200 p-4">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-sm text-gray-600">Occupied: {{ $stats['occupiedUnits'] }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                                    <span class="text-sm text-gray-600">Vacant: {{ $stats['vacantUnits'] }}</span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                                        @if(($stats['occupiedUnits'] + $stats['vacantUnits']) > 0)
+                                            <div class="flex h-full">
+                                                <div 
+                                                    class="bg-green-500 h-full" 
+                                                    style="width: {{ ($stats['occupiedUnits'] / ($stats['occupiedUnits'] + $stats['vacantUnits'])) * 100 }}%"
+                                                ></div>
+                                                <div 
+                                                    class="bg-blue-500 h-full" 
+                                                    style="width: {{ ($stats['vacantUnits'] / ($stats['occupiedUnits'] + $stats['vacantUnits'])) * 100 }}%"
+                                                ></div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Property/Unit Access -->
+                        <div>
+                            <h4 class="text-md font-medium text-gray-800 mb-3">Quick Access</h4>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200 p-4 space-y-2">
+                                <a href="{{ route('properties.index') }}" wire:navigate class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded">
+                                    View All Properties
+                                </a>
+                                <a href="{{ route('units.index') }}" wire:navigate class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                                    View All Units
+                                </a>
+                                <a href="{{ route('admin.users') }}" wire:navigate class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded">
+                                    Manage Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
             
             <!-- Property Management Quick Access -->
             <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">

@@ -35,7 +35,9 @@ class PropertyList extends Component
         
         // If not admin, show only the landlord's properties
         $userRoles = $user->roles ?? collect([]);
-        if (!$userRoles->contains('role_name', 'admin')) {
+        if (!$userRoles->contains(function($role) {
+            return strtolower($role->role_name) === 'admin';
+        })) {
             $query->where('landlord_id', $user->user_id);
         }
         
@@ -78,7 +80,9 @@ class PropertyList extends Component
         }
         
         $userRoles = $user->roles ?? collect([]);
-        if (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $user->user_id) {
+        if (!$userRoles->contains(function($role) {
+            return strtolower($role->role_name) === 'admin';
+        }) && $property->landlord_id !== $user->user_id) {
             session()->flash('error', 'You are not authorized to delete this property');
             return;
         }

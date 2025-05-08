@@ -14,9 +14,11 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
                 </flux:navlist.group>
 
-                @if(auth()->user()->roles->contains('role_name', 'landlord') || auth()->user()->roles->contains('role_name', 'admin'))
+                @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }) || 
+                  auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
                 <!-- Property Management - For Landlords and Admins only -->
                 <flux:navlist.group :heading="__('Property Management')" class="grid">
                     <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Properties') }}</flux:navlist.item>
@@ -34,18 +36,22 @@
                 </flux:navlist.group>
                 @endif
 
-                @if(auth()->user()->roles->contains('role_name', 'tenant'))
+                @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }))
                 <!-- Tenant Access Only -->
                 <flux:navlist.group :heading="__('My Rentals')" class="grid">
                     <flux:navlist.item icon="currency-dollar" :href="route('tenant.invoices')" :current="request()->routeIs('tenant.invoices')" wire:navigate>{{ __('My Invoices') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @endif
 
-                @if(auth()->user()->roles->contains('role_name', 'admin'))
+                @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
                 <!-- Admin Only Section -->
                 <flux:navlist.group :heading="__('Administration')" class="grid">
-                    <flux:navlist.item icon="user-group" href="#" :current="request()->routeIs('users.*')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
-                    <flux:navlist.item icon="shield-check" href="#" :current="request()->routeIs('roles.*')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chart-bar" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
+                    <flux:navlist.item icon="shield-check" :href="route('admin.roles')" :current="request()->routeIs('admin.roles')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
+                    <flux:navlist.item icon="key" :href="route('admin.permissions')" :current="request()->routeIs('admin.permissions')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
+                    <flux:navlist.item icon="cog" :href="route('admin.settings')" :current="request()->routeIs('admin.settings')" wire:navigate>{{ __('System Settings') }}</flux:navlist.item>
+                    <flux:navlist.item icon="document-text" :href="route('admin.logs')" :current="request()->routeIs('admin.logs')" wire:navigate>{{ __('System Logs') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @endif
             </flux:navlist>

@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', \App\Livewire\Profile::class)->name('profile');
 
     // Routes for both landlords and admins
-    Route::middleware(['role:landlord|admin'])->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':landlord|admin'])->group(function () {
         // Properties
         Route::get('/properties', PropertyList::class)->name('properties.index');
         Route::get('/properties/create', PropertyCreate::class)->name('properties.create');
@@ -83,30 +83,39 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Tenant-only routes
-    Route::middleware(['role:tenant'])->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':tenant'])->group(function () {
         // Tenants can only view their invoices
         Route::get('/tenant/invoices', [InvoiceList::class, 'tenantInvoices'])->name('tenant.invoices');
     });
     
     // Admin-only routes
-    Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        // Roles - Uncomment when implemented
-        /*
-        Route::get('/roles', RoleList::class)->name('roles.index');
-        Route::get('/roles/create', RoleCreate::class)->name('roles.create');
-        Route::get('/roles/{role}/edit', RoleEdit::class)->name('roles.edit');
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':admin'])->prefix('admin')->group(function () {
+        // Admin Dashboard
+        Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)
+            ->middleware([\App\Http\Middleware\CheckPermission::class.':view_admin_dashboard'])
+            ->name('admin.dashboard');
         
-        // Permissions
-        Route::get('/permissions', PermissionList::class)->name('permissions.index');
-        Route::get('/permissions/create', PermissionCreate::class)->name('permissions.create');
-        Route::get('/permissions/{permission}/edit', PermissionEdit::class)->name('permissions.edit');
+        // User Management
+        Route::get('/users', \App\Livewire\Admin\UserManagement::class)->name('admin.users');
         
-        // Permission Groups
-        Route::get('/permission-groups', PermissionGroupList::class)->name('permission-groups.index');
-        Route::get('/permission-groups/create', PermissionGroupCreate::class)->name('permission-groups.create');
-        Route::get('/permission-groups/{group}/edit', PermissionGroupEdit::class)->name('permission-groups.edit');
-        */
+        // Role Management
+        Route::get('/roles', \App\Livewire\Admin\RoleManagement::class)->name('admin.roles');
+        
+        // Permission Management
+        Route::get('/permissions', \App\Livewire\Admin\PermissionManagement::class)->name('admin.permissions');
+        
+        // System Settings Management
+        Route::get('/settings', \App\Livewire\Admin\SystemSettings::class)
+            ->middleware([\App\Http\Middleware\CheckPermission::class.':manage_system_settings'])
+            ->name('admin.settings');
+        
+        // System Logs
+        Route::get('/logs', \App\Livewire\Admin\SystemLogs::class)
+            ->middleware([\App\Http\Middleware\CheckPermission::class.':view_system_logs'])
+            ->name('admin.logs');
     });
+
+    Route::get('/chat', \App\Livewire\Chat\ChatInterface::class)->name('chat');
 });
 
 // Test and diagnostic routes
@@ -127,7 +136,7 @@ Route::get('/test-role', function () {
 // Test route for admin role
 Route::get('/test-admin', function () {
     return response()->json(['success' => true, 'message' => 'You are an admin!']);
-})->middleware(['auth', 'role:admin']);
+})->middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin']);
 
 // Test route to create admin user
 Route::get('/create-admin', function () {

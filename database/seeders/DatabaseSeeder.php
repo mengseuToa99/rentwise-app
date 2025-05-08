@@ -37,5 +37,14 @@ class DatabaseSeeder extends Seeder
         if ($adminRole) {
             $admin->roles()->syncWithoutDetaching([$adminRole->role_id]);
         }
+        
+        // Run additional seeders in dependency order
+        $this->call([
+            SystemSettingSeeder::class,  // No dependencies
+            PermissionGroupSeeder::class, // Should run before PermissionSeeder
+            PermissionSeeder::class,     // Depends on PermissionGroups
+            LogSeeder::class,            // Depends on Users with roles
+            PropertySeeder::class,       // Depends on Users with roles
+        ]);
     }
 }
