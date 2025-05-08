@@ -28,7 +28,7 @@ class Property extends Model
 
     public function landlord()
     {
-        return $this->belongsTo(UserDetail::class, 'landlord_id', 'user_id');
+        return $this->belongsTo(User::class, 'landlord_id', 'user_id');
     }
 
     public function units()

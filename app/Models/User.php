@@ -95,4 +95,28 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
+    
+    /**
+     * Get the user's verification
+     */
+    public function verification()
+    {
+        return $this->hasOne(UserVerification::class, 'user_id');
+    }
+
+    /**
+     * Get the user's sessions
+     */
+    public function sessions()
+    {
+        return $this->hasMany(UserSession::class, 'user_id');
+    }
+
+    /**
+     * Check if user has permission
+     */
+    public function hasPermission($permission)
+    {
+        return app(AccessPermission::class)->hasPermission($this, $permission);
+    }
 }

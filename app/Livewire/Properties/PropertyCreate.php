@@ -4,7 +4,7 @@ namespace App\Livewire\Properties;
 
 use Livewire\Component;
 use App\Models\Property;
-use App\Models\UserDetail;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
 
@@ -41,15 +41,12 @@ class PropertyCreate extends Component
         $this->validate();
         
         try {
-            // Get the authenticated user's ID
-            $authUser = Auth::user();
+            // Get the authenticated user
+            $user = Auth::user();
             
-            // Find the associated user detail
-            $userDetail = UserDetail::where('email', $authUser->email)->first();
-            
-            if (!$userDetail) {
-                session()->flash('error', 'Your user profile is incomplete. Please complete your profile first.');
-                return;
+            if (!$user) {
+                session()->flash('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login');
             }
             
             $property = new Property();
@@ -57,7 +54,7 @@ class PropertyCreate extends Component
             $property->address = $this->address;
             $property->description = $this->description;
             $property->location = $this->location;
-            $property->landlord_id = $userDetail->user_id;
+            $property->landlord_id = $user->user_id;
             $property->status = 'active';
             $property->total_floors = $this->totalFloors;
             $property->total_rooms = $this->totalRooms;
@@ -73,6 +70,13 @@ class PropertyCreate extends Component
     
     public function render()
     {
+        $authUser = Auth::user();
+        
+        if (!$authUser) {
+            session()->flash('error', 'Authentication failed. Please log in again.');
+            return redirect()->route('login');
+        }
+        
         return view('livewire.properties.property-create');
     }
 } 

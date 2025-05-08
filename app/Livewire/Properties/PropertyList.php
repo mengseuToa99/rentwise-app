@@ -5,7 +5,7 @@ namespace App\Livewire\Properties;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Property;
-use App\Models\UserDetail;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class PropertyList extends Component
@@ -24,22 +24,19 @@ class PropertyList extends Component
     
     public function render()
     {
-        $authUser = Auth::user();
-        $userDetail = UserDetail::where('email', $authUser->email)->first();
+        $user = Auth::user();
         
-        if (!$userDetail) {
-            session()->flash('error', 'User profile not found');
-            return view('livewire.properties.property-list', [
-                'properties' => collect([])
-            ]);
+        if (!$user) {
+            session()->flash('error', 'Authentication failed. Please log in again.');
+            return redirect()->route('login');
         }
         
         $query = Property::query();
         
         // If not admin, show only the landlord's properties
-        $userRoles = $userDetail->roles ?? collect([]);
+        $userRoles = $user->roles ?? collect([]);
         if (!$userRoles->contains('role_name', 'admin')) {
-            $query->where('landlord_id', $userDetail->user_id);
+            $query->where('landlord_id', $user->user_id);
         }
         
         // Apply search
@@ -73,16 +70,15 @@ class PropertyList extends Component
         }
         
         // Verify ownership
-        $authUser = Auth::user();
-        $userDetail = UserDetail::where('email', $authUser->email)->first();
+        $user = Auth::user();
         
-        if (!$userDetail) {
-            session()->flash('error', 'User profile not found');
-            return;
+        if (!$user) {
+            session()->flash('error', 'Authentication failed. Please log in again.');
+            return redirect()->route('login');
         }
         
-        $userRoles = $userDetail->roles ?? collect([]);
-        if (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $userDetail->user_id) {
+        $userRoles = $user->roles ?? collect([]);
+        if (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $user->user_id) {
             session()->flash('error', 'You are not authorized to delete this property');
             return;
         }

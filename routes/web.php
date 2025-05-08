@@ -52,49 +52,45 @@ Route::post('/logout', function () {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-    // Dashboard
+    // Dashboard - accessible to all authenticated users
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     
-    // Profile
+    // Profile - accessible to all authenticated users
     Route::get('/profile', \App\Livewire\Profile::class)->name('profile');
+
+    // Routes for both landlords and admins
+    Route::middleware(['role:landlord|admin'])->group(function () {
+        // Properties
+        Route::get('/properties', PropertyList::class)->name('properties.index');
+        Route::get('/properties/create', PropertyCreate::class)->name('properties.create');
+        Route::get('/properties/{property}/edit', PropertyEdit::class)->name('properties.edit');
+        Route::get('/properties/{property}', PropertyDetail::class)->name('properties.show');
+        
+        // Units
+        Route::get('/units', UnitList::class)->name('units.index');
+        Route::get('/units/create', UnitCreate::class)->name('units.create');
+        Route::get('/units/{unit}/edit', UnitEdit::class)->name('units.edit');
+        
+        // Rentals
+        Route::get('/rentals', RentalList::class)->name('rentals.index');
+        Route::get('/rentals/create', RentalForm::class)->name('rentals.create');
+        Route::get('/rentals/{rentalId}/edit', RentalForm::class)->name('rentals.edit');
+        
+        // Invoices management
+        Route::get('/invoices', InvoiceList::class)->name('invoices.index');
+        Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
+        Route::get('/invoices/{invoiceId}/edit', InvoiceForm::class)->name('invoices.edit');
+    });
     
-    // Properties
-    Route::get('/properties', PropertyList::class)->name('properties.index');
-    Route::get('/properties/create', PropertyCreate::class)->name('properties.create');
-    Route::get('/properties/{property}/edit', PropertyEdit::class)->name('properties.edit');
-    Route::get('/properties/{property}', PropertyDetail::class)->name('properties.show');
+    // Tenant-only routes
+    Route::middleware(['role:tenant'])->group(function () {
+        // Tenants can only view their invoices
+        Route::get('/tenant/invoices', [InvoiceList::class, 'tenantInvoices'])->name('tenant.invoices');
+    });
     
-    // Units
-    Route::get('/units', UnitList::class)->name('units.index');
-    Route::get('/units/create', UnitCreate::class)->name('units.create');
-    Route::get('/units/{unit}/edit', UnitEdit::class)->name('units.edit');
-    
-    // Rentals
-    Route::get('/rentals', RentalList::class)->name('rentals.index');
-    Route::get('/rentals/create', RentalForm::class)->name('rentals.create');
-    Route::get('/rentals/{rentalId}/edit', RentalForm::class)->name('rentals.edit');
-    
-    // Invoices
-    Route::get('/invoices', InvoiceList::class)->name('invoices.index');
-    Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
-    Route::get('/invoices/{invoiceId}/edit', InvoiceForm::class)->name('invoices.edit');
-    
-    // Users - Commented out until implemented
-    /*
-    Route::get('/users', UserList::class)->name('users.index');
-    Route::get('/users/create', UserCreate::class)->name('users.create');
-    Route::get('/users/{user}/edit', UserEdit::class)->name('users.edit');
-    */
-    
-    // Messages - Commented out until implemented
-    /*
-    Route::get('/messages', MessageList::class)->name('messages.index');
-    Route::get('/messages/{user}', MessageDetail::class)->name('messages.show');
-    */
-    
-    // Admin routes
+    // Admin-only routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        // Roles - Commented out until implemented
+        // Roles - Uncomment when implemented
         /*
         Route::get('/roles', RoleList::class)->name('roles.index');
         Route::get('/roles/create', RoleCreate::class)->name('roles.create');
@@ -113,18 +109,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Utility routes for landlords
-Route::middleware(['auth', 'role:landlord'])->group(function () {
-    Route::get('/landlord/properties', [PropertyList::class, 'landlordProperties'])->name('landlord.properties');
-    Route::get('/landlord/invoices', [InvoiceList::class, 'landlordInvoices'])->name('landlord.invoices');
-});
-
-// Utility routes for tenants
-Route::middleware(['auth', 'role:tenant'])->group(function () {
-    Route::get('/tenant/invoices', [InvoiceList::class, 'tenantInvoices'])->name('tenant.invoices');
-});
-
-// Test route to check roles
+// Test and diagnostic routes
 Route::get('/test-role', function () {
     if (Auth::check()) {
         $user = Auth::user();
@@ -148,7 +133,7 @@ Route::get('/test-admin', function () {
 Route::get('/create-admin', function () {
     try {
         // Create or get admin user
-        $user = \App\Models\UserDetail::firstOrCreate(
+        $user = \App\Models\User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'username' => 'admin',
@@ -193,6 +178,104 @@ Route::get('/create-admin', function () {
     }
 });
 
+// Create landlord test user
+Route::get('/create-landlord', function () {
+    try {
+        // Create or get landlord user
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'landlord@example.com'],
+            [
+                'username' => 'landlord',
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('password'),
+                'phone_number' => '123-456-7891',
+                'first_name' => 'Landlord',
+                'last_name' => 'User',
+                'status' => 'active',
+            ]
+        );
+        
+        // Get landlord role
+        $landlordRole = \App\Models\Role::where('role_name', 'landlord')->first();
+        
+        if (!$landlordRole) {
+            // Create landlord role if it doesn't exist
+            $landlordRole = \App\Models\Role::create([
+                'role_name' => 'landlord',
+                'description' => 'Property owner with management access',
+            ]);
+        }
+        
+        // Create user role relationship in the pivot table directly
+        \Illuminate\Support\Facades\DB::table('user_roles')->insert([
+            'user_id' => $user->user_id,
+            'role_id' => $landlordRole->role_id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Landlord user created',
+            'user' => $user->toArray(),
+            'role' => $landlordRole->toArray()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Create tenant test user
+Route::get('/create-tenant', function () {
+    try {
+        // Create or get tenant user
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'tenant@example.com'],
+            [
+                'username' => 'tenant',
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('password'),
+                'phone_number' => '123-456-7892',
+                'first_name' => 'Tenant',
+                'last_name' => 'User',
+                'status' => 'active',
+            ]
+        );
+        
+        // Get tenant role
+        $tenantRole = \App\Models\Role::where('role_name', 'tenant')->first();
+        
+        if (!$tenantRole) {
+            // Create tenant role if it doesn't exist
+            $tenantRole = \App\Models\Role::create([
+                'role_name' => 'tenant',
+                'description' => 'Property renter with limited access',
+            ]);
+        }
+        
+        // Create user role relationship in the pivot table directly
+        \Illuminate\Support\Facades\DB::table('user_roles')->insert([
+            'user_id' => $user->user_id,
+            'role_id' => $tenantRole->role_id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Tenant user created',
+            'user' => $user->toArray(),
+            'role' => $tenantRole->toArray()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
 // Diagnostic route
 Route::get('/diagnostic', function () {
     $output = [];
@@ -206,7 +289,7 @@ Route::get('/diagnostic', function () {
     }
     
     // 2. Check if required tables exist
-    $tables = ['user_details', 'roles', 'user_roles'];
+    $tables = ['users', 'roles', 'user_roles'];
     foreach ($tables as $table) {
         $exists = Schema::hasTable($table);
         $output['tables'][$table] = ['exists' => $exists];
@@ -222,89 +305,52 @@ Route::get('/diagnostic', function () {
         }
     }
     
-    // 3. Create a test user with role
+    // 3. Check users and their roles
     try {
-        // First, make sure we have the admin role
-        $adminRole = \App\Models\Role::firstOrCreate(
-            ['role_name' => 'admin'],
-            ['description' => 'Administrator with full system access']
-        );
+        $output['users'] = [];
         
-        // Create the admin user
-        $adminUser = \App\Models\UserDetail::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'username' => 'admin',
-                'password_hash' => \Illuminate\Support\Facades\Hash::make('password'),
-                'phone_number' => '123-456-7890',
-                'first_name' => 'Admin',
-                'last_name' => 'User',
-                'status' => 'active',
-            ]
-        );
-        
-        // First check if the user already has the role
-        $hasRole = DB::table('user_roles')
-            ->where('user_id', $adminUser->user_id)
-            ->where('role_id', $adminRole->role_id)
-            ->exists();
-            
-        if (!$hasRole) {
-            // Directly create the user_role entry
-            DB::table('user_roles')->insert([
+        // Check admin user
+        $adminUser = \App\Models\User::where('email', 'admin@example.com')->first();
+        if ($adminUser) {
+            $output['users']['admin'] = [
+                'exists' => true,
                 'user_id' => $adminUser->user_id,
-                'role_id' => $adminRole->role_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-        
-        $output['user_creation'] = ['status' => 'Success', 'user' => $adminUser, 'role' => $adminRole, 'hasRole' => $hasRole];
-        
-        // Test if the role relationship works
-        $user = \App\Models\UserDetail::with('roles')->find($adminUser->user_id);
-        $output['roles_test'] = [
-            'roles_null' => $user->roles === null,
-            'roles_empty' => $user->roles->isEmpty(),
-            'roles_count' => $user->roles->count(),
-            'roles' => $user->roles->toArray()
-        ];
-        
-        // Test the roles->contains method
-        if ($user->roles !== null) {
-            $output['contains_test'] = [
-                'contains_admin' => $user->roles->contains('role_name', 'admin'),
-                'contains_landlord' => $user->roles->contains('role_name', 'landlord')
+                'roles' => $adminUser->roles()->pluck('role_name')->toArray()
             ];
+        } else {
+            $output['users']['admin'] = ['exists' => false];
         }
+        
+        // Check landlord user
+        $landlordUser = \App\Models\User::where('email', 'landlord@example.com')->first();
+        if ($landlordUser) {
+            $output['users']['landlord'] = [
+                'exists' => true,
+                'user_id' => $landlordUser->user_id,
+                'roles' => $landlordUser->roles()->pluck('role_name')->toArray()
+            ];
+        } else {
+            $output['users']['landlord'] = ['exists' => false];
+        }
+        
+        // Check tenant user
+        $tenantUser = \App\Models\User::where('email', 'tenant@example.com')->first();
+        if ($tenantUser) {
+            $output['users']['tenant'] = [
+                'exists' => true,
+                'user_id' => $tenantUser->user_id,
+                'roles' => $tenantUser->roles()->pluck('role_name')->toArray()
+            ];
+        } else {
+            $output['users']['tenant'] = ['exists' => false];
+        }
+        
+        // Check available roles
+        $output['roles'] = \App\Models\Role::all(['role_id', 'role_name', 'description'])->toArray();
         
     } catch (\Exception $e) {
-        $output['user_creation'] = ['status' => 'Error', 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()];
+        $output['user_check_error'] = ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()];
     }
     
     return response()->json($output);
-});
-
-// Debug routes
-Route::get('/debug/user-roles', function() {
-    $authUser = Auth::user();
-    $roles = [];
-    $userDetail = null;
-    
-    if ($authUser) {
-        // Try to find the corresponding user detail
-        $userDetail = \App\Models\UserDetail::where('email', $authUser->email)->first();
-        
-        if ($userDetail) {
-            $roles = $userDetail->roles()->get();
-        }
-    }
-    
-    return [
-        'auth_user' => $authUser,
-        'user_detail' => $userDetail,
-        'roles' => $roles,
-        'all_roles' => \App\Models\Role::all(),
-        'user_roles_count' => \App\Models\UserRole::count()
-    ];
 });
