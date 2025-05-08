@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('payment_method', ['cash', 'credit_card', 'bank_transfer']);
             $table->timestamps();
     
-            $table->foreign('invoice_id')->references('invoice_id')->on('invoice_detail')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('invoice_id')->on('invoice_details')->onDelete('cascade');
         });
     }
 

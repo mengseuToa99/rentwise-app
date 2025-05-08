@@ -20,9 +20,10 @@ return new class extends Migration
             $table->integer('total_floors');
             $table->integer('total_rooms');
             $table->text('description')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
     
-            $table->foreign('landlord_id')->references('user_id')->on('user_detail')->onDelete('cascade');
+            $table->foreign('landlord_id')->references('user_id')->on('user_details')->onDelete('cascade');
         });
     }
 

@@ -23,22 +23,38 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+        
         return [
-            'name' => fake()->name(),
+            'username' => strtolower($firstName . '.' . $lastName),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password_hash' => static::$password ??= Hash::make('password'),
+            'phone_number' => fake()->phoneNumber(),
+            'status' => 'active',
             'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indicate that the model should have tenant role.
      */
-    public function unverified(): static
+    public function tenant(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->afterCreating(function ($user) {
+            $user->roles()->attach(1); // Assuming tenant role has ID 1
+        });
+    }
+    
+    /**
+     * Indicate that the model should have landlord role.
+     */
+    public function landlord(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $user->roles()->attach(2); // Assuming landlord role has ID 2
+        });
     }
 }

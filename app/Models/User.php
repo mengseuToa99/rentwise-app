@@ -14,14 +14,29 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'user_id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'password_hash',
         'email',
-        'password',
+        'phone_number',
+        'profile_picture',
+        'id_card_picture',
+        'status',
+        'last_login',
+        'failed_login_attempts',
+        'first_name',
+        'last_name',
     ];
 
     /**
@@ -30,7 +45,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
@@ -42,8 +57,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'last_login' => 'datetime',
         ];
     }
 
@@ -52,9 +66,33 @@ class User extends Authenticatable
      */
     public function initials(): string
     {
-        return Str::of($this->name)
+        return Str::of($this->first_name . ' ' . $this->last_name)
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the name attribute (for backward compatibility)
+     */
+    public function getNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Get the password for the user (for Laravel authentication)
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+    
+    /**
+     * Get the user's roles
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
 }

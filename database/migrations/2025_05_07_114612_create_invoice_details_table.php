@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('payment_status', ['pending', 'paid', 'overdue']);
             $table->timestamps();
     
-            $table->foreign('rental_id')->references('rental_id')->on('rental_detail')->onDelete('cascade');
+            $table->foreign('rental_id')->references('rental_id')->on('rental_details')->onDelete('cascade');
         });
     }
 

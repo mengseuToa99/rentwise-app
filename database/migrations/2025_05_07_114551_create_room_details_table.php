@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('rent_amount', 10, 2);
             $table->timestamps();
     
-            $table->foreign('property_id')->references('property_id')->on('property_detail')->onDelete('cascade');
+            $table->foreign('property_id')->references('property_id')->on('property_details')->onDelete('cascade');
         });
     }
 

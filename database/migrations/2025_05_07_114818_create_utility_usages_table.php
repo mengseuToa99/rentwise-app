@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('amount_used', 10, 2);
             $table->timestamps();
     
-            $table->foreign('room_id')->references('room_id')->on('room_detail')->onDelete('cascade');
+            $table->foreign('room_id')->references('room_id')->on('room_details')->onDelete('cascade');
             $table->foreign('utility_id')->references('utility_id')->on('utilities')->onDelete('cascade');
         });
     }

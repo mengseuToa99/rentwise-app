@@ -3,22 +3,42 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Role;
 
 class RoleSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
         $roles = [
-            ['role_id' => 1, 'role_name' => 'admin', 'description' => 'Administrator'],
-            ['role_id' => 2, 'role_name' => 'landlord', 'description' => 'Property Owner'],
-            ['role_id' => 3, 'role_name' => 'tenant', 'description' => 'Room Renter'],
+            [
+                'role_name' => 'admin',
+                'description' => 'Administrator with full system access',
+                'parent_role_id' => null
+            ],
+            [
+                'role_name' => 'landlord',
+                'description' => 'Property owner who can manage their own properties',
+                'parent_role_id' => null
+            ],
+            [
+                'role_name' => 'tenant',
+                'description' => 'Property renter with limited access',
+                'parent_role_id' => null
+            ],
+            [
+                'role_name' => 'guest',
+                'description' => 'Visitor with very limited access',
+                'parent_role_id' => null
+            ]
         ];
 
-        foreach ($roles as $role) {
-            DB::table('roles')->updateOrInsert(
-                ['role_id' => $role['role_id']],
-                $role
+        foreach ($roles as $roleData) {
+            Role::firstOrCreate(
+                ['role_name' => $roleData['role_name']],
+                $roleData
             );
         }
     }

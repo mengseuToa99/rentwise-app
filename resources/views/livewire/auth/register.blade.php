@@ -4,6 +4,12 @@
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
+    @if(session('error') || $error_message)
+    <div class="p-4 text-red-600 border border-red-400 bg-red-100 rounded-md">
+        {{ session('error') ?: $error_message }}
+    </div>
+    @endif
+
     <form wire:submit="register" class="flex flex-col gap-6">
         <!-- Name -->
         <flux:input
@@ -26,6 +32,21 @@
             placeholder="email@example.com"
         />
 
+        <!-- Role Selection -->
+        <div>
+            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Register as') }}</label>
+            <select 
+                wire:model="role" 
+                id="role" 
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+            >
+                <option value="tenant">{{ __('Tenant') }}</option>
+                <option value="landlord">{{ __('Landlord') }}</option>
+                <option value="admin">{{ __('Administrator') }}</option>
+            </select>
+        </div>
+
         <!-- Password -->
         <flux:input
             wire:model="password"
@@ -47,6 +68,8 @@
             :placeholder="__('Confirm password')"
             viewable
         />
+
+
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">

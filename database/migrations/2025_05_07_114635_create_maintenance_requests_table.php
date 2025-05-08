@@ -20,8 +20,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'approved', 'rejected', 'completed']);
             $table->timestamps();
     
-            $table->foreign('tenant_id')->references('user_id')->on('user_detail')->onDelete('cascade');
-            $table->foreign('room_id')->references('room_id')->on('room_detail')->onDelete('cascade');
+            $table->foreign('tenant_id')->references('user_id')->on('user_details')->onDelete('cascade');
+            $table->foreign('room_id')->references('room_id')->on('room_details')->onDelete('cascade');
         });
     }
 
