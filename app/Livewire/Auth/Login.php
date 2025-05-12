@@ -55,11 +55,13 @@ class Login extends Component
                 return;
             }
             
+            // Safely log user roles if they exist
+            $roles = $user->roles ? $user->roles->pluck('role_name') : collect(['none']);
             Log::debug('Login attempt', [
                 'user_id' => $user->user_id,
                 'email' => $user->email,
                 'has_roles' => $user->roles !== null,
-                'roles' => $user->roles ? $user->roles->pluck('role_name') : 'none'
+                'roles' => $roles
             ]);
             
             // Direct password verification
@@ -72,10 +74,14 @@ class Login extends Component
                 // Manual authentication
                 Auth::login($user, $this->remember);
                 
+                // Safely log authenticated user info
+                $authUser = Auth::user();
+                $authRoles = $authUser && $authUser->roles ? $authUser->roles->pluck('role_name') : collect(['none']);
+                
                 Log::debug('User authenticated successfully', [
                     'user_id' => Auth::id(),
-                    'has_roles' => Auth::user()->roles !== null,
-                    'roles' => Auth::user()->roles ? Auth::user()->roles->pluck('role_name') : 'none'
+                    'has_roles' => $authUser && $authUser->roles !== null,
+                    'roles' => $authRoles
                 ]);
                 
                 // Redirect to dashboard
