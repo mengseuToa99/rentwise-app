@@ -16,6 +16,9 @@ use App\Livewire\Rentals\RentalList;
 use App\Livewire\Rentals\RentalForm;
 use App\Livewire\Invoices\InvoiceList;
 use App\Livewire\Invoices\InvoiceForm;
+use App\Livewire\Settings\Profile;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Appearance;
 // Commented out until implemented
 /*
 use App\Livewire\Users\UserList;
@@ -57,6 +60,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Profile - accessible to all authenticated users
     Route::get('/profile', \App\Livewire\Profile::class)->name('profile');
+    
+    // Settings routes
+    Route::get('/settings/profile', Profile::class)->name('settings.profile');
+    Route::get('/settings/password', Password::class)->name('settings.password');
+    Route::get('/settings/appearance', Appearance::class)->name('settings.appearance');
 
     // Routes for both landlords and admins
     Route::middleware([\App\Http\Middleware\CheckRole::class.':landlord|admin'])->group(function () {

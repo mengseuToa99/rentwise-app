@@ -1,6 +1,48 @@
-<div class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-    <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-</div>
-<div class="ms-1 grid flex-1 text-start text-sm">
-    <span class="mb-0.5 truncate leading-none font-semibold">Laravel Starter Kit</span>
+<div class="flex items-center">
+    <flux:dropdown position="bottom" align="start">
+        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <div class="flex aspect-square size-8 items-center justify-center rounded-md bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                {{ auth()->user() && method_exists(auth()->user(), 'initials') ? auth()->user()->initials() : 'R' }}
+            </div>
+            <div class="ms-1 grid flex-1 text-start text-sm">
+                <span class="mb-0.5 truncate leading-none font-semibold">{{ auth()->user() ? auth()->user()->name : 'Rentwise' }}</span>
+            </div>
+        </div>
+
+        <flux:menu class="w-[220px]">
+            <flux:menu.radio.group>
+                <div class="p-0 text-sm font-normal">
+                    <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                        <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-md">
+                            <span
+                                class="flex h-full w-full items-center justify-center rounded-md bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
+                            >
+                                {{ auth()->user() && method_exists(auth()->user(), 'initials') ? auth()->user()->initials() : 'U' }}
+                            </span>
+                        </span>
+
+                        <div class="grid flex-1 text-start text-sm leading-tight">
+                            <span class="truncate font-semibold">{{ auth()->user() ? auth()->user()->name : 'User' }}</span>
+                            <span class="truncate text-xs">{{ auth()->user() ? auth()->user()->email : 'user@example.com' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </flux:menu.radio.group>
+
+            <flux:menu.separator />
+
+            <flux:menu.radio.group>
+                <flux:menu.item :href="route('profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+            </flux:menu.radio.group>
+
+            <flux:menu.separator />
+
+            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                    {{ __('Log Out') }}
+                </flux:menu.item>
+            </form>
+        </flux:menu>
+    </flux:dropdown>
 </div>
