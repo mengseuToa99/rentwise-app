@@ -37,9 +37,10 @@
                     class="absolute top-16 right-2 z-50 w-56 rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
                 >
                     <!-- Settings Navigation -->
-                    <div x-show="!['profile', 'password', 'appearance'].includes(activeModal)" class="p-2">
-                        <button 
-                            @click="activeModal = 'profile'" 
+                    <div x-show="!['password', 'appearance'].includes(activeModal)" class="p-2">
+                        <a 
+                            href="{{ route('profile') }}" 
+                            wire:navigate
                             class="flex w-full items-center rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +48,7 @@
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             {{ __('Profile') }}
-                        </button>
+                        </a>
                         
                         <button 
                             @click="activeModal = 'password'" 
@@ -71,30 +72,7 @@
                         </button>
                     </div>
                     
-                    <!-- Profile Content -->
-                    <div x-show="activeModal === 'profile'">
-                        <div class="flex items-center justify-between border-b border-zinc-200 p-3 dark:border-zinc-700">
-                            <h3 class="text-sm font-medium">{{ __('Profile') }}</h3>
-                            <button @click="activeModal = 'settings'" class="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="p-3">
-                            <form class="space-y-3">
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-300" for="name">{{ __('Name') }}</label>
-                                    <input type="text" id="name" class="w-full rounded-md border border-zinc-300 p-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700" value="{{ auth()->user() ? auth()->user()->name : 'User' }}">
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-300" for="email">{{ __('Email') }}</label>
-                                    <input type="email" id="email" class="w-full rounded-md border border-zinc-300 p-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700" value="{{ auth()->user() ? auth()->user()->email : 'user@example.com' }}">
-                                </div>
-                                <button type="submit" class="w-full rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">{{ __('Save') }}</button>
-                            </form>
-                        </div>
-                    </div>
+                    <!-- Profile content removed - using route instead -->
                     
                     <!-- Password Content -->
                     <div x-show="activeModal === 'password'">
@@ -297,8 +275,9 @@
                 class="absolute top-14 right-2 z-50 w-56 rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
             >
                 <div class="p-2">
-                    <button 
-                        @click="mobileActiveModal = 'profile'" 
+                    <a 
+                        href="{{ route('profile') }}" 
+                        wire:navigate
                         class="flex w-full items-center rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -306,7 +285,7 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                         {{ __('Profile') }}
-                    </button>
+                    </a>
                     
                     <button 
                         @click="mobileActiveModal = 'password'" 
@@ -331,40 +310,7 @@
                 </div>
             </div>
             
-            <!-- Mobile Profile Modal -->
-            <div 
-                x-show="mobileActiveModal === 'profile'" 
-                @click.outside="mobileActiveModal = 'settings'"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95"
-                x-transition:enter-end="opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 scale-100"
-                x-transition:leave-end="opacity-0 scale-95"
-                class="absolute top-14 right-2 z-50 w-56 rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-            >
-                <div class="flex items-center justify-between border-b border-zinc-200 p-3 dark:border-zinc-700">
-                    <h3 class="text-sm font-medium">{{ __('Profile') }}</h3>
-                    <button @click="mobileActiveModal = 'settings'" class="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-3">
-                    <form class="space-y-3">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-300" for="mobile-name">{{ __('Name') }}</label>
-                            <input type="text" id="mobile-name" class="w-full rounded-md border border-zinc-300 p-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700" value="{{ auth()->user() ? auth()->user()->name : 'User' }}">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-zinc-700 dark:text-zinc-300" for="mobile-email">{{ __('Email') }}</label>
-                            <input type="email" id="mobile-email" class="w-full rounded-md border border-zinc-300 p-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700" value="{{ auth()->user() ? auth()->user()->email : 'user@example.com' }}">
-                        </div>
-                        <button type="submit" class="w-full rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">{{ __('Save') }}</button>
-                    </form>
-                </div>
-            </div>
+            <!-- Mobile Profile Modal removed - using route instead -->
             
             <!-- Mobile Password Modal -->
             <div 
