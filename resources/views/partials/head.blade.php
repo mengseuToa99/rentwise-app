@@ -3,6 +3,28 @@
 
 <title>{{ $title ?? config('app.name') }}</title>
 
+<!-- Prevent flash of wrong theme -->
+<script>
+    // Immediately set theme to prevent flashing
+    (function() {
+        function applyTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        // Apply theme now
+        applyTheme();
+        
+        // Re-apply theme on each page navigation
+        document.addEventListener('livewire:navigated', applyTheme);
+        document.addEventListener('turbolinks:load', applyTheme);
+        window.addEventListener('load', applyTheme);
+    })();
+</script>
+
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">

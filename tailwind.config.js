@@ -7,6 +7,8 @@ export default {
         './app/Livewire/**/*.php',
     ],
     
+    darkMode: 'class',
+    
     theme: {
         extend: {
             fontFamily: {

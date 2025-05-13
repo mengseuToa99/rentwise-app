@@ -1,0 +1,1 @@
+<!-- Theme is now handled by the JS file in resources/js/theme.js --> 
