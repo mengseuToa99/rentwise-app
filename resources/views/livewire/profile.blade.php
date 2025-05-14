@@ -1,4 +1,4 @@
-<div class="bg-gray-50 dark:bg-zinc-900 min-h-screen py-8">
+<div class="bg-gray-50 dark:bg-black min-h-screen py-8">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Profile Card -->
         <div class="bg-transparent backdrop-blur-none border border-gray-300 dark:border-zinc-700 rounded-lg shadow-none overflow-hidden">
