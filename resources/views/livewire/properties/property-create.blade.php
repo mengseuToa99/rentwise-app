@@ -1,60 +1,61 @@
-<div>
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
+<div class="min-h-screen bg-gray-50 dark:bg-black">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 py-8">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900">Add New Property</h1>
-            <a href="{{ route('properties.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Add New Property</h1>
+            <a href="{{ route('properties.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 dark:border-black rounded-md font-medium text-sm text-black dark:text-black shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 Back to Properties
             </a>
         </div>
         
         @if (session('error'))
-            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+            <div class="p-3 text-sm text-red-600 bg-red-100/40 dark:bg-red-900/20 dark:text-red-400 rounded-md mb-4">
                 {{ session('error') }}
             </div>
         @endif
         
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
-                <form wire:submit.prevent="create" class="space-y-6">
-                    <div>
-                        <label for="property_name" class="block text-sm font-medium text-gray-700">Property Name</label>
-                        <input wire:model="property_name" type="text" id="property_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @error('property_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+        <div class="bg-gray-50 dark:bg-zinc-900 overflow-hidden rounded-lg border border-gray-300 dark:border-black">
+            <div class="p-6">
+                <form wire:submit.prevent="create" class="flex flex-col gap-5">
+                    <div class="grid gap-1.5">
+                        <label for="property_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Name</label>
+                        <input wire:model="property_name" type="text" id="property_name" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                        @error('property_name') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
-                    <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                        <textarea wire:model="address" id="address" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
-                        @error('address') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <div class="grid gap-1.5">
+                        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
+                        <textarea wire:model="address" id="address" rows="3" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
+                        @error('address') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea wire:model="description" id="description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
-                        @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <div class="grid gap-1.5">
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                        <textarea wire:model="description" id="description" rows="4" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
+                        @error('description') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
-                    <div>
-                        <label for="totalFloors" class="block text-sm font-medium text-gray-700">Total Floors</label>
-                        <input wire:model="totalFloors" type="number" min="1" id="totalFloors" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @error('totalFloors') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <div class="grid gap-1.5">
+                        <label for="totalFloors" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total Floors</label>
+                        <input wire:model="totalFloors" type="number" min="1" id="totalFloors" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                        @error('totalFloors') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
-                    <div>
-                        <label for="totalRooms" class="block text-sm font-medium text-gray-700">Total Rooms</label>
-                        <input wire:model="totalRooms" type="number" min="0" id="totalRooms" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @error('totalRooms') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <div class="grid gap-1.5">
+                        <label for="totalRooms" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total Rooms</label>
+                        <input wire:model="totalRooms" type="number" min="0" id="totalRooms" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                        @error('totalRooms') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
-                    <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
-                        <input wire:model="location" type="text" id="location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @error('location') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <div class="grid gap-1.5">
+                        <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+                        <input wire:model="location" type="text" id="location" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-black px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                        @error('location') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     
                     <div class="flex justify-end">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition">
-                            Create Property
+                        <button type="submit" class="inline-flex justify-center rounded-md bg-white border border-gray-300 dark:border-black px-5 py-2.5 text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2">
+                            <span wire:loading.remove wire:target="create">Create Property</span>
+                            <span wire:loading wire:target="create">Loading...</span>
                         </button>
                     </div>
                 </form>
