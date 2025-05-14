@@ -1,42 +1,42 @@
 <div class="grid h-screen lg:grid-cols-2 overflow-hidden">
-    <div class="flex flex-col gap-4 p-4 md:p-8 bg-slate-50 dark:bg-slate-900 relative">
+    <div class="flex flex-col gap-4 p-4 md:p-8 bg-gray-50 dark:bg-zinc-900 relative">
         <div class="flex justify-center gap-2 md:justify-start">
             <a href="#" class="flex items-center gap-2 font-medium">
-                <div class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500 text-white">
+                <div class="flex h-6 w-6 items-center justify-center rounded-md bg-gray-800 text-white dark:bg-white dark:text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
                         <path d="M4 5v14h6v-3a3 3 0 0 1 3-3 3 3 0 0 1 3 3v3h6V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2Z"></path>
                         <path d="M22 19v2H2v-2"></path>
                     </svg>
                 </div>
-                <span class="text-slate-800 dark:text-slate-200">Rentwise</span>
+                <span class="text-gray-800 dark:text-gray-200">Rentwise</span>
             </a>
         </div>
         <div class="flex flex-1 items-center justify-center">
             <div class="w-full max-w-xs">
                 <form wire:submit="login" class="flex flex-col gap-5">
                     <div class="flex flex-col items-center gap-1 text-center">
-                        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Login to your account</h1>
-                        <p class="text-balance text-sm text-slate-500 dark:text-slate-400">
+                        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Login to your account</h1>
+                        <p class="text-balance text-sm text-gray-500 dark:text-gray-400">
                             Enter your email below to login to your account
                         </p>
         </div>
 
             @if (session('error'))
-                        <div class="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-md">
+                        <div class="p-3 text-sm text-red-600 bg-red-100/40 dark:bg-red-900/20 dark:text-red-400 rounded-md">
                     {{ session('error') }}
                 </div>
             @endif
 
                     <div class="grid gap-4">
                         <div class="grid gap-1.5">
-                            <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                             <input 
                                 wire:model="email"
                                 id="email"
                                 type="email"
                                 placeholder="m@example.com"
                                 required
-                                class="block w-full rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                             >
                             @error('email') 
                                 <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
@@ -45,8 +45,8 @@
 
                         <div class="grid gap-1.5">
                             <div class="flex items-center">
-                                <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-                                <a href="#" class="ml-auto text-sm text-blue-500 dark:text-blue-400 underline-offset-4 hover:underline">
+                                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                                <a href="#" class="ml-auto text-sm text-gray-500 dark:text-gray-400 underline-offset-4 hover:underline">
                                     Forgot password?
                                 </a>
                     </div>
@@ -55,7 +55,7 @@
                                 id="password"
                                 type="password"
                                 required
-                                class="block w-full rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                             >
                             @error('password') 
                                 <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
@@ -67,21 +67,21 @@
                                 wire:model="remember"
                                 id="remember"
                                 type="checkbox"
-                                class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-blue-500 focus:ring-blue-500 dark:bg-slate-700"
+                                class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-gray-600 focus:ring-gray-500 dark:bg-zinc-700"
                             >
-                            <label for="remember" class="text-sm text-slate-600 dark:text-slate-400">Remember me</label>
+                            <label for="remember" class="text-sm text-gray-600 dark:text-gray-400">Remember me</label>
                 </div>
 
                         <button 
                             type="submit"
-                            class="inline-flex justify-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 w-full"
+                            class="inline-flex justify-center rounded-md bg-white border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 w-full"
                         >
                             <span wire:loading.remove wire:target="login">Login</span>
                             <span wire:loading wire:target="login">Loading...</span>
                         </button>
                         
-                        <div class="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-slate-200 dark:after:border-slate-700">
-                            <span class="relative z-10 bg-slate-50 dark:bg-slate-900 px-2 text-slate-500 dark:text-slate-400">
+                        <div class="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-gray-300 dark:after:border-zinc-700">
+                            <span class="relative z-10 bg-gray-50 dark:bg-zinc-900 px-2 text-gray-500 dark:text-gray-400">
                                 Or continue with
                             </span>
                 </div>
@@ -90,7 +90,7 @@
                             <!-- Google Login Button -->
                             <button
                                 type="button"
-                                class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 p-2 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg class="w-6 h-6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -103,7 +103,7 @@
                             <!-- Phone Number Login Button -->
                             <button
                                 type="button"
-                                class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 p-2 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -113,7 +113,7 @@
                             <!-- Telegram Login Button -->
                             <button
                                 type="button"
-                                class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 p-2 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="#26A5E4">
                                     <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.73 7.73L15.8 17.46c-.12.56-.73.7-1.12.36L11.13 15l-1.79 1.73c-.18.17-.42.18-.58.04l.18-2.49 4.47-4.05c.22-.2-.01-.29-.29-.11l-5.53 3.49-2.36-.78c-.52-.16-.56-.6.08-.88l9.31-3.58c.4-.15.77.18.68.6z"/>
@@ -123,7 +123,7 @@
                             <!-- Facebook Login Button -->
                             <button
                                 type="button"
-                                class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 p-2 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="#1877F2">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -132,9 +132,9 @@
                         </div>
                     </div>
                     
-                    <div class="text-center text-sm text-slate-600 dark:text-slate-400">
+                    <div class="text-center text-sm text-gray-600 dark:text-gray-400">
                         Don't have an account?
-                        <a href="{{ route('register') }}" class="text-blue-500 dark:text-blue-400 underline underline-offset-4">
+                        <a href="{{ route('register') }}" class="text-gray-800 dark:text-white font-medium hover:underline underline-offset-4">
                             Sign up
                         </a>
                 </div>
@@ -147,7 +147,7 @@
             type="button" 
             x-data="themeToggle"
             @click="toggle"
-            class="absolute bottom-3 left-3 p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all"
+            class="absolute bottom-3 left-3 p-1.5 rounded-full bg-transparent border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all"
         >
             <svg 
                 class="w-4 h-4"
@@ -166,7 +166,7 @@
             ></svg>
         </button>
     </div>
-    <div class="relative hidden bg-slate-100 dark:bg-slate-950 lg:block">
+    <div class="relative hidden bg-gray-100 dark:bg-zinc-950 lg:block">
         <img
             src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1470&auto=format&fit=crop"
             alt="Property Image"

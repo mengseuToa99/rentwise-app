@@ -1,16 +1,16 @@
 <div class="bg-gray-50 dark:bg-zinc-900 min-h-screen py-8">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Profile Card -->
-        <div class="bg-transparent backdrop-blur-none border border-gray-200 dark:border-zinc-700 rounded-lg shadow-none overflow-hidden">
+        <div class="bg-transparent backdrop-blur-none border border-gray-300 dark:border-zinc-700 rounded-lg shadow-none overflow-hidden">
             <!-- Notifications -->
             @if (session('success'))
-                <div class="p-3 bg-green-100/40 text-green-700 dark:bg-green-800/20 dark:text-green-100 text-sm">
+                <div class="p-3 text-sm text-red-600 bg-red-100/40 dark:bg-red-900/20 dark:text-red-400 rounded-md">
                     {{ session('success') }}
                 </div>
             @endif
             
             @if (session('error'))
-                <div class="p-3 bg-red-100/40 text-red-700 dark:bg-red-800/20 dark:text-red-100 text-sm">
+                <div class="p-3 text-sm text-red-600 bg-red-100/40 dark:bg-red-900/20 dark:text-red-400 rounded-md">
                     {{ session('error') }}
                 </div>
             @endif
@@ -49,11 +49,11 @@
                                 @forelse ($roles as $role)
                                     <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium 
                                         @if(strtolower($role) == 'landlord' || strtolower($role) == 'admin') 
-                                            bg-blue-100/60 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 border border-blue-200 dark:border-blue-800
+                                            bg-blue-100/60 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 border border-blue-300 dark:border-blue-800
                                         @elseif(strtolower($role) == 'tenant')
-                                            bg-green-100/60 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800
+                                            bg-green-100/60 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-300 dark:border-green-800
                                         @else
-                                            bg-gray-100/40 text-gray-800 dark:bg-zinc-800/40 dark:text-gray-200 border border-gray-200 dark:border-zinc-700
+                                            bg-gray-100/40 text-gray-800 dark:bg-zinc-800/40 dark:text-gray-200 border border-gray-300 dark:border-zinc-700
                                         @endif">
                                         {{ $role }}
                                     </span>
@@ -80,13 +80,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="firstName" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('First Name') }}</label>
-                                <input wire:model="firstName" type="text" id="firstName" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="firstName" type="text" id="firstName" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('firstName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label for="lastName" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Last Name') }}</label>
-                                <input wire:model="lastName" type="text" id="lastName" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="lastName" type="text" id="lastName" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('lastName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -94,20 +94,20 @@
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="username" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Username') }}</label>
-                                <input wire:model="username" type="text" id="username" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="username" type="text" id="username" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('username') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label for="phoneNumber" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Phone Number') }}</label>
-                                <input wire:model="phoneNumber" type="text" id="phoneNumber" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="phoneNumber" type="text" id="phoneNumber" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('phoneNumber') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
                         
                         <div class="mt-4">
                             <label for="email" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Email Address') }}</label>
-                            <input wire:model="email" type="email" id="email" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                            <input wire:model="email" type="email" id="email" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                             @error('email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -125,26 +125,26 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="currentPassword" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Current Password') }}</label>
-                                <input wire:model="currentPassword" type="password" id="currentPassword" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="currentPassword" type="password" id="currentPassword" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('currentPassword') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label for="password" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('New Password') }}</label>
-                                <input wire:model="password" type="password" id="password" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="password" type="password" id="password" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                                 @error('password') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             
                             <div class="md:col-span-2">
                                 <label for="password_confirmation" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Confirm New Password') }}</label>
-                                <input wire:model="password_confirmation" type="password" id="password_confirmation" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-200 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
+                                <input wire:model="password_confirmation" type="password" id="password_confirmation" class="block w-full px-4 py-3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 shadow-none focus:border-gray-500 focus:ring-gray-500 text-md dark:text-white">
                             </div>
                         </div>
                     </div>
                     
                     <!-- Save Button -->
                     <div class="flex justify-end">
-                        <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-white border border-gray-200 dark:border-zinc-700 rounded-md text-sm font-medium text-black dark:text-black hover:text-black dark:hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-transparent transition">
+                        <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-white border border-gray-300 dark:border-zinc-700 rounded-md text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 hover:text-black dark:hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-transparent transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                                 <polyline points="17 21 17 13 7 13 7 21"></polyline>
