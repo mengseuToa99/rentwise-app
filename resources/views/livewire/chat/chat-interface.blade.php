@@ -36,9 +36,17 @@
                             @endif
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="truncate font-medium">
-                                {{ $room->participants->where('user_id', '!=', auth()->id())->first()?->name }}
-                            </p>
+                            <div class="flex items-center gap-2">
+                                <p class="truncate font-medium">
+                                    {{ $room->participants->where('user_id', '!=', auth()->id())->first()?->name }}
+                                </p>
+                                @php
+                                    $isOnline = $onlineUsers->contains('id', $room->participants->where('user_id', '!=', auth()->id())->first()?->user_id ?? 0);
+                                @endphp
+                                @if($isOnline)
+                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                @endif
+                            </div>
                             <p class="truncate text-sm text-zinc-500 dark:text-zinc-400">
                                 {{ $room->messages->last()?->message }}
                             </p>
@@ -61,29 +69,49 @@
         @if($selectedRoom)
             <!-- Chat Header -->
             <div class="p-4 border-b border-zinc-200 dark:border-zinc-700">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700">
-                        {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->initials() }}
-                    </span>
-                    <div>
-                        <h2 class="font-medium">
-                            {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->name }}
-                        </h2>
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                            {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->roles->first()?->role_name }}
-                        </p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700">
+                            {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->initials() }}
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="font-medium">
+                                    {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->name }}
+                                </h2>
+                                @php
+                                    $isOnline = $onlineUsers->contains('id', $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->user_id ?? 0);
+                                @endphp
+                                @if($isOnline)
+                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">Online</span>
+                                @endif
+                            </div>
+                            <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                                {{ $selectedRoom->participants->where('user_id', '!=', auth()->id())->first()?->roles->first()?->role_name }}
+                            </p>
+                        </div>
                     </div>
+                    
+                    @if($onlineUsers->count() > 0 && $selectedRoom)
+                    <div class="flex items-center gap-1">
+                        <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ $onlineUsers->count() }} online</span>
+                    </div>
+                    @endif
                 </div>
             </div>
 
             <!-- Messages -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messages">
-                @foreach($selectedRoom->messages->reverse() as $message)
-                    <div class="flex {{ $message->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messages" wire:poll.10s>
+                @foreach($selectedRoom->messages->sortBy('created_at') as $message)
+                    <div class="flex {{ $message->user_id === auth()->id() ? 'justify-end' : 'justify-start' }} group">
                         <div class="max-w-[70%] {{ $message->user_id === auth()->id() ? 'bg-blue-500 text-white' : 'bg-zinc-100 dark:bg-zinc-800' }} rounded-lg p-3">
                             <p>{{ $message->message }}</p>
                             <p class="text-xs {{ $message->user_id === auth()->id() ? 'text-blue-100' : 'text-zinc-500 dark:text-zinc-400' }} mt-1">
                                 {{ $message->created_at->format('g:i A') }}
+                                @if($message->is_read && $message->user_id === auth()->id())
+                                    <span class="ml-1">✓</span>
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -97,6 +125,7 @@
                         wire:model="message"
                         placeholder="Type a message..."
                         class="flex-1"
+                        x-on:keydown.enter="$event.preventDefault(); $wire.sendMessage();"
                     />
                     <x-flux.button
                         type="submit"
@@ -125,7 +154,16 @@
                             {{ $user->initials() }}
                         </span>
                         <div>
-                            <p class="font-medium">{{ $user->name }}</p>
+                            <div class="flex items-center gap-2">
+                                <p class="font-medium">{{ $user->name }}</p>
+                                @php
+                                    $isOnline = $onlineUsers->contains('id', $user->user_id ?? 0);
+                                @endphp
+                                @if($isOnline)
+                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">Online</span>
+                                @endif
+                            </div>
                             <p class="text-sm text-zinc-500 dark:text-zinc-400">
                                 {{ $user->roles->first()?->role_name }}
                             </p>
@@ -155,6 +193,23 @@
         Livewire.hook('message.processed', (message, component) => {
             scrollToBottom();
         });
+        
+        // Set up Echo presence channel
+        if (window.Echo && window.Livewire) {
+            const roomId = @json($selectedRoom?->id);
+            if (roomId) {
+                window.Echo.join(`chat.${roomId}`)
+                    .here((users) => {
+                        window.Livewire.dispatch('presence-here', users);
+                    })
+                    .joining((user) => {
+                        window.Livewire.dispatch('presence-joining', user);
+                    })
+                    .leaving((user) => {
+                        window.Livewire.dispatch('presence-leaving', user);
+                    });
+            }
+        }
     });
 </script>
 @endscript

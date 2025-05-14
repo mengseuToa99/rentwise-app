@@ -19,13 +19,20 @@ class ChatInterface extends Component
     public $search = '';
     public $users = [];
     public $showUserList = false;
+    public $onlineUsers;
 
-    protected $listeners = ['echo:chat.*,ChatMessageSent' => 'handleBroadcastedMessage'];
+    protected $listeners = [
+        'echo:chat.*,ChatMessageSent' => 'handleBroadcastedMessage',
+        'echo-presence:chat.*,here' => 'handlePresenceHere',
+        'echo-presence:chat.*,joining' => 'handlePresenceJoining',
+        'echo-presence:chat.*,leaving' => 'handlePresenceLeaving'
+    ];
 
     public function mount()
     {
         $this->loadRooms();
         $this->loadUsers();
+        $this->onlineUsers = collect();
     }
 
     public function loadRooms()
@@ -57,6 +64,10 @@ class ChatInterface extends Component
             });
         }
 
+        if (!empty($this->search)) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
         $this->users = $query->get();
     }
 
@@ -75,6 +86,9 @@ class ChatInterface extends Component
         // Update last read timestamp
         $this->selectedRoom->participants()
             ->updateExistingPivot(Auth::id(), ['last_read_at' => now()]);
+            
+        // Reset online users for new room
+        $this->onlineUsers = collect();
     }
 
     public function createRoom($userId)
@@ -133,6 +147,35 @@ class ChatInterface extends Component
         if ($this->selectedRoom && $this->selectedRoom->id === $data['message']['chat_room_id']) {
             $this->loadRooms();
             $this->selectRoom($this->selectedRoom->id);
+        } else {
+            // Just reload rooms to show unread message indicators
+            $this->loadRooms();
+        }
+    }
+    
+    public function handlePresenceHere($data) 
+    {
+        $this->onlineUsers = collect($data);
+    }
+    
+    public function handlePresenceJoining($user) 
+    {
+        if (!$this->onlineUsers->contains('id', $user['id'])) {
+            $this->onlineUsers->push($user);
+        }
+    }
+    
+    public function handlePresenceLeaving($user) 
+    {
+        $this->onlineUsers = $this->onlineUsers->filter(function ($u) use ($user) {
+            return $u['id'] !== $user['id'];
+        });
+    }
+
+    public function updated($property)
+    {
+        if ($property === 'search') {
+            $this->loadUsers();
         }
     }
 

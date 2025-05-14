@@ -64,12 +64,16 @@ class User extends Authenticatable
     /**
      * Get the user's initials
      */
-    public function initials(): string
+    public function initials()
     {
-        return Str::of($this->first_name . ' ' . $this->last_name)
-            ->explode(' ')
-            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
-            ->implode('');
+        $name = $this->name;
+        $words = explode(' ', $name);
+        
+        if (count($words) >= 2) {
+            return mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1);
+        }
+        
+        return mb_substr($name, 0, 2);
     }
 
     /**

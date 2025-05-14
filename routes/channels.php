@@ -15,7 +15,18 @@ use App\Models\ChatRoom;
 */
 
 Broadcast::channel('chat.{id}', function ($user, $id) {
-    return ChatRoom::whereHas('participants', function ($query) use ($user) {
+    $authorized = ChatRoom::whereHas('participants', function ($query) use ($user) {
         $query->where('chat_room_participants.user_id', $user->user_id);
     })->where('id', $id)->exists();
+    
+    if ($authorized) {
+        return [
+            'id' => $user->user_id,
+            'name' => $user->name,
+            'initials' => $user->initials(),
+            'role' => $user->roles->first()?->role_name,
+        ];
+    }
+    
+    return false;
 });
