@@ -8,7 +8,9 @@ use App\Models\Rental;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Dashboard extends Component
 {
@@ -26,7 +28,14 @@ class Dashboard extends Component
         'propertiesByLandlord' => [],
         'topProperties' => [],
         'unitTypeDistribution' => [],
-        'unitsByStatus' => []
+        'unitsByStatus' => [],
+        'occupancyRate' => 0,
+        'upcomingInvoices' => [],
+        'recentPayments' => [],
+        'expiringLeases' => [],
+        'maintenanceTickets' => [],
+        'monthlyIncomeStats' => [],
+        'calendarEvents' => []
     ];
 
     public function mount()
@@ -59,6 +68,10 @@ class Dashboard extends Component
             $this->stats['paidInvoices'] = Invoice::where('payment_status', 'paid')->count();
             $this->stats['totalIncome'] = Invoice::where('payment_status', 'paid')->sum('amount_due');
             $this->stats['pendingIncome'] = Invoice::where('payment_status', 'pending')->sum('amount_due');
+            
+            // Calculate occupancy rate
+            $this->stats['occupancyRate'] = $this->stats['totalUnits'] > 0 ? 
+                round(($this->stats['occupiedUnits'] / $this->stats['totalUnits']) * 100) : 0;
 
             // Properties by landlord - group by landlord and count
             $this->stats['propertiesByLandlord'] = Property::select('landlord_id')
@@ -112,6 +125,89 @@ class Dashboard extends Component
                 ['status' => 'Occupied', 'count' => $this->stats['occupiedUnits']],
                 ['status' => 'Vacant', 'count' => $this->stats['vacantUnits']]
             ];
+            
+            // Get upcoming invoices due in next 30 days
+            $this->stats['upcomingInvoices'] = Invoice::where('payment_status', 'pending')
+                ->where('due_date', '>=', now())
+                ->where('due_date', '<=', now()->addDays(30))
+                ->with(['rental', 'rental.tenant', 'rental.unit', 'rental.unit.property'])
+                ->orderBy('due_date')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'due_date' => $invoice->due_date->format('M d, Y'),
+                        'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number,
+                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                    ];
+                });
+                
+            // Get recent payments in last 30 days
+            $this->stats['recentPayments'] = Invoice::where('payment_status', 'paid')
+                ->where('updated_at', '>=', now()->subDays(30))
+                ->with(['rental', 'rental.tenant', 'rental.unit', 'rental.unit.property'])
+                ->orderByDesc('updated_at')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'paid_date' => $invoice->updated_at->format('M d, Y'),
+                        'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number
+                    ];
+                });
+                
+            // Get leases expiring in next 90 days
+            $this->stats['expiringLeases'] = Rental::where('status', 'active')
+                ->where('end_date', '>=', now())
+                ->where('end_date', '<=', now()->addDays(90))
+                ->with(['tenant', 'unit', 'unit.property'])
+                ->orderBy('end_date')
+                ->limit(10)
+                ->get()
+                ->map(function($rental) {
+                    return [
+                        'id' => $rental->rental_id,
+                        'end_date' => $rental->end_date->format('M d, Y'),
+                        'tenant_name' => $rental->tenant->first_name . ' ' . $rental->tenant->last_name,
+                        'property_name' => $rental->unit->property->property_name,
+                        'unit_name' => $rental->unit->room_number,
+                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                    ];
+                });
+                
+            // Monthly income statistics for the current year
+            $currentYear = date('Y');
+            $monthlyIncome = Invoice::select(DB::raw('MONTH(updated_at) as month'), DB::raw('SUM(amount_due) as total_amount'))
+                ->where('payment_status', 'paid')
+                ->whereYear('updated_at', $currentYear)
+                ->groupBy(DB::raw('MONTH(updated_at)'))
+                ->orderBy('month')
+                ->get();
+                
+            // Initialize all months with zero
+            $monthlyIncomeData = array_fill(1, 12, 0);
+            
+            // Fill in actual data
+            foreach ($monthlyIncome as $record) {
+                $monthlyIncomeData[$record->month] = $record->total_amount;
+            }
+            
+            // Format for chart
+            $this->stats['monthlyIncomeStats'] = [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'data' => array_values($monthlyIncomeData)
+            ];
+            
+            // Calendar events
+            $this->loadCalendarEvents();
         } 
         // For landlord, show only their properties
         elseif ($userRoles->contains(function($role) {
@@ -131,6 +227,97 @@ class Dashboard extends Component
             $this->stats['paidInvoices'] = Invoice::whereIn('rental_id', $rentals)->where('payment_status', 'paid')->count();
             $this->stats['totalIncome'] = Invoice::whereIn('rental_id', $rentals)->where('payment_status', 'paid')->sum('amount_due');
             $this->stats['pendingIncome'] = Invoice::whereIn('rental_id', $rentals)->where('payment_status', 'pending')->sum('amount_due');
+            
+            // Calculate occupancy rate
+            $this->stats['occupancyRate'] = $this->stats['totalUnits'] > 0 ? 
+                round(($this->stats['occupiedUnits'] / $this->stats['totalUnits']) * 100) : 0;
+                
+            // Get upcoming invoices due in next 30 days
+            $this->stats['upcomingInvoices'] = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'pending')
+                ->where('due_date', '>=', now())
+                ->where('due_date', '<=', now()->addDays(30))
+                ->with(['rental', 'rental.tenant', 'rental.unit', 'rental.unit.property'])
+                ->orderBy('due_date')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'due_date' => $invoice->due_date->format('M d, Y'),
+                        'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number,
+                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                    ];
+                });
+                
+            // Get recent payments in last 30 days
+            $this->stats['recentPayments'] = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'paid')
+                ->where('updated_at', '>=', now()->subDays(30))
+                ->with(['rental', 'rental.tenant', 'rental.unit', 'rental.unit.property'])
+                ->orderByDesc('updated_at')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'paid_date' => $invoice->updated_at->format('M d, Y'),
+                        'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number
+                    ];
+                });
+                
+            // Get leases expiring in next 90 days
+            $this->stats['expiringLeases'] = Rental::whereIn('rental_id', $rentals)
+                ->where('status', 'active')
+                ->where('end_date', '>=', now())
+                ->where('end_date', '<=', now()->addDays(90))
+                ->with(['tenant', 'unit', 'unit.property'])
+                ->orderBy('end_date')
+                ->limit(10)
+                ->get()
+                ->map(function($rental) {
+                    return [
+                        'id' => $rental->rental_id,
+                        'end_date' => $rental->end_date->format('M d, Y'),
+                        'tenant_name' => $rental->tenant->first_name . ' ' . $rental->tenant->last_name,
+                        'property_name' => $rental->unit->property->property_name,
+                        'unit_name' => $rental->unit->room_number,
+                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                    ];
+                });
+                
+            // Monthly income statistics for the current year
+            $currentYear = date('Y');
+            $monthlyIncome = Invoice::whereIn('rental_id', $rentals)
+                ->select(DB::raw('MONTH(updated_at) as month'), DB::raw('SUM(amount_due) as total_amount'))
+                ->where('payment_status', 'paid')
+                ->whereYear('updated_at', $currentYear)
+                ->groupBy(DB::raw('MONTH(updated_at)'))
+                ->orderBy('month')
+                ->get();
+                
+            // Initialize all months with zero
+            $monthlyIncomeData = array_fill(1, 12, 0);
+            
+            // Fill in actual data
+            foreach ($monthlyIncome as $record) {
+                $monthlyIncomeData[$record->month] = $record->total_amount;
+            }
+            
+            // Format for chart
+            $this->stats['monthlyIncomeStats'] = [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'data' => array_values($monthlyIncomeData)
+            ];
+            
+            // Calendar events
+            $this->loadCalendarEvents();
         }
         // For tenant, show only their rentals
         elseif ($userRoles->contains(function($role) {
@@ -144,12 +331,206 @@ class Dashboard extends Component
             $this->stats['paidInvoices'] = Invoice::whereIn('rental_id', $rentals)->where('payment_status', 'paid')->count();
             $this->stats['totalIncome'] = 0; // Tenants don't see income
             $this->stats['pendingIncome'] = Invoice::whereIn('rental_id', $rentals)->where('payment_status', 'pending')->sum('amount_due');
+            
+            // Get upcoming invoices due in next 30 days (for tenant)
+            $this->stats['upcomingInvoices'] = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'pending')
+                ->where('due_date', '>=', now())
+                ->with(['rental', 'rental.unit', 'rental.unit.property'])
+                ->orderBy('due_date')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'due_date' => $invoice->due_date->format('M d, Y'),
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number,
+                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                    ];
+                });
+                
+            // Get recent payments in last 30 days (for tenant)
+            $this->stats['recentPayments'] = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'paid')
+                ->where('updated_at', '>=', now()->subDays(30))
+                ->with(['rental', 'rental.unit', 'rental.unit.property'])
+                ->orderByDesc('updated_at')
+                ->limit(10)
+                ->get()
+                ->map(function($invoice) {
+                    return [
+                        'id' => $invoice->invoice_id,
+                        'amount' => $invoice->amount_due,
+                        'paid_date' => $invoice->updated_at->format('M d, Y'),
+                        'property_name' => $invoice->rental->unit->property->property_name,
+                        'unit_name' => $invoice->rental->unit->room_number
+                    ];
+                });
+                
+            // Get tenant's active leases with expiry dates
+            $this->stats['expiringLeases'] = Rental::where('tenant_id', $user->user_id)
+                ->where('status', 'active')
+                ->with(['unit', 'unit.property'])
+                ->orderBy('end_date')
+                ->get()
+                ->map(function($rental) {
+                    return [
+                        'id' => $rental->rental_id,
+                        'start_date' => $rental->start_date->format('M d, Y'),
+                        'end_date' => $rental->end_date->format('M d, Y'),
+                        'property_name' => $rental->unit->property->property_name,
+                        'unit_name' => $rental->unit->room_number,
+                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                    ];
+                });
+                
+            // Calendar events for tenant
+            $this->loadCalendarEvents();
         }
         // Default case - user has no roles
         else {
             // Show minimal or no stats for users without roles
             // This prevents errors when a user doesn't have any roles assigned
         }
+    }
+    
+    protected function loadCalendarEvents()
+    {
+        $user = Auth::user();
+        $events = [];
+        
+        if ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; })) {
+            // All upcoming invoices due dates
+            $invoiceDueDates = Invoice::where('payment_status', 'pending')
+                ->where('due_date', '>=', now()->startOfMonth())
+                ->where('due_date', '<=', now()->addMonths(3)->endOfMonth())
+                ->with(['rental', 'rental.tenant', 'rental.unit'])
+                ->get();
+                
+            foreach ($invoiceDueDates as $invoice) {
+                $events[] = [
+                    'id' => 'inv-' . $invoice->invoice_id,
+                    'title' => 'Invoice Due: $' . number_format($invoice->amount_due, 2),
+                    'start' => $invoice->due_date->format('Y-m-d'),
+                    'description' => 'Invoice #' . $invoice->invoice_id . ' due for ' . 
+                        $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                    'type' => 'invoice',
+                    'color' => '#EF4444' // Red color
+                ];
+            }
+            
+            // All lease expirations
+            $leaseExpirations = Rental::where('status', 'active')
+                ->where('end_date', '>=', now()->startOfMonth())
+                ->where('end_date', '<=', now()->addMonths(3)->endOfMonth())
+                ->with(['tenant', 'unit', 'unit.property'])
+                ->get();
+                
+            foreach ($leaseExpirations as $lease) {
+                $events[] = [
+                    'id' => 'lease-' . $lease->rental_id,
+                    'title' => 'Lease Expiry: ' . $lease->tenant->first_name . ' ' . $lease->tenant->last_name,
+                    'start' => $lease->end_date->format('Y-m-d'),
+                    'description' => 'Lease expiry for ' . $lease->unit->property->property_name . 
+                        ' - Unit ' . $lease->unit->room_number,
+                    'type' => 'lease',
+                    'color' => '#F59E0B' // Amber color
+                ];
+            }
+        } 
+        elseif ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; })) {
+            // Get landlord's properties
+            $properties = Property::where('landlord_id', $user->user_id)->pluck('property_id')->toArray();
+            $units = Unit::whereIn('property_id', $properties)->pluck('room_id')->toArray();
+            $rentals = Rental::whereIn('room_id', $units)->pluck('rental_id')->toArray();
+            
+            // Landlord's upcoming invoices due dates
+            $invoiceDueDates = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'pending')
+                ->where('due_date', '>=', now()->startOfMonth())
+                ->where('due_date', '<=', now()->addMonths(3)->endOfMonth())
+                ->with(['rental', 'rental.tenant', 'rental.unit'])
+                ->get();
+                
+            foreach ($invoiceDueDates as $invoice) {
+                $events[] = [
+                    'id' => 'inv-' . $invoice->invoice_id,
+                    'title' => 'Invoice Due: $' . number_format($invoice->amount_due, 2),
+                    'start' => $invoice->due_date->format('Y-m-d'),
+                    'description' => 'Invoice #' . $invoice->invoice_id . ' due for ' . 
+                        $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
+                    'type' => 'invoice',
+                    'color' => '#EF4444' // Red color
+                ];
+            }
+            
+            // Landlord's lease expirations
+            $leaseExpirations = Rental::whereIn('rental_id', $rentals)
+                ->where('status', 'active')
+                ->where('end_date', '>=', now()->startOfMonth())
+                ->where('end_date', '<=', now()->addMonths(3)->endOfMonth())
+                ->with(['tenant', 'unit', 'unit.property'])
+                ->get();
+                
+            foreach ($leaseExpirations as $lease) {
+                $events[] = [
+                    'id' => 'lease-' . $lease->rental_id,
+                    'title' => 'Lease Expiry: ' . $lease->tenant->first_name . ' ' . $lease->tenant->last_name,
+                    'start' => $lease->end_date->format('Y-m-d'),
+                    'description' => 'Lease expiry for ' . $lease->unit->property->property_name . 
+                        ' - Unit ' . $lease->unit->room_number,
+                    'type' => 'lease',
+                    'color' => '#F59E0B' // Amber color
+                ];
+            }
+        } 
+        elseif ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; })) {
+            // Get tenant's rentals
+            $rentals = Rental::where('tenant_id', $user->user_id)->pluck('rental_id')->toArray();
+            
+            // Tenant's upcoming invoices due dates
+            $invoiceDueDates = Invoice::whereIn('rental_id', $rentals)
+                ->where('payment_status', 'pending')
+                ->where('due_date', '>=', now()->startOfMonth())
+                ->where('due_date', '<=', now()->addMonths(3)->endOfMonth())
+                ->with(['rental', 'rental.unit'])
+                ->get();
+                
+            foreach ($invoiceDueDates as $invoice) {
+                $events[] = [
+                    'id' => 'inv-' . $invoice->invoice_id,
+                    'title' => 'Invoice Due: $' . number_format($invoice->amount_due, 2),
+                    'start' => $invoice->due_date->format('Y-m-d'),
+                    'description' => 'Invoice #' . $invoice->invoice_id . ' for ' . 
+                        $invoice->rental->unit->property->property_name . ' - Unit ' . 
+                        $invoice->rental->unit->room_number,
+                    'type' => 'invoice',
+                    'color' => '#EF4444' // Red color
+                ];
+            }
+            
+            // Tenant's lease expirations
+            $leaseExpirations = Rental::whereIn('rental_id', $rentals)
+                ->where('status', 'active')
+                ->with(['unit', 'unit.property'])
+                ->get();
+                
+            foreach ($leaseExpirations as $lease) {
+                $events[] = [
+                    'id' => 'lease-' . $lease->rental_id,
+                    'title' => 'Lease Expiry',
+                    'start' => $lease->end_date->format('Y-m-d'),
+                    'description' => 'Your lease expiry for ' . $lease->unit->property->property_name . 
+                        ' - Unit ' . $lease->unit->room_number,
+                    'type' => 'lease',
+                    'color' => '#F59E0B' // Amber color
+                ];
+            }
+        }
+        
+        $this->stats['calendarEvents'] = $events;
     }
 
     public function render()
