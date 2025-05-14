@@ -381,3 +381,109 @@ Route::get('/diagnostic', function () {
     
     return response()->json($output);
 });
+
+// Fix admin permissions route
+Route::get('/fix-admin-permissions', function () {
+    try {
+        // Get admin role
+        $adminRole = \App\Models\Role::where('role_name', 'admin')->first();
+        
+        if (!$adminRole) {
+            return response()->json(['error' => 'Admin role not found'], 404);
+        }
+        
+        // Get or create system admin permission group
+        $systemAdminGroup = \App\Models\PermissionGroup::firstOrCreate(
+            ['group_name' => 'System Administration'],
+            ['description' => 'System administration permissions']
+        );
+        
+        // Create the required permissions for admin dashboard
+        $requiredPermissions = [
+            'view_admin_dashboard' => 'Access to admin dashboard',
+            'manage_system_settings' => 'Manage system settings',
+            'view_system_logs' => 'View system logs'
+        ];
+        
+        $createdPermissions = [];
+        
+        foreach ($requiredPermissions as $permName => $description) {
+            $permission = \App\Models\AccessPermission::firstOrCreate(
+                [
+                    'role_id' => $adminRole->role_id,
+                    'permission_name' => $permName
+                ],
+                [
+                    'description' => $description,
+                    'group_id' => $systemAdminGroup->group_id
+                ]
+            );
+            
+            $createdPermissions[] = $permName;
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin permissions created/verified',
+            'permissions' => $createdPermissions
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Fix admin role route
+Route::get('/fix-admin-role', function () {
+    try {
+        // Create or get admin user
+        $user = \App\Models\User::where('email', 'admin@example.com')->first();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Admin user not found - create one first'], 404);
+        }
+        
+        // Get admin role
+        $adminRole = \App\Models\Role::where('role_name', 'admin')->first();
+        
+        if (!$adminRole) {
+            // Create admin role if it doesn't exist
+            $adminRole = \App\Models\Role::create([
+                'role_name' => 'admin',
+                'description' => 'Administrator with full system access',
+            ]);
+        }
+        
+        // Check if user already has admin role
+        $hasRole = \Illuminate\Support\Facades\DB::table('user_roles')
+            ->where('user_id', $user->user_id)
+            ->where('role_id', $adminRole->role_id)
+            ->exists();
+            
+        if (!$hasRole) {
+            // Create user role relationship in the pivot table directly
+            \Illuminate\Support\Facades\DB::table('user_roles')->insert([
+                'user_id' => $user->user_id,
+                'role_id' => $adminRole->role_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin role connection verified',
+            'user' => $user->username ?? $user->email,
+            'role' => $adminRole->role_name
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
