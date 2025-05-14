@@ -17,20 +17,19 @@
                     <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
                 </flux:navlist.group>
 
-                @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }) || 
-                  auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
-                <!-- Property Management - For Landlords and Admins only -->
+                @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }))
+                <!-- Property Management - For Landlords only -->
                 <flux:navlist.group :heading="__('Property Management')" class="grid">
                     <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Properties') }}</flux:navlist.item>
                     <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Units') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
-                <!-- Leasing - For Landlords and Admins only -->
+                <!-- Leasing - For Landlords only -->
                 <flux:navlist.group :heading="__('Leasing')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('Rentals') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
-                <!-- Finance - For Landlords and Admins only -->
+                <!-- Finance - For Landlords only -->
                 <flux:navlist.group :heading="__('Finance')" class="grid">
                     <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('Invoices') }}</flux:navlist.item>
                 </flux:navlist.group>

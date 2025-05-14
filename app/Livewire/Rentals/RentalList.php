@@ -40,11 +40,8 @@ class RentalList extends Component
                       'property_details.property_name', 
                       'room_details.room_number');
         
-        // If not admin, show only rentals related to this landlord
-        $userRoles = $user->roles ?? collect([]);
-        if (!$userRoles->contains('role_name', 'admin')) {
-            $query->where('rental_details.landlord_id', $user->user_id);
-        }
+        // Always show only rentals related to this landlord (admin can't access this page anymore)
+        $query->where('rental_details.landlord_id', $user->user_id);
         
         // Apply property filter
         if (!empty($this->propertyFilter)) {
@@ -69,12 +66,9 @@ class RentalList extends Component
         // Get rentals with relationships
         $rentals = $query->with(['tenant', 'unit', 'unit.property'])->paginate(10);
         
-        // Get properties for filter dropdown
-        $properties = \App\Models\Property::query();
-        if (!$userRoles->contains('role_name', 'admin')) {
-            $properties->where('landlord_id', $user->user_id);
-        }
-        $properties = $properties->pluck('property_name', 'property_id');
+        // Get properties for filter dropdown - only from this landlord
+        $properties = \App\Models\Property::where('landlord_id', $user->user_id)
+                             ->pluck('property_name', 'property_id');
         
         // Get statuses for filter dropdown
         $statuses = [
@@ -103,9 +97,8 @@ class RentalList extends Component
             
             // Verify authorization by checking if this landlord owns the rental
             $user = Auth::user();
-            $userRoles = $user->roles ?? collect([]);
             
-            if (!$userRoles->contains('role_name', 'admin') && $rental->landlord_id !== $user->user_id) {
+            if ($rental->landlord_id !== $user->user_id) {
                 session()->flash('error', 'You are not authorized to delete this rental');
                 return;
             }

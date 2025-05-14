@@ -5,7 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
-use App\Models\UserDetail;
 
 return new class extends Migration
 {
@@ -14,6 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // This migration assumes the user_details table still exists
+        if (!Schema::hasTable('user_details')) {
+            return; // Skip if table already removed
+        }
+        
         // Transfer data from user_details to users
         $userDetails = DB::table('user_details')->get();
         

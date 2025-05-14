@@ -33,13 +33,8 @@ class PropertyList extends Component
         
         $query = Property::query();
         
-        // If not admin, show only the landlord's properties
-        $userRoles = $user->roles ?? collect([]);
-        if (!$userRoles->contains(function($role) {
-            return strtolower($role->role_name) === 'admin';
-        })) {
-            $query->where('landlord_id', $user->user_id);
-        }
+        // Always show only the landlord's properties (since admin can't access this page anymore)
+        $query->where('landlord_id', $user->user_id);
         
         // Apply search
         if (!empty($this->search)) {
@@ -79,10 +74,8 @@ class PropertyList extends Component
             return redirect()->route('login');
         }
         
-        $userRoles = $user->roles ?? collect([]);
-        if (!$userRoles->contains(function($role) {
-            return strtolower($role->role_name) === 'admin';
-        }) && $property->landlord_id !== $user->user_id) {
+        // Only allow deleting own properties
+        if ($property->landlord_id !== $user->user_id) {
             session()->flash('error', 'You are not authorized to delete this property');
             return;
         }

@@ -88,9 +88,14 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-medium text-gray-900">Units</h2>
-                        <a href="{{ route('units.create') }}?property={{ $propertyId }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-medium text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                            Add Unit
-                        </a>
+                        <div class="flex space-x-2">
+                            <a href="{{ route('pricing-groups.index', $propertyId) }}" class="inline-flex items-center px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-medium text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                Manage Pricing Groups
+                            </a>
+                            <a href="{{ route('units.create') }}?property={{ $propertyId }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-medium text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+                                Add Unit
+                            </a>
+                        </div>
                     </div>
                     
                     @if (count($units) > 0)

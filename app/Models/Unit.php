@@ -15,6 +15,7 @@ class Unit extends Model
 
     protected $fillable = [
         'property_id',
+        'pricing_group_id',
         'room_number',
         'room_type',
         'floor_number',
@@ -33,8 +34,25 @@ class Unit extends Model
         return $this->belongsTo(Property::class, 'property_id', 'property_id');
     }
 
+    public function pricingGroup()
+    {
+        return $this->belongsTo(PricingGroup::class, 'pricing_group_id', 'group_id');
+    }
+
     public function rentals()
     {
         return $this->hasMany(Rental::class, 'room_id', 'room_id');
+    }
+    
+    /**
+     * Apply pricing from the associated pricing group
+     */
+    public function applyGroupPricing()
+    {
+        if ($this->pricing_group_id && $this->pricingGroup) {
+            $this->rent_amount = $this->pricingGroup->base_price;
+            $this->room_type = $this->pricingGroup->room_type;
+            $this->save();
+        }
     }
 }

@@ -33,6 +33,9 @@ use App\Livewire\Admin\PermissionGroups\PermissionGroupList;
 use App\Livewire\Admin\PermissionGroups\PermissionGroupCreate;
 use App\Livewire\Admin\PermissionGroups\PermissionGroupEdit;
 */
+use App\Livewire\PricingGroups\PricingGroupList;
+use App\Livewire\PricingGroups\PricingGroupCreate;
+use App\Livewire\PricingGroups\PricingGroupEdit;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -58,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
     // Profile - accessible to all authenticated users
     Route::get('/profile', \App\Livewire\Profile::class)->name('profile');
 
-    // Routes for both landlords and admins
-    Route::middleware([\App\Http\Middleware\CheckRole::class.':landlord|admin'])->group(function () {
+    // Routes for landlords only (previously for both landlords and admins)
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':landlord'])->group(function () {
         // Properties
         Route::get('/properties', PropertyList::class)->name('properties.index');
         Route::get('/properties/create', PropertyCreate::class)->name('properties.create');
@@ -70,6 +73,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/units', UnitList::class)->name('units.index');
         Route::get('/units/create', UnitCreate::class)->name('units.create');
         Route::get('/units/{unit}/edit', UnitEdit::class)->name('units.edit');
+        
+        // Pricing Groups
+        Route::get('/properties/{property}/pricing-groups', PricingGroupList::class)->name('pricing-groups.index');
+        Route::get('/properties/{property}/pricing-groups/create', PricingGroupCreate::class)->name('pricing-groups.create');
+        Route::get('/properties/{property}/pricing-groups/{group}/edit', PricingGroupEdit::class)->name('pricing-groups.edit');
         
         // Rentals
         Route::get('/rentals', RentalList::class)->name('rentals.index');
