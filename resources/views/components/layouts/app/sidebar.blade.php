@@ -173,12 +173,12 @@
                     <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Units') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
-                <!-- Leasing - For Landlords and Admins only -->
+                <!-- Leasing - For Landlords only -->
                 <flux:navlist.group :heading="__('Leasing')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('Rentals') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
-                <!-- Finance - For Landlords and Admins only -->
+                <!-- Finance - For Landlords only -->
                 <flux:navlist.group :heading="__('Finance')" class="grid">
                     <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('Invoices') }}</flux:navlist.item>
                 </flux:navlist.group>

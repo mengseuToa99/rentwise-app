@@ -138,6 +138,13 @@ class ChatInterface extends Component
 
     public function render()
     {
-        return view('livewire.chat.chat-interface');
+        // If user is admin, use admin layout, otherwise use default
+        $layout = 'components.layouts.app';
+        if (Auth::user()->roles->contains('role_name', 'admin')) {
+            $layout = 'layouts.admin';
+        }
+        
+        return view('livewire.chat.chat-interface')
+            ->layout($layout);
     }
 }

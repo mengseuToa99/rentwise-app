@@ -5,11 +5,13 @@ namespace App\Livewire\Units;
 use Livewire\Component;
 use App\Models\Unit;
 use App\Models\Property;
-use App\Models\UserDetail;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PricingGroup;
 
 class UnitCreate extends Component
 {
+    public $properties = [];
     public $propertyId;
     public $roomName;
     public $roomNumber;
@@ -20,6 +22,8 @@ class UnitCreate extends Component
     public $dueDate;
     public $available = true;
     public $description = '';
+    public $pricing_groups = [];
+    public $pricing_group_id;
     
     protected $rules = [
         'propertyId' => 'required|exists:property_details,property_id',
@@ -49,19 +53,57 @@ class UnitCreate extends Component
         // Make sure the user has permission for this property
         if (!empty($this->propertyId)) {
             $authUser = Auth::user();
-            $userDetail = UserDetail::where('email', $authUser->email)->first();
             
-            if (!$userDetail) {
+            if (!$authUser) {
                 session()->flash('error', 'User profile not found');
                 return redirect()->route('properties.index');
             }
             
             $property = Property::find($this->propertyId);
             
-            $userRoles = $userDetail->roles ?? collect([]);
-            if (!$property || (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $userDetail->user_id)) {
+            $userRoles = $authUser->roles ?? collect([]);
+            if (!$property || (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $authUser->user_id)) {
                 session()->flash('error', 'You do not have permission to add units to this property');
                 return redirect()->route('properties.index');
+            }
+        }
+        
+        // Load properties for selection
+        $this->properties = Property::where('landlord_id', Auth::id())->get();
+        
+        // If we have a property selected, load pricing groups
+        if ($this->propertyId) {
+            $this->loadPricingGroups();
+        }
+    }
+    
+    public function updatedPropertyId($value)
+    {
+        // Load the pricing groups when property changes
+        $this->loadPricingGroups();
+        
+        // Reset the pricing group selection
+        $this->pricing_group_id = null;
+    }
+    
+    public function loadPricingGroups()
+    {
+        if ($this->propertyId) {
+            $this->pricing_groups = PricingGroup::where('property_id', $this->propertyId)
+                ->where('status', 'active')
+                ->get();
+        } else {
+            $this->pricing_groups = [];
+        }
+    }
+    
+    public function updatedPricingGroupId($value)
+    {
+        if ($value) {
+            $pricingGroup = PricingGroup::find($value);
+            if ($pricingGroup) {
+                $this->type = $pricingGroup->room_type;
+                $this->rentAmount = $pricingGroup->base_price;
             }
         }
     }
@@ -73,6 +115,7 @@ class UnitCreate extends Component
         try {
             $unit = new Unit();
             $unit->property_id = $this->propertyId;
+            $unit->pricing_group_id = $this->pricing_group_id;
             $unit->room_name = $this->roomName;
             $unit->room_number = $this->roomNumber;
             $unit->floor_number = $this->floorNumber;
@@ -81,6 +124,7 @@ class UnitCreate extends Component
             $unit->rent_amount = $this->rentAmount;
             $unit->due_date = $this->dueDate;
             $unit->available = $this->available;
+            $unit->status = 'vacant';
             $unit->save();
             
             session()->flash('success', 'Unit created successfully!');
@@ -100,9 +144,8 @@ class UnitCreate extends Component
     {
         // Get properties for the dropdown
         $authUser = Auth::user();
-        $userDetail = UserDetail::where('email', $authUser->email)->first();
         
-        if (!$userDetail) {
+        if (!$authUser) {
             return view('livewire.units.unit-create', [
                 'properties' => collect([])
             ]);
@@ -111,9 +154,9 @@ class UnitCreate extends Component
         $query = Property::query();
         
         // If not admin, show only properties owned by this landlord
-        $userRoles = $userDetail->roles ?? collect([]);
+        $userRoles = $authUser->roles ?? collect([]);
         if (!$userRoles->contains('role_name', 'admin')) {
-            $query->where('landlord_id', $userDetail->user_id);
+            $query->where('landlord_id', $authUser->user_id);
         }
         
         $properties = $query->pluck('property_name', 'property_id');

@@ -134,6 +134,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has a specific role
+     */
+    public function hasRole($roleName)
+    {
+        // Check if user has any roles
+        if (!$this->roles) {
+            return false;
+        }
+        
+        // Check if the user has the role by name
+        return $this->roles->contains('role_name', $roleName);
+    }
+
+    /**
      * Get all permissions for this user (through all their roles)
      */
     public function getAllPermissions()

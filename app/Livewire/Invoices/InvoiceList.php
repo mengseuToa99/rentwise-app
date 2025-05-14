@@ -59,16 +59,12 @@ class InvoiceList extends Component
                        'room_details.room_number');
         
         // Apply view mode filters
-        if ($this->viewMode === 'landlord') {
+        if ($this->viewMode === 'landlord' || $this->viewMode === 'all') {
+            // In 'all' or 'landlord' mode, always restrict to landlord's invoices
+            // (admin can't access this page anymore)
             $query->where('rental_details.landlord_id', $user->user_id);
         } elseif ($this->viewMode === 'tenant') {
             $query->where('rental_details.tenant_id', $user->user_id);
-        } else {
-            // If not admin and in 'all' mode, restrict to landlord's invoices
-            $userRoles = $user->roles ?? collect([]);
-            if (!$userRoles->contains('role_name', 'admin')) {
-                $query->where('rental_details.landlord_id', $user->user_id);
-            }
         }
         
         // Apply status filter
@@ -108,7 +104,7 @@ class InvoiceList extends Component
                             ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
                             ->select('rental_details.rental_id', DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"));
         
-        if ($this->viewMode === 'landlord' || ($this->viewMode === 'all' && !$user->roles->contains('role_name', 'admin'))) {
+        if ($this->viewMode === 'landlord' || $this->viewMode === 'all') {
             $rentalsQuery->where('rental_details.landlord_id', $user->user_id);
         } elseif ($this->viewMode === 'tenant') {
             $rentalsQuery->where('rental_details.tenant_id', $user->user_id);
@@ -142,8 +138,7 @@ class InvoiceList extends Component
                 return;
             }
             
-            $userRoles = $user->roles ?? collect([]);
-            if (!$userRoles->contains('role_name', 'admin') && $rental->landlord_id !== $user->user_id) {
+            if ($rental->landlord_id !== $user->user_id) {
                 session()->flash('error', 'You are not authorized to delete this invoice');
                 return;
             }
@@ -175,8 +170,7 @@ class InvoiceList extends Component
                 return;
             }
             
-            $userRoles = $user->roles ?? collect([]);
-            if (!$userRoles->contains('role_name', 'admin') && $rental->landlord_id !== $user->user_id) {
+            if ($rental->landlord_id !== $user->user_id) {
                 session()->flash('error', 'You are not authorized to update this invoice');
                 return;
             }

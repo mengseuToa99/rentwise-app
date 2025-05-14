@@ -29,10 +29,23 @@ class RentalForm extends Component
     public $lease_agreement;
     public $existing_lease_agreement;
     
+    // Tenant search
+    public $tenantSearch = '';
+    public $searchResults = [];
+    public $selectedTenant = null;
+    public $showNewTenantForm = false;
+    
+    // New tenant fields
+    public $newTenant = [
+        'first_name' => '',
+        'last_name' => '',
+        'email' => '',
+        'phone_number' => '',
+    ];
+    
     // For dropdown options
     public $properties = [];
     public $units = [];
-    public $tenants = [];
     
     protected $rules = [
         'tenant_id' => 'required|exists:users,user_id',
@@ -65,12 +78,6 @@ class RentalForm extends Component
             }
             
             $userRoles = $authUser->roles ?? collect([]);
-            
-            // Load tenants (users with tenant role)
-            $this->tenants = User::whereHas('roles', function($query) {
-                $query->where('role_name', 'tenant');
-            })->select('user_id', DB::raw("CONCAT(first_name, ' ', last_name) as full_name"))
-              ->pluck('full_name', 'user_id');
             
             // Load properties based on user role
             if ($userRoles->contains('role_name', 'admin')) {
@@ -108,10 +115,108 @@ class RentalForm extends Component
                 $this->start_date = Carbon::parse($rental->start_date)->format('Y-m-d');
                 $this->end_date = $rental->end_date ? Carbon::parse($rental->end_date)->format('Y-m-d') : null;
                 $this->existing_lease_agreement = $rental->lease_agreement;
+                
+                // Load selected tenant data
+                $this->selectedTenant = User::find($this->tenant_id);
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error loading rental form: ' . $e->getMessage());
             return redirect()->route('rentals.index');
+        }
+    }
+    
+    public function updatedTenantSearch()
+    {
+        if (strlen($this->tenantSearch) >= 2) {
+            $this->searchResults = User::whereHas('roles', function($query) {
+                    $query->where('role_name', 'tenant');
+                })
+                ->where(function($query) {
+                    $query->where('first_name', 'like', '%' . $this->tenantSearch . '%')
+                        ->orWhere('last_name', 'like', '%' . $this->tenantSearch . '%')
+                        ->orWhere('email', 'like', '%' . $this->tenantSearch . '%')
+                        ->orWhere('phone_number', 'like', '%' . $this->tenantSearch . '%');
+                })
+                ->select('user_id', 'first_name', 'last_name', 'email', 'phone_number')
+                ->limit(5)
+                ->get();
+        } else {
+            $this->searchResults = [];
+        }
+    }
+    
+    public function selectTenant($userId)
+    {
+        $this->tenant_id = $userId;
+        $this->selectedTenant = User::find($userId);
+        $this->searchResults = [];
+        $this->tenantSearch = '';
+    }
+    
+    public function toggleNewTenantForm()
+    {
+        $this->showNewTenantForm = !$this->showNewTenantForm;
+        $this->resetNewTenantFields();
+    }
+    
+    public function resetNewTenantFields()
+    {
+        $this->newTenant = [
+            'first_name' => '',
+            'last_name' => '',
+            'email' => '',
+            'phone_number' => '',
+        ];
+    }
+    
+    public function createAndSelectTenant()
+    {
+        $this->validate([
+            'newTenant.first_name' => 'required|string|max:255',
+            'newTenant.last_name' => 'required|string|max:255',
+            'newTenant.email' => 'required|email|unique:users,email',
+            'newTenant.phone_number' => 'required|string|max:20',
+        ], [
+            'newTenant.first_name.required' => 'First name is required',
+            'newTenant.last_name.required' => 'Last name is required',
+            'newTenant.email.required' => 'Email is required',
+            'newTenant.email.unique' => 'Email already exists',
+            'newTenant.phone_number.required' => 'Phone number is required',
+        ]);
+        
+        try {
+            // Create new tenant user
+            $user = new User();
+            $user->first_name = $this->newTenant['first_name'];
+            $user->last_name = $this->newTenant['last_name'];
+            $user->email = $this->newTenant['email'];
+            $user->phone_number = $this->newTenant['phone_number'];
+            $user->username = strtolower($this->newTenant['first_name'] . '.' . $this->newTenant['last_name']);
+            
+            // Generate a random password
+            $password = substr(md5(rand()), 0, 8);
+            $user->password_hash = bcrypt($password);
+            $user->status = 'active';
+            $user->save();
+            
+            // Assign tenant role
+            $tenantRole = DB::table('roles')->where('role_name', 'tenant')->first();
+            if ($tenantRole) {
+                DB::table('user_roles')->insert([
+                    'user_id' => $user->user_id,
+                    'role_id' => $tenantRole->role_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            
+            // Select the newly created tenant
+            $this->selectTenant($user->user_id);
+            $this->showNewTenantForm = false;
+            
+            session()->flash('tenant_success', "New tenant created successfully. Their temporary password is: {$password}");
+        } catch (\Exception $e) {
+            session()->flash('tenant_error', 'Failed to create tenant: ' . $e->getMessage());
         }
     }
     

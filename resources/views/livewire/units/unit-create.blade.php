@@ -40,6 +40,19 @@
                         @error('propertyId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     
+                    @if($pricing_groups && count($pricing_groups) > 0)
+                    <div>
+                        <label for="pricing_group_id" class="block text-sm font-medium text-gray-700">Pricing Group</label>
+                        <select wire:model="pricing_group_id" id="pricing_group_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">Select a pricing group</option>
+                            @foreach ($pricing_groups as $group)
+                                <option value="{{ $group->group_id }}">{{ $group->group_name }} ({{ $group->room_type }} - ${{ number_format($group->base_price, 2) }})</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Selecting a pricing group will automatically fill the room type and rent amount.</p>
+                    </div>
+                    @endif
+                    
                     <div>
                         <label for="roomName" class="block text-sm font-medium text-gray-700">Unit/Room Name</label>
                         <input wire:model="roomName" type="text" id="roomName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
