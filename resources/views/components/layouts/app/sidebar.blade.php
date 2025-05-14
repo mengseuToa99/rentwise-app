@@ -10,7 +10,7 @@
             <!-- Header with logo and settings button -->
             <div class="mb-5 flex w-full items-center justify-between" x-data="{ activeModal: null }">
                 <div class="flex-grow">
-                    <x-app-logo />
+                <x-app-logo />
                 </div>
                 
                 <!-- Settings Button with Modals -->
@@ -242,7 +242,7 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                 </button>
-            </div>
+                        </div>
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
