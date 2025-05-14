@@ -19,15 +19,15 @@
             </div>
         @endif
         
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-            <div class="p-6 bg-white border-b border-gray-200">
+        <div class="bg-white overflow-hidden 0">
                 <div class="flex items-center">
                     <div class="flex-1">
                         <input 
                             wire:model.live.debounce.300ms="search" 
                             type="text" 
-                            placeholder="Search properties..." 
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            placeholdshadow-sm sm:rounded-lg mb-6">
+            <div class="p-6 bg-white border-b border-gray-20er="Search properties..." 
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 h-10 p-4"  
                         >
                     </div>
                 </div>

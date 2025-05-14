@@ -20,15 +20,33 @@ class InvoiceList extends Component
     public $dateFrom;
     public $dateTo;
     public $viewMode = 'all'; // 'all', 'landlord', 'tenant'
+    public $displayMode = 'card'; // 'card' or 'table' view mode
     
-    public function mount($viewMode = 'all')
+    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode'];
+    
+    public function mount($viewMode = null)
     {
         // Check if user is authenticated
         if (!Auth::check()) {
             return redirect()->route('login');
         }
         
-        $this->viewMode = $viewMode;
+        // Set the view mode based on the route or parameter
+        if (request()->routeIs('tenant.invoices')) {
+            $this->viewMode = 'tenant';
+        } else {
+            $this->viewMode = $viewMode ?? 'all';
+        }
+    }
+    
+    public function toggleDisplayMode()
+    {
+        if ($this->displayMode === 'card') {
+            $this->displayMode = 'table';
+        } else {
+            $this->displayMode = 'card';
+        }
+        $this->resetPage(); // Reset pagination when changing display mode
     }
     
     public function landlordInvoices()
@@ -96,6 +114,9 @@ class InvoiceList extends Component
             });
         }
         
+        // Order by most recent first
+        $query->orderBy('invoice_details.created_at', 'desc');
+        
         // Get invoices with relationships
         $invoices = $query->with(['rental', 'rental.tenant', 'rental.unit'])->paginate(10);
         
@@ -115,8 +136,9 @@ class InvoiceList extends Component
         return view('livewire.invoices.invoice-list', [
             'invoices' => $invoices,
             'rentals' => $rentals,
-            'viewMode' => $this->viewMode
-        ]);
+            'viewMode' => $this->viewMode,
+            'displayMode' => $this->displayMode
+        ])->layout('components.layouts.app', ['preserveSidebar' => true]);
     }
     
     public function deleteInvoice($invoiceId)

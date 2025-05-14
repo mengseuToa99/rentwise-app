@@ -96,12 +96,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/invoices', InvoiceList::class)->name('invoices.index');
         Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
         Route::get('/invoices/{invoiceId}/edit', InvoiceForm::class)->name('invoices.edit');
+        Route::get('/invoices/{invoiceId}/view', \App\Livewire\Invoices\InvoiceDisplay::class)->name('invoices.view');
     });
     
     // Tenant-only routes
     Route::middleware([\App\Http\Middleware\CheckRole::class.':tenant'])->group(function () {
         // Tenants can only view their invoices
-        Route::get('/tenant/invoices', [InvoiceList::class, 'tenantInvoices'])->name('tenant.invoices');
+        Route::get('/tenant/invoices', \App\Livewire\Invoices\InvoiceList::class)->name('tenant.invoices');
+        Route::get('/tenant/invoices/{invoiceId}', \App\Livewire\Invoices\InvoiceDisplay::class)->name('tenant.invoice.view');
     });
     
     // Admin-only routes

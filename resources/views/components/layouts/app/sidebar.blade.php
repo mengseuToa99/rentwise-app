@@ -4,7 +4,7 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-black">
-        <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-black">
+        <flux:sidebar sticky stashable="{{ !($preserveSidebar ?? false) }}" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-black">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             <!-- Header with logo and settings button -->
