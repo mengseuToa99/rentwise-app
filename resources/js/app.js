@@ -1,4 +1,5 @@
 import './theme.js';
+import './echo.js';
 
 // Global theme toggle function available to Alpine
 window.themeToggle = () => ({

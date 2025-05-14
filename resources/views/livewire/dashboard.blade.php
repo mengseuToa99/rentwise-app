@@ -54,17 +54,148 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Upcoming Payment Card (New) -->
+            <div class="overflow-hidden rounded-lg bg-white shadow">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Next Payment Due</dt>
+                                <dd>
+                                    @php
+                                        $nextPayment = count($stats['upcomingInvoices']) > 0 ? $stats['upcomingInvoices'][0] : null;
+                                    @endphp
+                                    
+                                    @if($nextPayment)
+                                        <div class="text-lg font-medium text-gray-900">${{ number_format($nextPayment['amount'], 2) }}</div>
+                                        <p class="text-sm text-gray-500">Due: {{ $nextPayment['due_date'] }}</p>
+                                        
+                                        @if($nextPayment['days_until_due'] < 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">Overdue</span>
+                                        @elseif($nextPayment['days_until_due'] <= 7)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">Due soon</span>
+                                        @endif
+                                    @else
+                                        <div class="text-lg font-medium text-gray-900">No pending payments</div>
+                                    @endif
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lease Information Card (New) -->
+            <div class="overflow-hidden rounded-lg bg-white shadow">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Lease Status</dt>
+                                <dd>
+                                    @php
+                                        $activeLease = count($stats['expiringLeases']) > 0 ? $stats['expiringLeases'][0] : null;
+                                    @endphp
+                                    
+                                    @if($activeLease)
+                                        <div class="text-lg font-medium text-gray-900">Active</div>
+                                        <p class="text-sm text-gray-500">Expires: {{ $activeLease['end_date'] }}</p>
+                                        
+                                        @if($activeLease['days_until_expiry'] < 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">Expired</span>
+                                        @elseif($activeLease['days_until_expiry'] <= 30)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">Expiring soon</span>
+                                        @endif
+                                    @else
+                                        <div class="text-lg font-medium text-gray-900">No active lease</div>
+                                    @endif
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Quick access for tenant -->
+            <!-- Upcoming Invoices (New) -->
             <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">
                 <div class="p-5">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Quick Access</h3>
-                    <div class="mt-5 grid grid-cols-1 gap-3">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Upcoming Payments</h3>
+                    <div class="mt-5 flow-root">
+                        <div class="-my-2 overflow-x-auto">
+                            <div class="inline-block min-w-full py-2 align-middle">
+                                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Property</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Amount</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 bg-white">
+                                            @forelse($stats['upcomingInvoices'] as $invoice)
+                                                <tr>
+                                                    <td class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $invoice['property_name'] }} ({{ $invoice['unit_name'] }})</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">${{ number_format($invoice['amount'], 2) }}</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
+                                                        {{ $invoice['due_date'] }}
+                                                        @if($invoice['days_until_due'] < 0)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Overdue</span>
+                                                        @elseif($invoice['days_until_due'] <= 7)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Due soon</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center">No upcoming payments</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar View (New) -->
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-3">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Calendar</h3>
+                    <div class="mt-5" id="tenant-calendar" style="height: 350px;"></div>
+                </div>
+            </div>
+
+            <!-- Quick access for tenant -->
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-3">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Quick Actions</h3>
+                    <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <a href="{{ route('tenant.invoices') }}" wire:navigate class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                             View My Invoices
+                        </a>
+                        
+                        <a href="{{ route('chat') }}" wire:navigate class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Contact Landlord
                         </a>
                     </div>
                 </div>
@@ -200,136 +331,140 @@
                 </div>
             </div>
             
-            <!-- Admin Only: Detailed Property & Unit Statistics -->
-            @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
+            <!-- Occupancy Analysis -->
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Occupancy Analysis</h3>
+                    <div class="mt-5">
+                        <!-- Occupancy rate -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="text-sm font-medium text-gray-700">Overall Occupancy Rate</div>
+                                <div class="text-sm font-medium text-gray-900">{{ $stats['occupancyRate'] }}%</div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $stats['occupancyRate'] }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Property breakdown -->
+                        @if(count($stats['topProperties']) > 0)
+                            <div class="mt-6">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">Occupancy by Property</h4>
+                                <div class="space-y-3">
+                                    @foreach($stats['topProperties'] as $property)
+                                        <div>
+                                            <div class="flex justify-between items-center mb-1">
+                                                <div class="text-sm text-gray-600">{{ $property['name'] }}</div>
+                                                <div class="text-sm text-gray-900">{{ $property['occupancy_rate'] }}%</div>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ $property['occupancy_rate'] }}%"></div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar View (New) -->
             <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-4">
                 <div class="p-5">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Detailed Property & Unit Analysis</h3>
-                    
-                    <!-- Top properties by unit count -->
-                    <div class="mb-8">
-                        <h4 class="text-md font-medium text-gray-800 mb-3">Top Properties by Unit Count</h4>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property Name</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Units</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied Units</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupancy Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse($stats['topProperties'] as $property)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $property['name'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $property['total_units'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $property['occupied_units'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div class="flex items-center">
-                                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $property['occupancy_rate'] }}%"></div>
-                                                    </div>
-                                                    <span>{{ $property['occupancy_rate'] }}%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No data available</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Property and Unit Statistics -->
-                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-                        <!-- Top landlords by property count -->
-                        <div>
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Top Landlords by Property Count</h4>
-                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
-                                <ul class="divide-y divide-gray-200">
-                                    @forelse($stats['propertiesByLandlord'] as $landlord)
-                                        <li class="px-4 py-3 flex justify-between items-center">
-                                            <span class="text-sm font-medium text-gray-900">{{ $landlord['landlord_name'] }}</span>
-                                            <span class="text-sm text-gray-600 bg-blue-100 px-2 py-1 rounded-full">{{ $landlord['count'] }} properties</span>
-                                        </li>
-                                    @empty
-                                        <li class="px-4 py-3 text-sm text-gray-500 text-center">No data available</li>
-                                    @endforelse
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Unit type distribution -->
-                        <div>
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Unit Types Distribution</h4>
-                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
-                                <ul class="divide-y divide-gray-200">
-                                    @forelse($stats['unitTypeDistribution'] as $unitType)
-                                        <li class="px-4 py-3 flex justify-between items-center">
-                                            <span class="text-sm font-medium text-gray-900">{{ $unitType['type'] }}</span>
-                                            <span class="text-sm text-gray-600 bg-green-100 px-2 py-1 rounded-full">{{ $unitType['count'] }} units</span>
-                                        </li>
-                                    @empty
-                                        <li class="px-4 py-3 text-sm text-gray-500 text-center">No data available</li>
-                                    @endforelse
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Units by Status -->
-                        <div>
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Units by Status</h4>
-                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200 p-4">
-                                <div class="flex items-center space-x-2 mb-2">
-                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                    <span class="text-sm text-gray-600">Occupied: {{ $stats['occupiedUnits'] }}</span>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Calendar View</h3>
+                    <div class="mt-5" id="calendar" style="height: 400px;"></div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Invoices (New) -->
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Upcoming Invoices</h3>
+                    <div class="mt-5 flow-root">
+                        <div class="-my-2 overflow-x-auto">
+                            <div class="inline-block min-w-full py-2 align-middle">
+                                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Tenant</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Amount</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 bg-white">
+                                            @forelse($stats['upcomingInvoices'] as $invoice)
+                                                <tr>
+                                                    <td class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $invoice['tenant_name'] }}</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">${{ number_format($invoice['amount'], 2) }}</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
+                                                        {{ $invoice['due_date'] }}
+                                                        @if($invoice['days_until_due'] < 0)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Overdue</span>
+                                                        @elseif($invoice['days_until_due'] <= 7)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Due soon</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center">No upcoming invoices</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                                    <span class="text-sm text-gray-600">Vacant: {{ $stats['vacantUnits'] }}</span>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                                        @if(($stats['occupiedUnits'] + $stats['vacantUnits']) > 0)
-                                            <div class="flex h-full">
-                                                <div 
-                                                    class="bg-green-500 h-full" 
-                                                    style="width: {{ ($stats['occupiedUnits'] / ($stats['occupiedUnits'] + $stats['vacantUnits'])) * 100 }}%"
-                                                ></div>
-                                                <div 
-                                                    class="bg-blue-500 h-full" 
-                                                    style="width: {{ ($stats['vacantUnits'] / ($stats['occupiedUnits'] + $stats['vacantUnits'])) * 100 }}%"
-                                                ></div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Property/Unit Access -->
-                        <div>
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Quick Access</h4>
-                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200 p-4 space-y-2">
-                                <a href="{{ route('properties.index') }}" wire:navigate class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded">
-                                    View All Properties
-                                </a>
-                                <a href="{{ route('units.index') }}" wire:navigate class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                                    View All Units
-                                </a>
-                                <a href="{{ route('admin.users') }}" wire:navigate class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded">
-                                    Manage Users
-                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            @endif
+            
+            <!-- Expiring Leases (New) -->
+            <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Expiring Leases</h3>
+                    <div class="mt-5 flow-root">
+                        <div class="-my-2 overflow-x-auto">
+                            <div class="inline-block min-w-full py-2 align-middle">
+                                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Tenant</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Property</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expiry Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 bg-white">
+                                            @forelse($stats['expiringLeases'] as $lease)
+                                                <tr>
+                                                    <td class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $lease['tenant_name'] }}</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{{ $lease['property_name'] }} ({{ $lease['unit_name'] }})</td>
+                                                    <td class="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
+                                                        {{ $lease['end_date'] }}
+                                                        @if($lease['days_until_expiry'] < 0)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Expired</span>
+                                                        @elseif($lease['days_until_expiry'] <= 30)
+                                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Expiring soon</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="whitespace-nowrap py-3 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center">No expiring leases</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Property Management Quick Access -->
             <div class="overflow-hidden rounded-lg bg-white shadow sm:col-span-2">
@@ -359,5 +494,43 @@
             </div>
         </div>
         @endif
+
+        <!-- FullCalendar CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
+        <!-- FullCalendar JS -->
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+        
+        <!-- Initialize Calendar with FullCalendar -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize tenant calendar if the element exists
+                const tenantCalendarEl = document.getElementById('tenant-calendar');
+                if (tenantCalendarEl) {
+                    const tenantCalendar = new FullCalendar.Calendar(tenantCalendarEl, {
+                        initialView: 'dayGridMonth',
+                        height: 350,
+                        events: @json($stats['calendarEvents']),
+                        eventClick: function(info) {
+                            alert(info.event.title + '\n' + info.event.extendedProps.description);
+                        }
+                    });
+                    tenantCalendar.render();
+                }
+        
+                // Initialize landlord/admin calendar if the element exists
+                const calendarEl = document.getElementById('calendar');
+                if (calendarEl) {
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        height: 400,
+                        events: @json($stats['calendarEvents']),
+                        eventClick: function(info) {
+                            alert(info.event.title + '\n' + info.event.extendedProps.description);
+                        }
+                    });
+                    calendar.render();
+                }
+            });
+        </script>
     </div>
 </div> 
