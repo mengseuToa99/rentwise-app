@@ -133,6 +133,29 @@
         </div>
     </div>
     
+    <!-- Spending and Utility Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Spending Chart -->
+        <x-charts.spending-chart 
+            id="tenant-spending-chart"
+            title="Monthly Spending History"
+            :labels="$stats['spendingHistory']['apex']['labels'] ?? []"
+            :amounts="$stats['spendingHistory']['apex']['amounts'] ?? []"
+            data-persist-chart="true"
+        />
+        
+        <!-- Utility Usage Chart -->
+        <x-charts.utility-chart 
+            id="tenant-utility-chart"
+            title="Utility Usage"
+            :labels="$stats['utilityUsage']['apex']['labels'] ?? []"
+            :electricity="$stats['utilityUsage']['apex']['electricity'] ?? []"
+            :water="$stats['utilityUsage']['apex']['water'] ?? []"
+            :gas="$stats['utilityUsage']['apex']['gas'] ?? []"
+            data-persist-chart="true"
+        />
+    </div>
+    
     <!-- Upcoming Invoices -->
     <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
         <div class="p-3 sm:p-4">

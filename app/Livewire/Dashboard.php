@@ -43,6 +43,15 @@ class Dashboard extends Component
     public function mount()
     {
         $this->loadDashboardStats();
+        
+        // Load tenant-specific data if user is a tenant
+        $user = Auth::user();
+        if ($user && $user->roles->contains(function($role) {
+            return strtolower($role->role_name) === 'tenant';
+        })) {
+            $this->loadTenantSpendingHistory($user);
+            $this->loadTenantUtilityUsage($user);
+        }
     }
 
     public function loadDashboardStats()
@@ -546,197 +555,61 @@ class Dashboard extends Component
     protected function loadTenantSpendingHistory($user)
     {
         // Get tenant ID
-        $tenant = $user->tenant;
-        if (!$tenant) {
+        if (!$user) {
             $this->addDefaultSpendingData();
             return;
         }
         
         // Get past 12 months of invoices
         $startDate = Carbon::now()->subMonths(12)->startOfMonth();
-        $invoices = $tenant->invoices()
+        
+        // Use direct query to get all tenant's invoices with payment_status = 'paid'
+        $invoices = Invoice::whereHas('rental', function($query) use ($user) {
+                $query->where('tenant_id', $user->user_id);
+            })
+            ->where('payment_status', 'paid')
             ->where('created_at', '>=', $startDate)
             ->orderBy('created_at')
             ->get();
+            
+        // If no invoices exist, add sample data for demo purposes
+        if ($invoices->isEmpty()) {
+            $this->addSampleSpendingData();
+            return;
+        }
             
         $monthlyData = [];
         
         // Initialize with zero values for all months
         for ($i = 0; $i < 12; $i++) {
-            $month = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $monthDate = Carbon::now()->subMonths(11 - $i);
+            $month = $monthDate->format('M Y');
             $monthlyData[$month] = [
-                'rent' => 0,
-                'utilities' => 0,
-                'other' => 0
+                'total' => 0,
+                'month_num' => $monthDate->month,
+                'year' => $monthDate->year
             ];
         }
         
         // Fill with actual invoice data
         foreach ($invoices as $invoice) {
-            $month = Carbon::parse($invoice->created_at)->format('M Y');
+            $invoiceDate = Carbon::parse($invoice->created_at);
+            $month = $invoiceDate->format('M Y');
             
             if (isset($monthlyData[$month])) {
-                if ($invoice->type === 'rent') {
-                    $monthlyData[$month]['rent'] += $invoice->amount_due;
-                } elseif ($invoice->type === 'utility') {
-                    $monthlyData[$month]['utilities'] += $invoice->amount_due;
-                } else {
-                    $monthlyData[$month]['other'] += $invoice->amount_due;
-                }
+                $monthlyData[$month]['total'] += $invoice->amount_due;
             }
         }
         
-        // Format for chart.js
-        $this->formatSpendingChartData($monthlyData);
-    }
-    
-    /**
-     * Format spending data for Chart.js
-     */
-    protected function formatSpendingChartData($monthlyData)
-    {
+        // Extract data for the chart
         $labels = array_keys($monthlyData);
-        $rentData = array_column($monthlyData, 'rent');
-        $utilitiesData = array_column($monthlyData, 'utilities');
-        $otherData = array_column($monthlyData, 'other');
+        $amounts = array_column($monthlyData, 'total');
         
-        // Format data for six months and twelve months
+        // Format data for ApexCharts
         $this->stats['spendingHistory'] = [
-            'six_months' => [
-                'labels' => array_slice($labels, -6),
-                'datasets' => [
-                    [
-                        'label' => 'Rent',
-                        'data' => array_slice($rentData, -6),
-                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
-                        'borderColor' => 'rgba(79, 70, 229, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Utilities',
-                        'data' => array_slice($utilitiesData, -6),
-                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
-                        'borderColor' => 'rgba(16, 185, 129, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Other Fees',
-                        'data' => array_slice($otherData, -6),
-                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
-                        'borderColor' => 'rgba(245, 158, 11, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ]
-                ]
-            ],
-            'twelve_months' => [
+            'apex' => [
                 'labels' => $labels,
-                'datasets' => [
-                    [
-                        'label' => 'Rent',
-                        'data' => $rentData,
-                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
-                        'borderColor' => 'rgba(79, 70, 229, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Utilities',
-                        'data' => $utilitiesData,
-                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
-                        'borderColor' => 'rgba(16, 185, 129, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Other Fees',
-                        'data' => $otherData,
-                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
-                        'borderColor' => 'rgba(245, 158, 11, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ]
-                ]
-            ]
-        ];
-    }
-    
-    /**
-     * Add default spending data when no tenant data exists
-     */
-    protected function addDefaultSpendingData()
-    {
-        $sixMonthLabels = [];
-        $twelveMonthLabels = [];
-        
-        for ($i = 0; $i < 6; $i++) {
-            $sixMonthLabels[] = Carbon::now()->subMonths(5 - $i)->format('M Y');
-        }
-        
-        for ($i = 0; $i < 12; $i++) {
-            $twelveMonthLabels[] = Carbon::now()->subMonths(11 - $i)->format('M Y');
-        }
-        
-        $this->stats['spendingHistory'] = [
-            'six_months' => [
-                'labels' => $sixMonthLabels,
-                'datasets' => [
-                    [
-                        'label' => 'Rent',
-                        'data' => array_fill(0, 6, 0),
-                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
-                        'borderColor' => 'rgba(79, 70, 229, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Utilities',
-                        'data' => array_fill(0, 6, 0),
-                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
-                        'borderColor' => 'rgba(16, 185, 129, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Other Fees',
-                        'data' => array_fill(0, 6, 0),
-                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
-                        'borderColor' => 'rgba(245, 158, 11, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ]
-                ]
-            ],
-            'twelve_months' => [
-                'labels' => $twelveMonthLabels,
-                'datasets' => [
-                    [
-                        'label' => 'Rent',
-                        'data' => array_fill(0, 12, 0),
-                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
-                        'borderColor' => 'rgba(79, 70, 229, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Utilities',
-                        'data' => array_fill(0, 12, 0),
-                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
-                        'borderColor' => 'rgba(16, 185, 129, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ],
-                    [
-                        'label' => 'Other Fees',
-                        'data' => array_fill(0, 12, 0),
-                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
-                        'borderColor' => 'rgba(245, 158, 11, 1)',
-                        'borderWidth' => 2,
-                        'tension' => 0.3
-                    ]
-                ]
+                'amounts' => $amounts
             ]
         ];
     }
@@ -746,26 +619,231 @@ class Dashboard extends Component
      */
     protected function loadTenantUtilityUsage($user)
     {
-        // For demonstration, we'll return sample utility data
-        // In a real app, this would come from a utility_usage table or similar
+        // If no user or not a tenant, use sample data
+        if (!$user) {
+            $this->addSampleUtilityData();
+            return;
+        }
         
+        // Get all utility-related invoices
+        $startDate = Carbon::now()->subMonths(12)->startOfMonth();
+        $utilityInvoices = Invoice::whereHas('rental', function($query) use ($user) {
+                $query->where('tenant_id', $user->user_id);
+            })
+            ->where(function($query) {
+                $query->where('payment_status', 'paid')
+                      ->orWhere('payment_status', 'pending');
+            })
+            ->where('created_at', '>=', $startDate)
+            ->orderBy('created_at')
+            ->get();
+            
+        // If no invoices exist, use sample data
+        if ($utilityInvoices->isEmpty()) {
+            $this->addSampleUtilityData();
+            return;
+        }
+        
+        // Setup data arrays
         $months = [];
-        for ($i = 0; $i < 6; $i++) {
-            $months[] = Carbon::now()->subMonths(5 - $i)->format('M');
+        $electricityData = [];
+        $waterData = [];
+        $gasData = [];
+        $monthlyUsage = [];
+        
+        // Initialize with zero values for all months
+        for ($i = 0; $i < 12; $i++) {
+            $monthDate = Carbon::now()->subMonths(11 - $i);
+            $monthKey = $monthDate->format('m-Y');
+            $monthDisplay = $monthDate->format('M');
+            
+            $months[] = $monthDisplay;
+            $monthlyUsage[$monthKey] = [
+                'electricity' => 0,
+                'water' => 0,
+                'gas' => 0
+            ];
+        }
+        
+        // Calculate average unit costs for estimation
+        $electricityRate = 0.15; // $0.15 per kWh
+        $waterRate = 0.01;       // $0.01 per gallon
+        $gasRate = 1.50;         // $1.50 per therm
+        
+        // Process invoices
+        foreach ($utilityInvoices as $invoice) {
+            $date = Carbon::parse($invoice->created_at);
+            $monthKey = $date->format('m-Y');
+            
+            // For simplicity and since we don't have detailed utility breakdowns,
+            // we'll distribute the total amount across utilities in a realistic ratio
+            $totalAmount = $invoice->amount_due;
+            
+            // Split based on season - more electricity in summer, more gas in winter
+            $month = $date->month;
+            
+            if ($month >= 6 && $month <= 8) {
+                // Summer: 60% electricity, 30% water, 10% gas
+                $electricityAmount = $totalAmount * 0.6;
+                $waterAmount = $totalAmount * 0.3;
+                $gasAmount = $totalAmount * 0.1;
+            } elseif ($month >= 12 || $month <= 2) {
+                // Winter: 30% electricity, 20% water, 50% gas
+                $electricityAmount = $totalAmount * 0.3;
+                $waterAmount = $totalAmount * 0.2;
+                $gasAmount = $totalAmount * 0.5;
+            } else {
+                // Spring/Fall: 40% electricity, 40% water, 20% gas
+                $electricityAmount = $totalAmount * 0.4;
+                $waterAmount = $totalAmount * 0.4;
+                $gasAmount = $totalAmount * 0.2;
+            }
+            
+            // Convert amounts to usage units
+            $electricityUsage = $electricityAmount / $electricityRate;
+            $waterUsage = $waterAmount / $waterRate;
+            $gasUsage = $gasAmount / $gasRate;
+            
+            // Add to monthly totals
+            $monthlyUsage[$monthKey]['electricity'] += $electricityUsage;
+            $monthlyUsage[$monthKey]['water'] += $waterUsage;
+            $monthlyUsage[$monthKey]['gas'] += $gasUsage;
+        }
+        
+        // Extract the data in the correct order
+        foreach ($monthlyUsage as $data) {
+            $electricityData[] = round($data['electricity']);
+            $waterData[] = round($data['water']);
+            $gasData[] = round($data['gas']);
         }
         
         $this->stats['utilityUsage'] = [
             'electricity' => [
                 'labels' => $months,
-                'data' => [320, 350, 300, 360, 380, 340]
+                'data' => $electricityData
             ],
             'water' => [
                 'labels' => $months,
-                'data' => [1500, 1600, 1450, 1700, 1550, 1500]
+                'data' => $waterData
             ],
             'gas' => [
                 'labels' => $months,
-                'data' => [50, 65, 55, 40, 30, 35]
+                'data' => $gasData
+            ],
+            // ApexCharts format
+            'apex' => [
+                'labels' => $months,
+                'electricity' => $electricityData,
+                'water' => $waterData,
+                'gas' => $gasData
+            ]
+        ];
+    }
+
+    /**
+     * Add default spending data when no tenant data exists
+     */
+    protected function addDefaultSpendingData()
+    {
+        $labels = [];
+        $amounts = [];
+        
+        for ($i = 0; $i < 12; $i++) {
+            $labels[] = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $amounts[] = 0; // Zero values
+        }
+        
+        $this->stats['spendingHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'amounts' => $amounts
+            ]
+        ];
+    }
+    
+    /**
+     * Add sample spending data for demonstration when no real data exists
+     */
+    protected function addSampleSpendingData()
+    {
+        $labels = [];
+        $amounts = [];
+        
+        // Generate sample data for 12 months
+        for ($i = 0; $i < 12; $i++) {
+            $month = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $labels[] = $month;
+            
+            // Generate realistic looking random data with slight upward trend
+            $base = 1000 + ($i * 20); // Base amount increases slightly each month
+            $variation = rand(-100, 150); // Random variation
+            $amount = $base + $variation;
+            
+            $amounts[] = $amount;
+        }
+        
+        // Set the spending history with sample data
+        $this->stats['spendingHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'amounts' => $amounts
+            ]
+        ];
+    }
+    
+    /**
+     * Add sample utility data when no real data exists
+     */
+    protected function addSampleUtilityData()
+    {
+        $months = [];
+        $electricityData = [];
+        $waterData = [];
+        $gasData = [];
+        
+        // Generate last 12 months of utility data
+        for ($i = 0; $i < 12; $i++) {
+            $months[] = Carbon::now()->subMonths(11 - $i)->format('M');
+            
+            // Create realistic patterns with seasonal variations
+            $monthNum = (Carbon::now()->month - 11 + $i) % 12; // 0 = January, 11 = December
+            if ($monthNum < 0) $monthNum += 12;
+            
+            // Electricity - higher in summer months (air conditioning)
+            $baseElectricity = 280;
+            $seasonalFactor = $monthNum >= 5 && $monthNum <= 8 ? 1.4 : 1.0; // Summer months (June-Sep)
+            $electricityData[] = round($baseElectricity * $seasonalFactor * (0.9 + (mt_rand(0, 20) / 100)));
+            
+            // Water - higher in summer months (lawn watering)
+            $baseWater = 1400;
+            $waterSeasonalFactor = $monthNum >= 5 && $monthNum <= 8 ? 1.3 : 1.0;
+            $waterData[] = round($baseWater * $waterSeasonalFactor * (0.9 + (mt_rand(0, 20) / 100)));
+            
+            // Gas - higher in winter months (heating)
+            $baseGas = 40;
+            $gasSeasonalFactor = $monthNum <= 2 || $monthNum >= 10 ? 1.5 : 1.0; // Winter months
+            $gasData[] = round($baseGas * $gasSeasonalFactor * (0.9 + (mt_rand(0, 20) / 100)));
+        }
+        
+        $this->stats['utilityUsage'] = [
+            'electricity' => [
+                'labels' => $months,
+                'data' => $electricityData
+            ],
+            'water' => [
+                'labels' => $months,
+                'data' => $waterData
+            ],
+            'gas' => [
+                'labels' => $months,
+                'data' => $gasData
+            ],
+            // ApexCharts format
+            'apex' => [
+                'labels' => $months,
+                'electricity' => $electricityData,
+                'water' => $waterData,
+                'gas' => $gasData
             ]
         ];
     }

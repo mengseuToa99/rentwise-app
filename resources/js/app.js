@@ -1,5 +1,7 @@
 import './theme.js';
 import './echo.js';
+import './charts.js';
+import 'flowbite';
 
 // Global theme toggle function available to Alpine
 window.themeToggle = () => ({
