@@ -277,34 +277,34 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property & Room</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property & Room</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($invoices as $invoice)
                                     <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('tenant.invoice.view', $invoice->invoice_id) }}'">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                             INV-{{ str_pad($invoice->invoice_id, 5, '0', STR_PAD_LEFT) }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                             {{ $invoice->tenant_name }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $invoice->property_name }} (Room {{ $invoice->room_number }})
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $invoice->property_name }} ({{ $invoice->room_number }})
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 font-medium">
                                             ${{ number_format($invoice->amount_due, 2) }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                             {{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-3 py-2 whitespace-nowrap">
                                             @php
                                                 $statusClass = 'bg-gray-100 text-gray-800';
                                                 if ($invoice->payment_status === 'paid') {
@@ -315,12 +315,12 @@
                                                     $statusClass = 'bg-yellow-100 text-yellow-800';
                                                 }
                                             @endphp
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
                                                 {{ ucfirst($invoice->payment_status) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation();">
-                                            <div class="flex justify-end space-x-2">
+                                        <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation();">
+                                            <div class="flex justify-end space-x-1">
                                                 @if($viewMode !== 'tenant' && $invoice->payment_status !== 'paid')
                                                     <button 
                                                         wire:click="markAsPaid({{ $invoice->invoice_id }})" 
