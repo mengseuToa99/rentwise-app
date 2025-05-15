@@ -1,7 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeToggle()" x-bind:class="{ 'dark': dark }">
     <head>
         @include('partials.head')
+        
+        <!-- Prevent flash of wrong theme -->
+        <script>
+            // Immediately set theme to prevent flashing
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
     </head>
     <body class="bg-white dark:bg-black">
         <div class="flex h-screen overflow-hidden">
@@ -41,7 +51,7 @@
                         </flux:navlist.group>
                     </flux:navlist>
                 </div>
-                <div class="mb-4 flex w-full items-center justify-between px-2">
+                <div class="mb-4 flex w-full items-center justify-start gap-2 px-2">
                     <!-- Logout Button -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -50,8 +60,23 @@
                         </button>
                     </form>
                     <!-- Theme Toggle Button - Icon only -->
-                    <button onclick="document.documentElement.classList.toggle('dark')" class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 px-4">
-                        <flux:icon name="sun" class="h-4 w-4" />
+                    <button 
+                        x-data="themeToggle()"
+                        @click="toggle()"
+                        class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 px-4"
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            class="h-4 w-4"
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            stroke-width="2" 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round"
+                        >
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
                     </button>
                 </div>
             </flux:sidebar>

@@ -28,6 +28,29 @@
     <body class="font-sans antialiased h-full overflow-hidden">
         {{ $slot }}
         
+        <!-- Theme Toggle Button - Fixed to bottom right of screen -->
+        <div class="fixed bottom-4 left-4 z-50">
+            <button 
+                type="button" 
+                x-data="themeToggle()"
+                @click="toggle()"
+                class="p-1.5 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-gray-300 transition-all shadow-md"
+            >
+                <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    class="w-4 h-4"
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round"
+                >
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+        
         @livewireScripts
         
         <!-- Theme persistence for Livewire navigation -->
