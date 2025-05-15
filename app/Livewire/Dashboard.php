@@ -35,7 +35,9 @@ class Dashboard extends Component
         'expiringLeases' => [],
         'maintenanceTickets' => [],
         'monthlyIncomeStats' => [],
-        'calendarEvents' => []
+        'calendarEvents' => [],
+        'spendingHistory' => [],
+        'utilityUsage' => []
     ];
 
     public function mount()
@@ -319,7 +321,7 @@ class Dashboard extends Component
             // Calendar events
             $this->loadCalendarEvents();
         }
-        // For tenant, show only their rentals
+        // For tenant, show only their related data
         elseif ($userRoles->contains(function($role) {
             return strtolower($role->role_name) === 'tenant';
         })) {
@@ -388,11 +390,16 @@ class Dashboard extends Component
                 
             // Calendar events for tenant
             $this->loadCalendarEvents();
+
+            // Add spending history data
+            $this->loadTenantSpendingHistory($user);
+            
+            // Add utility usage data
+            $this->loadTenantUtilityUsage($user);
         }
-        // Default case - user has no roles
+        // Default case for other roles
         else {
-            // Show minimal or no stats for users without roles
-            // This prevents errors when a user doesn't have any roles assigned
+            // Handle other roles or default scenario
         }
     }
     
@@ -531,6 +538,236 @@ class Dashboard extends Component
         }
         
         $this->stats['calendarEvents'] = $events;
+    }
+
+    /**
+     * Load tenant spending history for charts
+     */
+    protected function loadTenantSpendingHistory($user)
+    {
+        // Get tenant ID
+        $tenant = $user->tenant;
+        if (!$tenant) {
+            $this->addDefaultSpendingData();
+            return;
+        }
+        
+        // Get past 12 months of invoices
+        $startDate = Carbon::now()->subMonths(12)->startOfMonth();
+        $invoices = $tenant->invoices()
+            ->where('created_at', '>=', $startDate)
+            ->orderBy('created_at')
+            ->get();
+            
+        $monthlyData = [];
+        
+        // Initialize with zero values for all months
+        for ($i = 0; $i < 12; $i++) {
+            $month = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $monthlyData[$month] = [
+                'rent' => 0,
+                'utilities' => 0,
+                'other' => 0
+            ];
+        }
+        
+        // Fill with actual invoice data
+        foreach ($invoices as $invoice) {
+            $month = Carbon::parse($invoice->created_at)->format('M Y');
+            
+            if (isset($monthlyData[$month])) {
+                if ($invoice->type === 'rent') {
+                    $monthlyData[$month]['rent'] += $invoice->amount_due;
+                } elseif ($invoice->type === 'utility') {
+                    $monthlyData[$month]['utilities'] += $invoice->amount_due;
+                } else {
+                    $monthlyData[$month]['other'] += $invoice->amount_due;
+                }
+            }
+        }
+        
+        // Format for chart.js
+        $this->formatSpendingChartData($monthlyData);
+    }
+    
+    /**
+     * Format spending data for Chart.js
+     */
+    protected function formatSpendingChartData($monthlyData)
+    {
+        $labels = array_keys($monthlyData);
+        $rentData = array_column($monthlyData, 'rent');
+        $utilitiesData = array_column($monthlyData, 'utilities');
+        $otherData = array_column($monthlyData, 'other');
+        
+        // Format data for six months and twelve months
+        $this->stats['spendingHistory'] = [
+            'six_months' => [
+                'labels' => array_slice($labels, -6),
+                'datasets' => [
+                    [
+                        'label' => 'Rent',
+                        'data' => array_slice($rentData, -6),
+                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
+                        'borderColor' => 'rgba(79, 70, 229, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Utilities',
+                        'data' => array_slice($utilitiesData, -6),
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                        'borderColor' => 'rgba(16, 185, 129, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Other Fees',
+                        'data' => array_slice($otherData, -6),
+                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                        'borderColor' => 'rgba(245, 158, 11, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ]
+                ]
+            ],
+            'twelve_months' => [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Rent',
+                        'data' => $rentData,
+                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
+                        'borderColor' => 'rgba(79, 70, 229, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Utilities',
+                        'data' => $utilitiesData,
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                        'borderColor' => 'rgba(16, 185, 129, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Other Fees',
+                        'data' => $otherData,
+                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                        'borderColor' => 'rgba(245, 158, 11, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ]
+                ]
+            ]
+        ];
+    }
+    
+    /**
+     * Add default spending data when no tenant data exists
+     */
+    protected function addDefaultSpendingData()
+    {
+        $sixMonthLabels = [];
+        $twelveMonthLabels = [];
+        
+        for ($i = 0; $i < 6; $i++) {
+            $sixMonthLabels[] = Carbon::now()->subMonths(5 - $i)->format('M Y');
+        }
+        
+        for ($i = 0; $i < 12; $i++) {
+            $twelveMonthLabels[] = Carbon::now()->subMonths(11 - $i)->format('M Y');
+        }
+        
+        $this->stats['spendingHistory'] = [
+            'six_months' => [
+                'labels' => $sixMonthLabels,
+                'datasets' => [
+                    [
+                        'label' => 'Rent',
+                        'data' => array_fill(0, 6, 0),
+                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
+                        'borderColor' => 'rgba(79, 70, 229, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Utilities',
+                        'data' => array_fill(0, 6, 0),
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                        'borderColor' => 'rgba(16, 185, 129, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Other Fees',
+                        'data' => array_fill(0, 6, 0),
+                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                        'borderColor' => 'rgba(245, 158, 11, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ]
+                ]
+            ],
+            'twelve_months' => [
+                'labels' => $twelveMonthLabels,
+                'datasets' => [
+                    [
+                        'label' => 'Rent',
+                        'data' => array_fill(0, 12, 0),
+                        'backgroundColor' => 'rgba(79, 70, 229, 0.2)',
+                        'borderColor' => 'rgba(79, 70, 229, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Utilities',
+                        'data' => array_fill(0, 12, 0),
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                        'borderColor' => 'rgba(16, 185, 129, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ],
+                    [
+                        'label' => 'Other Fees',
+                        'data' => array_fill(0, 12, 0),
+                        'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                        'borderColor' => 'rgba(245, 158, 11, 1)',
+                        'borderWidth' => 2,
+                        'tension' => 0.3
+                    ]
+                ]
+            ]
+        ];
+    }
+    
+    /**
+     * Load tenant utility usage data for charts
+     */
+    protected function loadTenantUtilityUsage($user)
+    {
+        // For demonstration, we'll return sample utility data
+        // In a real app, this would come from a utility_usage table or similar
+        
+        $months = [];
+        for ($i = 0; $i < 6; $i++) {
+            $months[] = Carbon::now()->subMonths(5 - $i)->format('M');
+        }
+        
+        $this->stats['utilityUsage'] = [
+            'electricity' => [
+                'labels' => $months,
+                'data' => [320, 350, 300, 360, 380, 340]
+            ],
+            'water' => [
+                'labels' => $months,
+                'data' => [1500, 1600, 1450, 1700, 1550, 1500]
+            ],
+            'gas' => [
+                'labels' => $months,
+                'data' => [50, 65, 55, 40, 30, 35]
+            ]
+        ];
     }
 
     public function render()
