@@ -76,31 +76,31 @@
                             </svg>
                         </div>
                     </div>
-                    @if($nextPayment)
+                                    @if($nextPayment)
                         <div class="mt-3">
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-gray-500 dark:text-gray-400">Due Date:</span>
                                 <span class="font-medium text-gray-900 dark:text-white">{{ $nextPayment['due_date'] }}</span>
                             </div>
-                            
-                            @if($nextPayment['days_until_due'] < 0)
+                                        
+                                        @if($nextPayment['days_until_due'] < 0)
                                 <div class="mt-1 rounded-md bg-red-100 dark:bg-red-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-red-800 dark:text-red-300">Overdue by {{ abs($nextPayment['days_until_due']) }} days</span>
                                 </div>
-                            @elseif($nextPayment['days_until_due'] <= 7)
+                                        @elseif($nextPayment['days_until_due'] <= 7)
                                 <div class="mt-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Due in {{ $nextPayment['days_until_due'] }} days</span>
                                 </div>
-                            @else
+                                    @else
                                 <div class="mt-1 rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-green-800 dark:text-green-300">Due in {{ $nextPayment['days_until_due'] }} days</span>
                                 </div>
-                            @endif
+                                    @endif
                         </div>
                     @else
                         <div class="mt-3 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 text-center">
                             <span class="text-sm text-gray-500 dark:text-gray-400">No pending payments</span>
-                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -127,36 +127,36 @@
                             </svg>
                         </div>
                     </div>
-                    
-                    @if($activeLease)
+                                    
+                                    @if($activeLease)
                         <div class="mt-3">
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-gray-500 dark:text-gray-400">Expires:</span>
                                 <span class="font-medium text-gray-900 dark:text-white">{{ $activeLease['end_date'] }}</span>
                             </div>
-                            
-                            @if($activeLease['days_until_expiry'] < 0)
+                                        
+                                        @if($activeLease['days_until_expiry'] < 0)
                                 <div class="mt-1 rounded-md bg-red-100 dark:bg-red-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-red-800 dark:text-red-300">Expired {{ abs($activeLease['days_until_expiry']) }} days ago</span>
                                 </div>
-                            @elseif($activeLease['days_until_expiry'] <= 30)
+                                        @elseif($activeLease['days_until_expiry'] <= 30)
                                 <div class="mt-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Expires in {{ $activeLease['days_until_expiry'] }} days</span>
                                 </div>
-                            @else
+                                    @else
                                 <div class="mt-1 rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-center">
                                     <span class="text-sm font-medium text-green-800 dark:text-green-300">Expires in {{ $activeLease['days_until_expiry'] }} days</span>
                                 </div>
-                            @endif
+                                    @endif
                         </div>
                     @else
                         <div class="mt-3 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 text-center">
                             <span class="text-sm text-gray-500 dark:text-gray-400">No active lease found</span>
-                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
-            
+
             <!-- Upcoming Invoices (New) -->
             <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all sm:col-span-2">
                 <div class="p-4">
@@ -290,7 +290,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
                         </div>
-                    </div>
+                        </div>
                     <div class="mt-1 flex items-center text-xs">
                         <a href="{{ route('landlord.properties') }}" wire:navigate class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View all properties →</a>
                     </div>
@@ -351,7 +351,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Income summary -->
             <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                 <div class="p-2">
@@ -359,7 +359,7 @@
                         <div class="flex-1">
                             <div class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">Total Income</div>
                             <div class="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">${{ number_format($stats['totalIncome'], 2) }}</div>
-                        </div>
+                            </div>
                         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -409,12 +409,12 @@
                                         @else
                                             <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">{{ $lease['days_until_expiry'] }}d</span>
                                         @endif
-                                    </div>
+                                            </div>
                                     <div class="bg-gray-50 dark:bg-zinc-800 px-2 py-1 text-xs">
                                         <div class="flex justify-between">
                                             <span class="text-gray-500 dark:text-gray-400">Property:</span>
                                             <span class="text-gray-900 dark:text-white">{{ $lease['property_name'] }}</span>
-                                        </div>
+                                            </div>
                                         <div class="flex justify-between">
                                             <span class="text-gray-500 dark:text-gray-400">End Date:</span>
                                             <span class="text-gray-900 dark:text-white">{{ $lease['end_date'] }}</span>
@@ -430,7 +430,7 @@
                             <a href="#" class="mt-2 block text-center px-2 py-1.5 bg-blue-600 dark:bg-blue-700 border border-transparent rounded-md font-medium text-xs text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none transition-colors">
                                 Manage Leases
                             </a>
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -442,8 +442,8 @@
                         <div class="flex items-center justify-between mb-1">
                             <h3 class="text-base font-medium text-gray-900 dark:text-white">Recent Payments</h3>
                             <a href="#" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 hover:underline">View all</a>
-                        </div>
-                        
+            </div>
+            
                         <div class="overflow-hidden overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                                 <thead class="bg-gray-50 dark:bg-zinc-800">
@@ -452,8 +452,8 @@
                                         <th scope="col" class="px-2 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Property</th>
                                         <th scope="col" class="px-2 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Amount</th>
                                         <th scope="col" class="px-2 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Date</th>
-                                    </tr>
-                                </thead>
+                                            </tr>
+                                        </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-900">
                                     @forelse($stats['recentPayments'] as $payment)
                                         <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
@@ -461,20 +461,20 @@
                                             <td class="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">{{ $payment['property_name'] }}</td>
                                             <td class="px-2 py-1.5 text-xs font-medium text-green-600 dark:text-green-400">${{ number_format($payment['amount'], 2) }}</td>
                                             <td class="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">{{ $payment['paid_date'] }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
+                                                </tr>
+                                            @empty
+                                                <tr>
                                             <td colspan="4" class="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400 text-center">No recent payments</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
+            
         <!-- Calendar View -->
         <div class="mt-3">
             <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
@@ -500,10 +500,10 @@
                         </div>
                     </div>
                     <div class="" id="landlord-calendar" style="height: 300px;"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
+            
         <!-- Quick Actions -->
         <div class="mt-3">
             <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
@@ -513,8 +513,8 @@
                         <a href="{{ route('landlord.properties') }}" wire:navigate class="flex flex-col items-center p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">
                             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
                             </div>
                             <span class="text-xs font-medium text-gray-900 dark:text-white">Manage Properties</span>
                         </a>
@@ -532,7 +532,7 @@
                             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
+                            </svg>
                             </div>
                             <span class="text-xs font-medium text-gray-900 dark:text-white">Message Tenants</span>
                         </a>
@@ -542,7 +542,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                            </svg>
                             </div>
                             <span class="text-xs font-medium text-gray-900 dark:text-white">Account Settings</span>
                         </a>

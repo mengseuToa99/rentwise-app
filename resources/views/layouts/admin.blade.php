@@ -6,10 +6,15 @@
         <!-- Prevent flash of wrong theme -->
         <script>
             // Immediately set theme to prevent flashing
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.theme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
+            }
+            
+            // Ensure there's always a theme value
+            if (!localStorage.theme) {
+                localStorage.theme = 'light';
             }
         </script>
     </head>
@@ -31,34 +36,34 @@
                         </div>
                         <a href="{{ route('profile') }}" class="ml-2 flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 px-4" title="Settings">
                             <flux:icon name="cog" class="h-4 w-4" />
-                        </a>
+                </a>
                     </div>
 
                     <!-- Navigation -->
-                    <flux:navlist variant="outline">
-                        <flux:navlist.group :heading="__('Platform')" class="grid">
+                <flux:navlist variant="outline">
+                    <flux:navlist.group :heading="__('Platform')" class="grid">
                             <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                            <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
-                        </flux:navlist.group>
+                        <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
+                    </flux:navlist.group>
                         <flux:navlist.group :heading="__('User Management')" class="grid">
-                            <flux:navlist.item icon="user-group" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
-                            <flux:navlist.item icon="shield-check" :href="route('admin.roles')" :current="request()->routeIs('admin.roles')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
-                            <flux:navlist.item icon="key" :href="route('admin.permissions')" :current="request()->routeIs('admin.permissions')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
+                        <flux:navlist.item icon="user-group" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
+                        <flux:navlist.item icon="shield-check" :href="route('admin.roles')" :current="request()->routeIs('admin.roles')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
+                        <flux:navlist.item icon="key" :href="route('admin.permissions')" :current="request()->routeIs('admin.permissions')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
                         </flux:navlist.group>
                         <flux:navlist.group :heading="__('System')" class="grid">
-                            <flux:navlist.item icon="cog" :href="route('admin.settings')" :current="request()->routeIs('admin.settings')" wire:navigate>{{ __('System Settings') }}</flux:navlist.item>
-                            <flux:navlist.item icon="document-text" :href="route('admin.logs')" :current="request()->routeIs('admin.logs')" wire:navigate>{{ __('System Logs') }}</flux:navlist.item>
-                        </flux:navlist.group>
-                    </flux:navlist>
-                </div>
+                        <flux:navlist.item icon="cog" :href="route('admin.settings')" :current="request()->routeIs('admin.settings')" wire:navigate>{{ __('System Settings') }}</flux:navlist.item>
+                        <flux:navlist.item icon="document-text" :href="route('admin.logs')" :current="request()->routeIs('admin.logs')" wire:navigate>{{ __('System Logs') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                </flux:navlist>
+                                    </div>
                 <div class="mb-4 flex w-full items-center justify-start gap-2 px-2">
                     <!-- Logout Button -->
                     <form method="POST" action="{{ route('logout') }}">
-                        @csrf
+                            @csrf
                         <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 px-4">
                             <flux:icon name="arrow-right-start-on-rectangle" class="h-4 w-4" />
                         </button>
-                    </form>
+                        </form>
                     <!-- Theme Toggle Button - Icon only -->
                     <button 
                         x-data="themeToggle()"

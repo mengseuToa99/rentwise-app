@@ -23,13 +23,13 @@
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Basic Information</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="grid gap-1.5">
+                    <div class="grid gap-1.5">
                             <label for="property_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Name*</label>
                             <input wire:model="property_name" type="text" id="property_name" placeholder="Enter property name" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
-                            @error('property_name') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        
-                        <div class="grid gap-1.5">
+                        @error('property_name') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                    </div>
+                    
+                    <div class="grid gap-1.5">
                             <label for="propertyType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Type*</label>
                             <select wire:model="propertyType" id="propertyType" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                 @foreach($propertyTypes as $value => $label)
@@ -42,7 +42,7 @@
                         <div class="grid gap-1.5 md:col-span-2">
                             <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address*</label>
                             <textarea wire:model="address" id="address" rows="3" placeholder="Enter full property address" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
-                            @error('address') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                        @error('address') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                         </div>
                         
                         <div class="grid gap-1.5">
@@ -174,8 +174,8 @@
                             </span>
                         </button>
                     </div>
-                </div>
-            </form>
+                    </div>
+                </form>
         </div>
     </div>
 </div> 

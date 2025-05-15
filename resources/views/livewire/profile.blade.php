@@ -82,100 +82,100 @@
                 <!-- Personal Information Section -->
                 <div class="px-6 py-6">
                     <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Personal Information
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Personal Information
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
                             <label for="firstName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('First Name') }}</label>
                             <input wire:model="firstName" type="text" id="firstName" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('firstName') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
-                        </div>
-                        
-                        <div>
+                            </div>
+                            
+                            <div>
                             <label for="lastName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Last Name') }}</label>
                             <input wire:model="lastName" type="text" id="lastName" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('lastName') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
                             <label for="username" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Username') }}</label>
                             <input wire:model="username" type="text" id="username" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('username') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
-                        </div>
-                        
-                        <div>
+                            </div>
+                            
+                            <div>
                             <label for="phoneNumber" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Phone Number') }}</label>
                             <input wire:model="phoneNumber" type="text" id="phoneNumber" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('phoneNumber') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4">
+                        
+                        <div class="mt-4">
                         <label for="email" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Email Address') }}</label>
                         <input wire:model="email" type="email" id="email" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                         @error('email') 
                             <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                         @enderror
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Password Section -->
+                    
+                    <!-- Password Section -->
                 <div class="px-6 py-6 border-t border-gray-200 dark:border-zinc-700">
                     <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        Change Password
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Change Password
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
                             <label for="currentPassword" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Current Password') }}</label>
                             <input wire:model="currentPassword" type="password" id="currentPassword" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('currentPassword') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
-                        </div>
-                        
-                        <div>
+                            </div>
+                            
+                            <div>
                             <label for="password" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('New Password') }}</label>
                             <input wire:model="password" type="password" id="password" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             @error('password') 
                                 <span class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</span> 
                             @enderror
-                        </div>
-                        
-                        <div class="md:col-span-2">
+                            </div>
+                            
+                            <div class="md:col-span-2">
                             <label for="password_confirmation" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ __('Confirm New Password') }}</label>
                             <input wire:model="password_confirmation" type="password" id="password_confirmation" class="block w-full px-4 py-2.5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            </div>
                         </div>
                     </div>
-                </div>
-                
+                    
                 <!-- Footer/Actions -->
                 <div class="px-6 py-4 bg-gray-50 dark:bg-zinc-800 flex justify-end">
                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md font-medium text-sm text-white shadow-sm transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {{ __('Save Changes') }}
-                    </button>
+                            </svg>
+                            {{ __('Save Changes') }}
+                        </button>
                 </div>
             </form>
         </div>

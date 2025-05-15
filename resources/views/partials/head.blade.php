@@ -8,11 +8,16 @@
     // Immediately set theme to prevent flashing
     (function() {
         function applyTheme() {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.theme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
+        }
+        
+        // Ensure we always have a theme preference set
+        if (!localStorage.theme) {
+            localStorage.theme = 'light';
         }
         
         // Apply theme now

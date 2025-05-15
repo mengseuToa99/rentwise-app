@@ -4,9 +4,14 @@
 
 // Initialize the theme manager
 function initTheme() {
-    // Apply theme preference from localStorage or system preference
+    // Set default theme to light
+    if (!localStorage.theme || localStorage.theme !== 'dark') {
+        localStorage.theme = 'light';
+    }
+    
+    // Apply theme preference from localStorage - respect user's choice
     function applyTheme() {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (localStorage.theme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -79,6 +84,11 @@ function initTheme() {
     // Apply the theme immediately
     applyTheme();
     
+    // Ensure there's always a theme preference set
+    if (!localStorage.theme) {
+        localStorage.theme = 'light';
+    }
+    
     // Setup event listeners after DOM is loaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupThemeToggles);
@@ -110,6 +120,18 @@ function initTheme() {
             // After navigation
             setupThemeToggles();
             updateThemeIcons();
+            
+            // Re-sync Alpine.js components with current theme state
+            if (window.Alpine) {
+                setTimeout(() => {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    document.querySelectorAll('[x-data*="isDark"]').forEach(el => {
+                        if (el.__x) {
+                            el.__x.$data.isDark = isDark;
+                        }
+                    });
+                }, 0);
+            }
         });
     });
     
@@ -124,6 +146,23 @@ function initTheme() {
         setupThemeToggles();
         updateThemeIcons();
     });
+
+    // Ensure light mode is the default unless explicitly set to dark
+    function ensureLightModeDefault() {
+        if (!localStorage.theme) {
+            localStorage.theme = 'light';
+            document.documentElement.classList.remove('dark');
+        }
+    }
+    
+    // Run on initial load
+    ensureLightModeDefault();
+    
+    // Run on all navigation events
+    document.addEventListener('livewire:navigated', ensureLightModeDefault);
+    document.addEventListener('turbolinks:load', ensureLightModeDefault);
+    window.addEventListener('DOMContentLoaded', ensureLightModeDefault);
+    window.addEventListener('load', ensureLightModeDefault);
 }
 
 // Initialize theme system

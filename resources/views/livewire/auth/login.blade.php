@@ -158,10 +158,10 @@
     // Initialize Alpine.js globally for the theme toggle
     document.addEventListener('alpine:init', () => {
         Alpine.data('themeToggle', () => ({
-            dark: localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches),
+            dark: localStorage.theme === 'dark',
             toggle() {
                 this.dark = !this.dark;
-                localStorage.setItem('theme', this.dark ? 'dark' : 'light');
+                localStorage.theme = this.dark ? 'dark' : 'light';
                 document.documentElement.classList.toggle('dark', this.dark);
             }
         }));

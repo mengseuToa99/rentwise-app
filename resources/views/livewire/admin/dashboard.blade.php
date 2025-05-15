@@ -31,8 +31,8 @@
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                        </div>
+                    </svg>
+                </div>
                     </div>
                     <div class="mt-2 flex items-center text-sm">
                         <span class="text-green-500 font-medium flex items-center">
@@ -57,8 +57,8 @@
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
+                    </svg>
+                </div>
                     </div>
                     <div class="mt-2 flex items-center text-sm">
                         <span class="text-green-500 font-medium flex items-center">
@@ -86,8 +86,8 @@
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 010 7.75"></path>
-                            </svg>
-                        </div>
+                    </svg>
+                </div>
                     </div>
                     <div class="mt-2 flex items-center text-sm">
                         <span class="text-green-500 font-medium flex items-center">
@@ -113,8 +113,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 01-3.46 0"></path>
-                            </svg>
-                        </div>
+                    </svg>
+                </div>
                     </div>
                     <div class="mt-2">
                         <div class="w-full bg-gray-200 dark:bg-zinc-700 rounded-full h-2">
@@ -127,7 +127,7 @@
         
         <!-- Financial Summary and Charts -->
         <div class="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <!-- Financial Summary -->
+        <!-- Financial Summary -->
             <div class="lg:col-span-1">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Financial Summary</h2>
                 <div class="space-y-3">
@@ -144,8 +144,8 @@
                                 <dd class="text-xl font-semibold text-green-600 dark:text-green-400 mt-1">${{ number_format($stats['total_revenue'] ?? 0, 2) }}</dd>
                             </div>
                         </div>
-                    </div>
-                    
+        </div>
+        
                     <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-100 dark:border-zinc-800">
                         <div class="flex items-center">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
@@ -159,8 +159,8 @@
                                 <dd class="text-xl font-semibold text-yellow-600 dark:text-yellow-400 mt-1">${{ number_format($stats['pending_payments'] ?? 0, 2) }}</dd>
                             </div>
                         </div>
-                    </div>
-                    
+            </div>
+            
                     <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-100 dark:border-zinc-800">
                         <div class="flex items-center">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
@@ -177,31 +177,31 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Maintenance Summary -->
+        </div>
+        
+        <!-- Maintenance Summary -->
             <div class="lg:col-span-2">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Maintenance Overview</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-100 dark:border-zinc-800">
                         <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance Requests by Status</h4>
                         <div class="mt-3 grid grid-cols-2 gap-2">
-                            @foreach($stats['maintenance_by_status'] ?? [] as $status => $count)
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 mr-2 rounded-full 
-                                        @if($status == 'pending') bg-yellow-500 
-                                        @elseif($status == 'approved') bg-blue-500 
-                                        @elseif($status == 'completed') bg-green-500 
-                                        @elseif($status == 'rejected') bg-red-500 
-                                        @endif">
-                                    </div>
+                    @foreach($stats['maintenance_by_status'] ?? [] as $status => $count)
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 mr-2 rounded-full 
+                                @if($status == 'pending') bg-yellow-500 
+                                @elseif($status == 'approved') bg-blue-500 
+                                @elseif($status == 'completed') bg-green-500 
+                                @elseif($status == 'rejected') bg-red-500 
+                                @endif">
+                            </div>
                                     <div class="text-sm">
                                         <span class="font-medium text-gray-700 dark:text-gray-300">{{ ucfirst($status) }}</span>
                                         <span class="ml-1 text-gray-500 dark:text-gray-400">{{ $count }}</span>
                                     </div>
-                                </div>
-                            @endforeach
                         </div>
+                    @endforeach
+                </div>
                         
                         <div class="mt-3 pt-3 border-t dark:border-zinc-700">
                             <div class="flex justify-between items-center text-sm">
@@ -209,28 +209,28 @@
                                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ array_sum($stats['maintenance_by_status'] ?? []) }}</span>
                             </div>
                         </div>
-                    </div>
-                    
+            </div>
+            
                     <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-100 dark:border-zinc-800">
                         <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance by Category</h4>
                         <div class="mt-3 grid grid-cols-2 gap-2">
-                            @foreach($stats['maintenance_by_category'] ?? [] as $category => $count)
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 mr-2 rounded-full 
-                                        @if($category == 'plumbing') bg-blue-500 
-                                        @elseif($category == 'electricity') bg-yellow-500 
-                                        @elseif($category == 'cleaning') bg-green-500 
-                                        @else bg-purple-500 
-                                        @endif">
-                                    </div>
+                    @foreach($stats['maintenance_by_category'] ?? [] as $category => $count)
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 mr-2 rounded-full 
+                                @if($category == 'plumbing') bg-blue-500 
+                                @elseif($category == 'electricity') bg-yellow-500 
+                                @elseif($category == 'cleaning') bg-green-500 
+                                @else bg-purple-500 
+                                @endif">
+                            </div>
                                     <div class="text-sm">
                                         <span class="font-medium text-gray-700 dark:text-gray-300">{{ ucfirst($category) }}</span>
                                         <span class="ml-1 text-gray-500 dark:text-gray-400">{{ $count }}</span>
                                     </div>
-                                </div>
-                            @endforeach
                         </div>
-                        @if(!empty($stats['avg_resolution_time']))
+                    @endforeach
+                </div>
+                @if(!empty($stats['avg_resolution_time']))
                             <div class="mt-3 pt-3 border-t dark:border-zinc-700">
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-500 dark:text-gray-400">Avg Resolution Time</span>
@@ -260,10 +260,10 @@
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Date</th>
                                 <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
-                            </tr>
-                        </thead>
+                        </tr>
+                    </thead>
                         <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-900 dark:divide-zinc-700">
-                            @foreach($maintenanceSummary as $request)
+                        @foreach($maintenanceSummary as $request)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
                                     <td class="px-4 py-2 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -272,17 +272,17 @@
                                             </div>
                                             <div class="ml-3">
                                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {{ $request['tenant']['first_name'] ?? '' }} {{ $request['tenant']['last_name'] ?? '' }}
+                                                {{ $request['tenant']['first_name'] ?? '' }} {{ $request['tenant']['last_name'] ?? '' }}
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                    </div>
+                                </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                                        {{ $request['room']['room_name'] ?? '' }}
-                                    </td>
+                                    {{ $request['room']['room_name'] ?? '' }}
+                                </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                                        {{ ucfirst($request['category']) }}
-                                    </td>
+                                    {{ ucfirst($request['category']) }}
+                                </td>
                                     <td class="px-4 py-2 whitespace-nowrap">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full 
                                             @if($request['status'] == 'pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400
@@ -290,19 +290,19 @@
                                             @elseif($request['status'] == 'completed') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
                                             @elseif($request['status'] == 'rejected') bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
                                         @endif">
-                                            {{ ucfirst($request['status']) }}
-                                        </span>
-                                    </td>
+                                        {{ ucfirst($request['status']) }}
+                                    </span>
+                                </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                                        {{ \Carbon\Carbon::parse($request['created_at'])->format('M d, Y') }}
-                                    </td>
+                                    {{ \Carbon\Carbon::parse($request['created_at'])->format('M d, Y') }}
+                                </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="#" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</a>
                                     </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
                 </div>
             </div>
         </div>

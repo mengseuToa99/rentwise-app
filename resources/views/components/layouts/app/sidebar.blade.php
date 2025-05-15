@@ -1,9 +1,74 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark" x-data="themeToggle()">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeToggle()" x-bind:class="{ 'dark': dark }">
     <head>
         @include('partials.head')
+        <!-- Prevent flash of wrong theme -->
+        <script>
+            // Immediately set theme based ONLY on user preference, not system preference
+            if (localStorage.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            // FORCE LIGHT MODE if nothing specifically set
+            if (!localStorage.theme) {
+                localStorage.theme = 'light'; 
+            }
+            
+            // Debug and fix theme during navigation
+            document.addEventListener('livewire:navigated', () => {
+                console.log("Navigation occurred, theme:", localStorage.theme);
+                // Apply the current theme preference
+                const isDark = localStorage.theme === 'dark';
+                
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                
+                // Sync Alpine.js components
+                if (window.Alpine) {
+                    document.querySelectorAll('[x-data]').forEach(el => {
+                        if (el.__x && el.__x.$data.dark !== undefined) {
+                            el.__x.$data.dark = isDark;
+                        }
+                    });
+                }
+            });
+        </script>
+        <style>
+            /* Add smooth transitions for theme changes */
+            *, *::before, *::after {
+                transition-property: color, background-color, border-color, outline-color, fill, stroke;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 200ms;
+            }
+            /* But disable transitions on page load to prevent flashing */
+            .no-transitions * {
+                transition: none !important;
+            }
+        </style>
+        <script>
+            // Add no-transitions class on load/navigation to prevent flash
+            document.documentElement.classList.add('no-transitions');
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    document.documentElement.classList.remove('no-transitions');
+                }, 10);
+            });
+            document.addEventListener('livewire:navigated', () => {
+                document.documentElement.classList.add('no-transitions');
+                setTimeout(() => {
+                    document.documentElement.classList.remove('no-transitions');
+                }, 10);
+            });
+        </script>
     </head>
     <body class="min-h-screen bg-white dark:bg-black">
+        <!-- Add reset-theme utility -->
+        <script src="{{ asset('reset-theme.js') }}"></script>
         <flux:sidebar sticky stashable="{{ !($preserveSidebar ?? false) }}" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-black">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
@@ -117,7 +182,11 @@
                             <div class="space-y-2">
                                 <p class="text-xs text-zinc-700 dark:text-zinc-300">{{ __('Choose theme mode') }}</p>
                                 <div class="flex gap-2">
-                                    <button @click="$flux.appearance = 'light'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'light'}" class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                                    <button 
+                                        @click="$flux.appearance = 'light'; localStorage.theme = 'light'; document.documentElement.classList.remove('dark');" 
+                                        :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'light'}" 
+                                        class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                                    >
                                         <div class="flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <circle cx="12" cy="12" r="5"></circle>
@@ -133,7 +202,11 @@
                                             {{ __('Light') }}
                                         </div>
                                     </button>
-                                    <button @click="$flux.appearance = 'dark'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'dark'}" class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                                    <button 
+                                        @click="$flux.appearance = 'dark'; localStorage.theme = 'dark'; document.documentElement.classList.add('dark');" 
+                                        :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'dark'}" 
+                                        class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                                    >
                                         <div class="flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -142,7 +215,11 @@
                                         </div>
                                     </button>
                                 </div>
-                                <button @click="$flux.appearance = 'system'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'system'}" class="w-full rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                                <button 
+                                    @click="$flux.appearance = 'system'; localStorage.theme = 'light'; document.documentElement.classList.remove('dark');" 
+                                    :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'system'}" 
+                                    class="w-full rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                                >
                                     <div class="flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -222,8 +299,15 @@
 
                 <!-- Theme Toggle Button - Icon only -->
                 <button 
-                    x-data="{isDark: document.documentElement.classList.contains('dark')}"
-                    @click="isDark = !isDark; document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light')" 
+                    x-data="{
+                        isDark: localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches),
+                        toggle() {
+                            this.isDark = !this.isDark;
+                            localStorage.theme = this.isDark ? 'dark' : 'light';
+                            document.documentElement.classList.toggle('dark', this.isDark);
+                        }
+                    }"
+                    @click="toggle()" 
                     class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 >
                     <!-- Sun icon for dark mode -->
@@ -397,7 +481,11 @@
                     <div class="space-y-2">
                         <p class="text-xs text-zinc-700 dark:text-zinc-300">{{ __('Choose theme mode') }}</p>
                         <div class="flex gap-2">
-                            <button @click="$flux.appearance = 'light'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'light'}" class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                            <button 
+                                @click="$flux.appearance = 'light'; localStorage.theme = 'light'; document.documentElement.classList.remove('dark');" 
+                                :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'light'}" 
+                                class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                            >
                                 <div class="flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="5"></circle>
@@ -413,7 +501,11 @@
                                     {{ __('Light') }}
                                 </div>
                             </button>
-                            <button @click="$flux.appearance = 'dark'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'dark'}" class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                            <button 
+                                @click="$flux.appearance = 'dark'; localStorage.theme = 'dark'; document.documentElement.classList.add('dark');" 
+                                :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'dark'}" 
+                                class="flex-1 rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                            >
                                 <div class="flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -422,7 +514,11 @@
                                 </div>
                             </button>
                         </div>
-                        <button @click="$flux.appearance = 'system'" :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'system'}" class="w-full rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700">
+                        <button 
+                            @click="$flux.appearance = 'system'; localStorage.theme = 'light'; document.documentElement.classList.remove('dark');" 
+                            :class="{'bg-blue-100 border-blue-500 dark:bg-blue-900': $flux.appearance === 'system'}" 
+                            class="w-full rounded-md border border-zinc-300 p-1.5 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                        >
                             <div class="flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -438,8 +534,15 @@
 
             <!-- Mobile Theme Toggle -->
             <button 
-                x-data="{isDark: document.documentElement.classList.contains('dark')}"
-                @click="isDark = !isDark; document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light')" 
+                x-data="{
+                    isDark: localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches),
+                    toggle() {
+                        this.isDark = !this.isDark;
+                        localStorage.theme = this.isDark ? 'dark' : 'light';
+                        document.documentElement.classList.toggle('dark', this.isDark);
+                    }
+                }"
+                @click="toggle()" 
                 class="mx-2 inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
                 <!-- Sun icon for dark mode -->

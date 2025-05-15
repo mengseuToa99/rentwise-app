@@ -1,7 +1,7 @@
 <div class="py-4 bg-gray-50 dark:bg-zinc-950">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-            <div>
+<div>
                 <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Units</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage all your rental units</p>
             </div>
@@ -42,13 +42,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input 
-                                wire:model.live.debounce.300ms="search" 
-                                type="text" 
-                                id="search"
+                        <input 
+                            wire:model.live.debounce.300ms="search" 
+                            type="text" 
+                            id="search"
                                 placeholder="Search by name, number..." 
                                 class="block w-full pl-10 py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
+                        >
                         </div>
                     </div>
                     

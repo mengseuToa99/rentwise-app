@@ -10,10 +10,15 @@
         <!-- Prevent flash of wrong theme -->
         <script>
             // Immediately set theme to prevent flashing
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.theme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
+            }
+            
+            // Ensure there's always a theme preference
+            if (!localStorage.theme) {
+                localStorage.theme = 'light';
             }
         </script>
 
@@ -57,7 +62,7 @@
         <script>
             // Listen for Livewire navigation to ensure theme persists
             document.addEventListener('livewire:navigated', () => {
-                if (localStorage.theme === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                if (localStorage.theme === 'dark') {
                     document.documentElement.classList.add('dark');
                 } else {
                     document.documentElement.classList.remove('dark');
