@@ -7,6 +7,7 @@ use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Str;
 
 class PropertyCreate extends Component
 {
@@ -18,6 +19,13 @@ class PropertyCreate extends Component
     public $totalFloors = 1;
     public $totalRooms = 0;
     public $location = '';
+    public $propertyType = 'residential';
+    public $yearBuilt;
+    public $propertySize;
+    public $sizeMeasurement = 'sqft';
+    public $amenities = [];
+    public $propertyImages = [];
+    public $isPetsAllowed = false;
     
     protected $rules = [
         'property_name' => 'required|string|max:255',
@@ -26,6 +34,18 @@ class PropertyCreate extends Component
         'totalFloors' => 'required|integer|min:1',
         'totalRooms' => 'required|integer|min:0',
         'location' => 'required|string|max:255',
+        'propertyType' => 'required|string|in:residential,commercial,industrial,land',
+        'yearBuilt' => 'nullable|integer|min:1800|max:2100',
+        'propertySize' => 'nullable|numeric|min:1',
+        'sizeMeasurement' => 'required|string|in:sqft,sqm,acre,hectare',
+        'amenities' => 'nullable|array',
+        'propertyImages.*' => 'nullable|image|max:5120', // 5MB max per image
+        'isPetsAllowed' => 'boolean',
+    ];
+
+    protected $messages = [
+        'propertyImages.*.max' => 'Each image must not exceed 5MB in size.',
+        'propertyImages.*.image' => 'Only image files are allowed.',
     ];
     
     public function mount()
@@ -33,6 +53,17 @@ class PropertyCreate extends Component
         // Check if user is authenticated
         if (!Auth::check()) {
             return redirect()->route('login');
+        }
+        
+        // Set current year as default
+        $this->yearBuilt = date('Y');
+    }
+    
+    public function removeImage($index)
+    {
+        if (isset($this->propertyImages[$index])) {
+            unset($this->propertyImages[$index]);
+            $this->propertyImages = array_values($this->propertyImages);
         }
     }
     
@@ -58,7 +89,61 @@ class PropertyCreate extends Component
             $property->status = 'active';
             $property->total_floors = $this->totalFloors;
             $property->total_rooms = $this->totalRooms;
+            
+            // Save new fields if they exist in the database
+            if (in_array('property_type', $property->getFillable())) {
+                $property->property_type = $this->propertyType;
+            }
+            
+            if (in_array('year_built', $property->getFillable())) {
+                $property->year_built = $this->yearBuilt;
+            }
+            
+            if (in_array('property_size', $property->getFillable())) {
+                $property->property_size = $this->propertySize;
+            }
+            
+            if (in_array('size_measurement', $property->getFillable())) {
+                $property->size_measurement = $this->sizeMeasurement;
+            }
+            
+            if (in_array('amenities', $property->getFillable())) {
+                $property->amenities = json_encode($this->amenities);
+            }
+            
+            if (in_array('is_pets_allowed', $property->getFillable())) {
+                $property->is_pets_allowed = $this->isPetsAllowed;
+            }
+            
             $property->save();
+            
+            // Handle image uploads if the property_images table exists
+            if (count($this->propertyImages) > 0) {
+                try {
+                    foreach ($this->propertyImages as $image) {
+                        $filename = 'property_' . $property->property_id . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('property-images', $filename, 'public');
+                        
+                        // If there's a property_images table, use it
+                        try {
+                            \DB::table('property_images')->insert([
+                                'property_id' => $property->property_id,
+                                'image_path' => '/storage/' . $path,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        } catch (\Exception $e) {
+                            // If property_images table doesn't exist, store as JSON in the property table
+                            $imageUrls = json_decode($property->images ?? '[]', true);
+                            $imageUrls[] = '/storage/' . $path;
+                            $property->images = json_encode($imageUrls);
+                            $property->save();
+                        }
+                    }
+                } catch (\Exception $imageException) {
+                    session()->flash('warning', 'Property created but image upload failed: ' . $imageException->getMessage());
+                }
+            }
             
             session()->flash('success', 'Property created successfully!');
             return redirect()->route('properties.show', $property->property_id);
@@ -77,6 +162,35 @@ class PropertyCreate extends Component
             return redirect()->route('login');
         }
         
-        return view('livewire.properties.property-create');
+        $availableAmenities = [
+            'parking' => 'Parking',
+            'gym' => 'Gym',
+            'pool' => 'Swimming Pool',
+            'security' => '24/7 Security',
+            'elevator' => 'Elevator',
+            'wifi' => 'WiFi',
+            'ac' => 'Air Conditioning',
+            'heating' => 'Heating'
+        ];
+        
+        $propertyTypes = [
+            'residential' => 'Residential',
+            'commercial' => 'Commercial',
+            'industrial' => 'Industrial',
+            'land' => 'Land'
+        ];
+        
+        $sizeUnits = [
+            'sqft' => 'Square Feet',
+            'sqm' => 'Square Meters',
+            'acre' => 'Acres',
+            'hectare' => 'Hectares'
+        ];
+        
+        return view('livewire.properties.property-create', [
+            'availableAmenities' => $availableAmenities,
+            'propertyTypes' => $propertyTypes,
+            'sizeUnits' => $sizeUnits
+        ]);
     }
 } 

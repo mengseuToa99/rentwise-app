@@ -22,8 +22,21 @@ class Property extends Model
         'total_rooms',
         'description',
         'status',
+        'property_type',
+        'year_built',
+        'property_size',
+        'size_measurement',
+        'amenities',
+        'images',
+        'is_pets_allowed',
         'created_at',
         'updated_at'
+    ];
+    
+    protected $casts = [
+        'amenities' => 'array',
+        'images' => 'array',
+        'is_pets_allowed' => 'boolean',
     ];
 
     public function landlord()
@@ -39,5 +52,10 @@ class Property extends Model
     public function rentals()
     {
         return $this->hasMany(Rental::class, 'property_id', 'property_id');
+    }
+    
+    public function propertyImages()
+    {
+        return $this->hasMany(PropertyImage::class, 'property_id', 'property_id');
     }
 } 
