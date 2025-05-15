@@ -261,6 +261,6 @@ class PermissionManagement extends Component
         return view('livewire.admin.permission-management', [
             'roles' => $roles,
             'permissionsByGroup' => $permissionsByGroup
-        ]);
+        ])->layout('layouts.admin');
     }
 }

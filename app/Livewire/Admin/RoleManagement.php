@@ -48,7 +48,7 @@ class RoleManagement extends Component
         return view('livewire.admin.role-management', [
             'roles' => $roles,
             'parentRoles' => $parentRoles
-        ]);
+        ])->layout('layouts.admin');
     }
     
     public function resetForm()

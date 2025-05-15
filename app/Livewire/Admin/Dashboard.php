@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Property;
 use App\Models\User;
 use App\Models\Rental;
-use App\Models\InvoiceDetail;
+use App\Models\Invoice;
 use App\Models\MaintenanceRequest;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -25,7 +25,9 @@ class Dashboard extends Component
     public function mount()
     {
         // Check if user has admin role
-        if (!Auth::user()->roles->contains('role_name', 'Admin')) {
+        if (!Auth::user()->roles->contains(function($role) {
+            return strtolower($role->role_name) === 'admin';
+        })) {
             abort(403, 'Unauthorized access');
         }
         
@@ -49,8 +51,8 @@ class Dashboard extends Component
             ->toArray();
         
         // Property occupancy rate
-        $totalUnits = \App\Models\RoomDetail::count();
-        $occupiedUnits = \App\Models\RoomDetail::where('status', 'occupied')->count();
+        $totalUnits = \App\Models\Unit::count();
+        $occupiedUnits = \App\Models\Unit::where('status', 'occupied')->count();
         $this->stats['occupancy_rate'] = $totalUnits > 0 ? round(($occupiedUnits / $totalUnits) * 100, 2) : 0;
         
         // Financial stats
@@ -63,20 +65,20 @@ class Dashboard extends Component
     public function loadFinancialStats()
     {
         // Payment status summary
-        $this->stats['payment_status'] = InvoiceDetail::select('payment_status', DB::raw('COUNT(*) as count'))
+        $this->stats['payment_status'] = Invoice::select('payment_status', DB::raw('COUNT(*) as count'))
             ->groupBy('payment_status')
             ->get()
             ->pluck('count', 'payment_status')
             ->toArray();
         
         // Calculate total revenue
-        $this->stats['total_revenue'] = InvoiceDetail::where('payment_status', 'paid')->sum('amount_due');
+        $this->stats['total_revenue'] = Invoice::where('payment_status', 'paid')->sum('amount_due');
         
         // Calculate pending payments
-        $this->stats['pending_payments'] = InvoiceDetail::where('payment_status', 'pending')->sum('amount_due');
+        $this->stats['pending_payments'] = Invoice::where('payment_status', 'pending')->sum('amount_due');
         
         // Calculate overdue payments
-        $this->stats['overdue_payments'] = InvoiceDetail::where('payment_status', 'overdue')->sum('amount_due');
+        $this->stats['overdue_payments'] = Invoice::where('payment_status', 'overdue')->sum('amount_due');
         
         // Revenue by time period (month by default)
         $dateColumn = 'created_at';
@@ -91,7 +93,7 @@ class Dashboard extends Component
             $days = 7;
         }
         
-        $this->revenueSummary = InvoiceDetail::where('payment_status', 'paid')
+        $this->revenueSummary = Invoice::where('payment_status', 'paid')
             ->where($dateColumn, '>=', now()->subDays($days))
             ->select(DB::raw("DATE_FORMAT($dateColumn, '$format') as period"), DB::raw('SUM(amount_due) as revenue'))
             ->groupBy('period')

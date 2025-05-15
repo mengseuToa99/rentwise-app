@@ -66,7 +66,7 @@ class UserManagement extends Component
         return view('livewire.admin.user-management', [
             'users' => $users,
             'roles' => $roles
-        ]);
+        ])->layout('layouts.admin');
     }
     
     public function resetForm()
