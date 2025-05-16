@@ -24,10 +24,14 @@
             amounts: @json($amounts)
         };
         
-        // Initialize the chart if it's in the current view
-        if (document.getElementById('{{ $id }}')) {
-            window.initializeSpendingChart('#{{ $id }}', data);
-        }
+        // Store the data but don't initialize immediately to prevent flickering
+        // Just store the data in the global registry
+        window.chartOptions['#{{ $id }}'] = {
+            type: 'spending',
+            data: data
+        };
+        
+        // Let the global debounce mechanism handle initialization
     });
 </script>
 @endpush 

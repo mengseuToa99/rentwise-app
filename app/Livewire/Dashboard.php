@@ -37,7 +37,10 @@ class Dashboard extends Component
         'monthlyIncomeStats' => [],
         'calendarEvents' => [],
         'spendingHistory' => [],
-        'utilityUsage' => []
+        'utilityUsage' => [],
+        'landlordIncomeHistory' => [],
+        'landlordOccupancyHistory' => [],
+        'landlordRentCollection' => []
     ];
 
     public function mount()
@@ -51,6 +54,15 @@ class Dashboard extends Component
         })) {
             $this->loadTenantSpendingHistory($user);
             $this->loadTenantUtilityUsage($user);
+        }
+        
+        // Load landlord-specific data if user is a landlord
+        if ($user && $user->roles->contains(function($role) {
+            return strtolower($role->role_name) === 'landlord';
+        })) {
+            $this->loadLandlordIncomeHistory($user);
+            $this->loadLandlordOccupancyHistory($user);
+            $this->loadLandlordRentCollection($user);
         }
     }
 
@@ -844,6 +856,307 @@ class Dashboard extends Component
                 'electricity' => $electricityData,
                 'water' => $waterData,
                 'gas' => $gasData
+            ]
+        ];
+    }
+
+    /**
+     * Load landlord income history data for income chart
+     */
+    protected function loadLandlordIncomeHistory($user)
+    {
+        if (!$user) {
+            $this->addSampleLandlordIncomeData();
+            return;
+        }
+        
+        // Get past 12 months of income
+        $startDate = Carbon::now()->subMonths(12)->startOfMonth();
+        
+        // Query for all invoices paid to this landlord's properties
+        $properties = Property::where('landlord_id', $user->user_id)->pluck('property_id')->toArray();
+        
+        if (empty($properties)) {
+            $this->addSampleLandlordIncomeData();
+            return;
+        }
+        
+        $invoices = Invoice::whereHas('rental.unit', function($query) use ($properties) {
+                $query->whereIn('property_id', $properties);
+            })
+            ->where('payment_status', 'paid')
+            ->where('updated_at', '>=', $startDate)
+            ->orderBy('updated_at')
+            ->get();
+            
+        // If no invoices exist, add sample data for demo purposes
+        if ($invoices->isEmpty()) {
+            $this->addSampleLandlordIncomeData();
+            return;
+        }
+        
+        $monthlyData = [];
+        
+        // Initialize with zero values for all months
+        for ($i = 0; $i < 12; $i++) {
+            $monthDate = Carbon::now()->subMonths(11 - $i);
+            $month = $monthDate->format('M Y');
+            $monthlyData[$month] = [
+                'total' => 0,
+                'month_num' => $monthDate->month,
+                'year' => $monthDate->year
+            ];
+        }
+        
+        // Fill with actual invoice data
+        foreach ($invoices as $invoice) {
+            $invoiceDate = Carbon::parse($invoice->updated_at);
+            $month = $invoiceDate->format('M Y');
+            
+            if (isset($monthlyData[$month])) {
+                $monthlyData[$month]['total'] += $invoice->amount_due;
+            }
+        }
+        
+        // Extract data for the chart
+        $labels = array_keys($monthlyData);
+        $amounts = array_column($monthlyData, 'total');
+        
+        // Format data for ApexCharts
+        $this->stats['landlordIncomeHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'amounts' => $amounts
+            ]
+        ];
+    }
+
+    /**
+     * Load landlord occupancy rate history data
+     */
+    protected function loadLandlordOccupancyHistory($user)
+    {
+        if (!$user) {
+            $this->addSampleLandlordOccupancyData();
+            return;
+        }
+        
+        // Get properties owned by this landlord
+        $properties = Property::where('landlord_id', $user->user_id)->pluck('property_id')->toArray();
+        
+        if (empty($properties)) {
+            $this->addSampleLandlordOccupancyData();
+            return;
+        }
+        
+        // Calculate occupancy rates for the past 12 months
+        $startDate = Carbon::now()->subMonths(12)->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+        
+        $occupancyData = [];
+        $labels = [];
+        
+        // We'll query rentals table to determine historical occupancy
+        for ($i = 0; $i < 12; $i++) {
+            $currentMonth = Carbon::now()->subMonths(11 - $i);
+            $monthStart = $currentMonth->copy()->startOfMonth();
+            $monthEnd = $currentMonth->copy()->endOfMonth();
+            $monthLabel = $currentMonth->format('M Y');
+            
+            $labels[] = $monthLabel;
+            
+            // Count total units
+            $totalUnits = Unit::whereIn('property_id', $properties)->count();
+            
+            if ($totalUnits === 0) {
+                $occupancyData[] = 0;
+                continue;
+            }
+            
+            // Count occupied units (units with active rentals during that month)
+            $occupiedUnits = Rental::whereHas('unit', function($query) use ($properties) {
+                    $query->whereIn('property_id', $properties);
+                })
+                ->where(function($query) use ($monthStart, $monthEnd) {
+                    $query->where(function($q) use ($monthStart, $monthEnd) {
+                        // Rental was active during the month
+                        $q->where('start_date', '<=', $monthEnd)
+                          ->where(function($subQ) use ($monthStart) {
+                              $subQ->where('end_date', '>=', $monthStart)
+                                  ->orWhereNull('end_date');
+                          });
+                    });
+                })
+                ->count();
+            
+            // Calculate occupancy rate
+            $occupancyRate = ($occupiedUnits / $totalUnits) * 100;
+            $occupancyData[] = round($occupancyRate);
+        }
+        
+        // Format data for ApexCharts
+        $this->stats['landlordOccupancyHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'rates' => $occupancyData
+            ]
+        ];
+    }
+
+    /**
+     * Load landlord rent collection performance (paid vs pending)
+     */
+    protected function loadLandlordRentCollection($user)
+    {
+        if (!$user) {
+            $this->addSampleLandlordRentCollectionData();
+            return;
+        }
+        
+        // Get properties owned by this landlord
+        $properties = Property::where('landlord_id', $user->user_id)->pluck('property_id')->toArray();
+        
+        if (empty($properties)) {
+            $this->addSampleLandlordRentCollectionData();
+            return;
+        }
+        
+        // Calculate rent collection stats for the past 6 months
+        $startDate = Carbon::now()->subMonths(6)->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+        
+        $pendingAmounts = [];
+        $paidAmounts = [];
+        $labels = [];
+        
+        for ($i = 0; $i < 6; $i++) {
+            $currentMonth = Carbon::now()->subMonths(5 - $i);
+            $monthStart = $currentMonth->copy()->startOfMonth();
+            $monthEnd = $currentMonth->copy()->endOfMonth();
+            $monthLabel = $currentMonth->format('M Y');
+            
+            $labels[] = $monthLabel;
+            
+            // Get invoices due in this month
+            $paidAmount = Invoice::whereHas('rental.unit', function($query) use ($properties) {
+                    $query->whereIn('property_id', $properties);
+                })
+                ->where('payment_status', 'paid')
+                ->whereBetween('due_date', [$monthStart, $monthEnd])
+                ->sum('amount_due');
+                
+            $pendingAmount = Invoice::whereHas('rental.unit', function($query) use ($properties) {
+                    $query->whereIn('property_id', $properties);
+                })
+                ->where('payment_status', 'pending')
+                ->whereBetween('due_date', [$monthStart, $monthEnd])
+                ->sum('amount_due');
+            
+            $paidAmounts[] = round($paidAmount);
+            $pendingAmounts[] = round($pendingAmount);
+        }
+        
+        // Format data for ApexCharts
+        $this->stats['landlordRentCollection'] = [
+            'apex' => [
+                'labels' => $labels,
+                'paid' => $paidAmounts,
+                'pending' => $pendingAmounts
+            ]
+        ];
+    }
+
+    /**
+     * Add sample landlord income data when no real data exists
+     */
+    protected function addSampleLandlordIncomeData()
+    {
+        $labels = [];
+        $amounts = [];
+        
+        // Generate sample data for 12 months
+        for ($i = 0; $i < 12; $i++) {
+            $month = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $labels[] = $month;
+            
+            // Generate realistic looking random data (higher than tenant spending)
+            $base = 5000 + ($i * 100); // Base amount increases each month
+            $variation = rand(-500, 700); // Random variation
+            $amount = $base + $variation;
+            
+            $amounts[] = $amount;
+        }
+        
+        // Set the income history with sample data
+        $this->stats['landlordIncomeHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'amounts' => $amounts
+            ]
+        ];
+    }
+
+    /**
+     * Add sample landlord occupancy data when no real data exists
+     */
+    protected function addSampleLandlordOccupancyData()
+    {
+        $labels = [];
+        $rates = [];
+        
+        // Generate sample data for 12 months
+        for ($i = 0; $i < 12; $i++) {
+            $month = Carbon::now()->subMonths(11 - $i)->format('M Y');
+            $labels[] = $month;
+            
+            // Generate realistic occupancy rates (typically 70-95%)
+            $baseRate = 80;
+            $variation = rand(-10, 15);
+            $rate = min(98, max(65, $baseRate + $variation));
+            
+            $rates[] = $rate;
+        }
+        
+        // Set the occupancy history with sample data
+        $this->stats['landlordOccupancyHistory'] = [
+            'apex' => [
+                'labels' => $labels,
+                'rates' => $rates
+            ]
+        ];
+    }
+
+    /**
+     * Add sample landlord rent collection data when no real data exists
+     */
+    protected function addSampleLandlordRentCollectionData()
+    {
+        $labels = [];
+        $paidAmounts = [];
+        $pendingAmounts = [];
+        
+        // Generate sample data for past 6 months
+        for ($i = 0; $i < 6; $i++) {
+            $month = Carbon::now()->subMonths(5 - $i)->format('M Y');
+            $labels[] = $month;
+            
+            // Generate realistic rent collection data
+            $totalRent = 8000 + rand(-1000, 1000);
+            $collectionRate = rand(75, 95) / 100; // 75% to 95% collection rate
+            
+            $paidAmount = round($totalRent * $collectionRate);
+            $pendingAmount = $totalRent - $paidAmount;
+            
+            $paidAmounts[] = $paidAmount;
+            $pendingAmounts[] = $pendingAmount;
+        }
+        
+        // Set the rent collection with sample data
+        $this->stats['landlordRentCollection'] = [
+            'apex' => [
+                'labels' => $labels,
+                'paid' => $paidAmounts,
+                'pending' => $pendingAmounts
             ]
         ];
     }

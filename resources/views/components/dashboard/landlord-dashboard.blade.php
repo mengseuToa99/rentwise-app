@@ -222,6 +222,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Chart Dashboard Row -->
+    <div class="grid grid-cols-1 gap-3">
+        <!-- Property Performance Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <!-- Income History Chart -->
+            <x-charts.spending-chart 
+                id="landlord-income-chart"
+                title="Monthly Income History"
+                :labels="$stats['landlordIncomeHistory']['apex']['labels'] ?? []"
+                :amounts="$stats['landlordIncomeHistory']['apex']['amounts'] ?? []"
+                data-persist-chart="true"
+                class="lg:col-span-1"
+            />
+            
+            <!-- Occupancy Rate Chart -->
+            <x-charts.occupancy-chart 
+                id="landlord-occupancy-chart"
+                title="Occupancy Rate History"
+                :labels="$stats['landlordOccupancyHistory']['apex']['labels'] ?? []"
+                :rates="$stats['landlordOccupancyHistory']['apex']['rates'] ?? []"
+                data-persist-chart="true"
+                class="lg:col-span-1"
+            />
+            
+            <!-- Rent Collection Chart -->
+            <x-charts.rent-collection-chart 
+                id="landlord-collection-chart"
+                title="Rent Collection Performance"
+                :labels="$stats['landlordRentCollection']['apex']['labels'] ?? []"
+                :paid="$stats['landlordRentCollection']['apex']['paid'] ?? []"
+                :pending="$stats['landlordRentCollection']['apex']['pending'] ?? []"
+                data-persist-chart="true"
+                class="lg:col-span-1"
+            />
+        </div>
+    </div>
     
     <!-- Third Row: Calendar and Quick Actions -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -383,4 +420,37 @@
         }
     });
 </script>
-@endscript 
+@endscript
+
+@push('scripts')
+<script>
+    // Force charts to reinitialize when the dashboard is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Landlord dashboard loaded, initializing charts');
+        try {
+            if (typeof window.debouncedReinitializeCharts === 'function') {
+                // Use the debounced function with immediate flag
+                window.debouncedReinitializeCharts(true);
+            } else {
+                console.warn('Chart reinitialization function not available yet');
+            }
+        } catch (error) {
+            console.error('Error reinitializing charts:', error);
+        }
+    });
+
+    // Also reinitialize on page visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            console.log('Landlord dashboard tab became visible');
+            try {
+                if (typeof window.debouncedReinitializeCharts === 'function') {
+                    window.debouncedReinitializeCharts();
+                }
+            } catch (error) {
+                console.error('Error reinitializing charts on visibility change:', error);
+            }
+        }
+    });
+</script>
+@endpush 

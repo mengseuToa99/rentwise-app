@@ -1,10 +1,9 @@
 @props([
-    'id' => 'utility-chart',
-    'title' => 'Utility Usage',
+    'id' => 'rent-collection-chart',
+    'title' => 'Rent Collection',
     'labels' => [], // e.g. ["Jan", "Feb", "Mar"]
-    'electricity' => [], // e.g. [200, 220, 190] (kWh)
-    'water' => [], // e.g. [150, 165, 140] (gallons)
-    'gas' => [], // e.g. [50, 60, 45] (therms)
+    'paid' => [], // e.g. [5000, 5200, 4800]
+    'pending' => [], // e.g. [1000, 800, 1200]
 ])
 
 <div {{ $attributes->merge(['class' => 'w-full bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden']) }}>
@@ -23,15 +22,14 @@
         // Data for the chart
         const data = {
             labels: @json($labels),
-            electricity: @json($electricity),
-            water: @json($water),
-            gas: @json($gas)
+            paid: @json($paid),
+            pending: @json($pending)
         };
         
         // Store the data but don't initialize immediately to prevent flickering
         // Just store the data in the global registry
         window.chartOptions['#{{ $id }}'] = {
-            type: 'utility',
+            type: 'rentCollection',
             data: data
         };
         
