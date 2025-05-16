@@ -5,6 +5,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './app/Livewire/**/*.php',
+        './node_modules/flowbite/**/*.js'
     ],
     
     darkMode: 'class',
@@ -95,6 +96,7 @@ export default {
     
     plugins: [
         require('@tailwindcss/forms'),
+        require('flowbite/plugin'),
         function({ addUtilities }) {
             const newUtilities = {
                 '.perspective-1000': {
