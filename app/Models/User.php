@@ -37,6 +37,11 @@ class User extends Authenticatable
         'failed_login_attempts',
         'first_name',
         'last_name',
+        'google_id',
+        'facebook_id',
+        'telegram_id',
+        'phone',
+        'avatar',
     ];
 
     /**

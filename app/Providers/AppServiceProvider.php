@@ -12,6 +12,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(FluxComponentsServiceProvider::class);
+        $this->app->register(SocialiteServiceProvider::class);
     }
 
     /**

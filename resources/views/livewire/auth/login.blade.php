@@ -88,8 +88,8 @@
 
                         <div class="flex justify-center gap-4">
                             <!-- Google Login Button -->
-                            <button
-                                type="button"
+                            <a
+                                href="{{ route('social.redirect', 'google') }}"
                                 class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg class="w-6 h-6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -98,37 +98,37 @@
                                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                                 </svg>
-                            </button>
+                            </a>
                             
                             <!-- Phone Number Login Button -->
-                            <button
-                                type="button"
+                            <a
+                                href="{{ route('phone.verification') }}"
                                 class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                 </svg>
-                            </button>
+                            </a>
                             
                             <!-- Telegram Login Button -->
-                            <button
-                                type="button"
+                            <a
+                                href="{{ route('social.redirect', 'telegram') }}"
                                 class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="#26A5E4">
                                     <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.73 7.73L15.8 17.46c-.12.56-.73.7-1.12.36L11.13 15l-1.79 1.73c-.18.17-.42.18-.58.04l.18-2.49 4.47-4.05c.22-.2-.01-.29-.29-.11l-5.53 3.49-2.36-.78c-.52-.16-.56-.6.08-.88l9.31-3.58c.4-.15.77.18.68.6z"/>
                                 </svg>
-                            </button>
+                            </a>
                             
                             <!-- Facebook Login Button -->
-                            <button
-                                type="button"
+                            <a
+                                href="{{ route('social.redirect', 'facebook') }}"
                                 class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 p-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="#1877F2">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                 </svg>
-                    </button>
+                    </a>
                         </div>
                     </div>
                     

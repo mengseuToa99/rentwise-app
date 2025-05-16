@@ -56,6 +56,13 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
+// Social Authentication Routes
+Route::get('/auth/redirect/{provider}', [\App\Http\Controllers\SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/callback/{provider}', [\App\Http\Controllers\SocialAuthController::class, 'callback'])->name('social.callback');
+
+// Phone Authentication Route
+Route::get('/auth/phone', \App\Livewire\Auth\PhoneVerification::class)->name('phone.verification');
+
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     // Dashboard - accessible to all authenticated users
