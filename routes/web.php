@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Http\Controllers\SocialAuthController;
 
 // Public routes
 Route::get('/', function () {
@@ -57,8 +58,22 @@ Route::post('/logout', function () {
 })->name('logout');
 
 // Social Authentication Routes
-Route::get('/auth/redirect/{provider}', [\App\Http\Controllers\SocialAuthController::class, 'redirect'])->name('social.redirect');
-Route::get('/auth/callback/{provider}', [\App\Http\Controllers\SocialAuthController::class, 'callback'])->name('social.callback');
+Route::get('/auth/redirect/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/callback/{provider}', [SocialAuthController::class, 'callback'])->name('social.callback');
+
+// Telegram specific routes
+Route::get('/auth/telegram/verify/{token}', [SocialAuthController::class, 'verifyTelegramToken'])->name('telegram.verify');
+// Telegram widget verification
+Route::post('/auth/telegram/verify-widget', [SocialAuthController::class, 'verifyTelegramWidget'])->name('telegram.verify.widget');
+// Telegram widget test page
+Route::get('/auth/telegram/test', function() {
+    return view('auth.telegram-widget-test');
+})->name('telegram.test');
+
+// Basic Telegram widget test page
+Route::get('/auth/telegram/direct-test', function() {
+    return view('auth.telegram-direct-test');
+})->name('telegram.direct.test');
 
 // Phone Authentication Route
 Route::get('/auth/phone', \App\Livewire\Auth\PhoneVerification::class)->name('phone.verification');

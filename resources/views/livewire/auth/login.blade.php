@@ -137,8 +137,15 @@
                         <a href="{{ route('register') }}" class="text-gray-800 dark:text-white font-medium hover:underline underline-offset-4">
                             Sign up
                         </a>
-                </div>
+                    </div>
 
+                    <!-- Debug link for telegram testing -->
+                    <div class="text-center text-xs mt-2">
+                        <a href="{{ route('telegram.test') }}" class="text-gray-500 hover:underline">
+                            Test Telegram Login
+                        </a>
+                    </div>
+                    
                     <!-- Theme Toggle Button removed from here and positioned fixed on the screen -->
             </form>
             </div>

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\Auth\TelegramProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
@@ -24,7 +24,23 @@ class SocialAuthController extends Controller
         }
         
         try {
-            return Socialite::driver($provider)->redirect();
+            // Special case for Telegram
+            if ($provider === 'telegram') {
+                // For debugging purposes, show the test page directly
+                return redirect()->route('telegram.test');
+            }
+            
+            // For local development, disable SSL verification
+            // WARNING: Only use this in development, never in production!
+            if (app()->environment('local')) {
+                $guzzle = new \GuzzleHttp\Client([
+                    'verify' => false,
+                ]);
+                $driver = Socialite::driver($provider)->setHttpClient($guzzle);
+                return $driver->redirect();
+            } else {
+                return Socialite::driver($provider)->redirect();
+            }
         } catch (\Exception $e) {
             Log::error("Social auth redirect error for provider $provider", [
                 'error' => $e->getMessage()
@@ -45,7 +61,7 @@ class SocialAuthController extends Controller
         }
         
         try {
-            // Handle Telegram separately as it uses a different flow
+            // Special case for Telegram
             if ($provider === 'telegram') {
                 return $this->handleTelegramCallback($request);
             }
@@ -82,24 +98,19 @@ class SocialAuthController extends Controller
     }
     
     /**
-     * Handle Telegram callback
+     * Handle Telegram callback - we'll handle this differently
+     * since we're using direct Telegram integration
      */
     private function handleTelegramCallback(Request $request)
     {
-        $telegramProvider = new TelegramProvider();
-        $telegramUser = $telegramProvider->validateTelegramData($request->all());
+        // Implement a webhook for Telegram bot to handle login
+        // This is a placeholder - you'll need to set up a Telegram webhook
+        // that receives messages and authenticates users
         
-        if (!$telegramUser) {
-            return redirect()->route('login')->with('error', 'Invalid Telegram authentication data.');
-        }
+        // For now, we'll just log the attempt and return an error
+        Log::info('Telegram callback attempt', $request->all());
         
-        // Find or create user
-        $user = $this->findOrCreateUser($telegramUser, 'telegram');
-        
-        // Login
-        Auth::login($user, true);
-        
-        return redirect()->intended(route('dashboard'));
+        return redirect()->route('login')->with('error', 'Telegram login not fully implemented yet. Please use another method.');
     }
     
     /**
@@ -155,5 +166,106 @@ class SocialAuthController extends Controller
         }
         
         return $user;
+    }
+    
+    /**
+     * Verify Telegram login token
+     */
+    public function verifyTelegramToken($token)
+    {
+        // Try to get the cached telegram auth data
+        $telegramData = Cache::get("telegram_auth_{$token}");
+        
+        if (!$telegramData) {
+            return redirect()->route('login')->with('error', 'Invalid or expired login link. Please try again.');
+        }
+        
+        // Log the data for debugging
+        Log::info('Telegram login data', $telegramData);
+        
+        // Create a user object from Telegram data
+        $socialUser = (object)[
+            'id' => $telegramData['id'],
+            'name' => $telegramData['first_name'] . ' ' . $telegramData['last_name'],
+            'nickname' => $telegramData['username'] ?? null,
+            'email' => null // Telegram doesn't provide email
+        ];
+        
+        // Find or create user
+        $user = $this->findOrCreateUser($socialUser, 'telegram');
+        
+        // Login
+        Auth::login($user, true);
+        
+        // Delete the token from cache
+        Cache::forget("telegram_auth_{$token}");
+        
+        return redirect()->intended(route('dashboard'));
+    }
+    
+    /**
+     * Verify and handle Telegram widget authentication
+     */
+    public function verifyTelegramWidget(Request $request)
+    {
+        // Log all data for debugging
+        Log::info('Telegram widget data received', $request->all());
+        
+        $data = $request->all();
+        
+        // Verify the hash (security check)
+        if (isset($data['hash'])) {
+            $checkHash = $data['hash'];
+            unset($data['hash']);
+            
+            // Sort the array by key
+            ksort($data);
+            
+            // Create the data check string
+            $dataCheckString = '';
+            foreach ($data as $key => $value) {
+                $dataCheckString .= "$key=$value\n";
+            }
+            $dataCheckString = rtrim($dataCheckString, "\n");
+            
+            // Create the secret key by hashing the bot token
+            $botToken = config('services.telegram.client_secret', env('TELEGRAM_TOKEN'));
+            $secretKey = hash('sha256', $botToken, true);
+            
+            // Calculate the hash
+            $hash = hash_hmac('sha256', $dataCheckString, $secretKey);
+            
+            if (strcmp($hash, $checkHash) !== 0) {
+                Log::warning('Invalid Telegram hash', [
+                    'calculated' => $hash,
+                    'received' => $checkHash
+                ]);
+                return response()->json(['success' => false, 'message' => 'Invalid authentication data']);
+            }
+        } else {
+            Log::warning('No hash provided in Telegram data');
+            return response()->json(['success' => false, 'message' => 'Missing authentication data']);
+        }
+        
+        // Check if auth date is not older than 1 day
+        if (isset($data['auth_date']) && (time() - $data['auth_date'] > 86400)) {
+            return response()->json(['success' => false, 'message' => 'Authentication data expired']);
+        }
+        
+        // Create a user object from Telegram data
+        $socialUser = (object)[
+            'id' => $data['id'],
+            'name' => $data['first_name'] . ' ' . ($data['last_name'] ?? ''),
+            'nickname' => $data['username'] ?? null,
+            'email' => null // Telegram doesn't provide email
+        ];
+        
+        // Find or create user
+        $user = $this->findOrCreateUser($socialUser, 'telegram');
+        
+        // Login
+        Auth::login($user, true);
+        
+        return response()->json(['success' => true, 'redirect' => route('dashboard')]);
     }
 } 

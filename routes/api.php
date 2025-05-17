@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PricingGroupController;
+use App\Http\Controllers\TelegramWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/properties/{propertyId}/pricing-groups/{groupId}', [PricingGroupController::class, 'update']);
     Route::delete('/properties/{propertyId}/pricing-groups/{groupId}', [PricingGroupController::class, 'destroy']);
 }); 
+
+// Telegram webhook routes
+Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handleWebhook']);
+Route::get('/telegram/set-webhook', [TelegramWebhookController::class, 'setWebhook']); 

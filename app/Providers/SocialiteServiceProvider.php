@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class SocialiteServiceProvider extends ServiceProvider
 {
@@ -20,12 +21,7 @@ class SocialiteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Add custom Telegram driver
-        Socialite::extend('telegram', function ($app) {
-            return Socialite::buildProvider(
-                \App\Services\Auth\TelegramProvider::class,
-                config('services.telegram')
-            );
-        });
+        // Register Telegram provider through SocialiteProviders Manager
+        $this->app->events->listen(SocialiteWasCalled::class, 'SocialiteProviders\\Telegram\\TelegramExtendSocialite@handle');
     }
 } 
