@@ -229,9 +229,12 @@
                                             
                                             <button 
                                                 @click="isFlipped = !isFlipped" 
-                                                class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs"
+                                                class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs"
                                             >
-                                                Details
+                                                <span>Details</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
                                             </button>
                                         </div>
                                     </div>
@@ -398,6 +401,13 @@
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
+
+        [x-data] {
+            transition-property: transform;
+            transition-duration: 0.7s;
+            transition-timing-function: ease-in-out;
+            transform-style: preserve-3d;
+        }
         
         /* For users who prefer reduced motion */
         @media (prefers-reduced-motion: reduce) {
@@ -406,4 +416,22 @@
             }
         }
     </style>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Ensure Alpine.js is properly initializing the card flip animation
+            if (window.Alpine) {
+                window.Alpine.initTree(document.body);
+            }
+        });
+
+        document.addEventListener('livewire:navigated', () => {
+            // Re-initialize Alpine after navigation
+            if (window.Alpine) {
+                window.Alpine.initTree(document.body);
+            }
+        });
+    </script>
+    @endpush
 </div> 
