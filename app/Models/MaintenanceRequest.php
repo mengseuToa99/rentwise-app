@@ -17,7 +17,8 @@ class MaintenanceRequest extends Model
         'room_id',
         'category',
         'description',
-        'status'
+        'status',
+        'scheduled_date'
     ];
     
     /**

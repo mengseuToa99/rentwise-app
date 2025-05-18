@@ -60,6 +60,9 @@ class Dashboard extends Component
         
         // Maintenance stats
         $this->loadMaintenanceStats();
+        
+        // Calendar events
+        $this->loadCalendarEvents();
     }
     
     public function loadFinancialStats()
@@ -143,6 +146,51 @@ class Dashboard extends Component
     public function updatedTimeframe()
     {
         $this->loadFinancialStats();
+    }
+    
+    // Add calendar events to stats
+    public function loadCalendarEvents()
+    {
+        // Initialize empty calendar events array
+        $this->stats['calendarEvents'] = [];
+        
+        try {
+            // Add upcoming invoice due dates
+            $upcomingInvoices = Invoice::where('payment_status', 'pending')
+                ->whereDate('due_date', '>=', now())
+                ->whereDate('due_date', '<=', now()->addDays(30))
+                ->get();
+                
+            foreach ($upcomingInvoices as $invoice) {
+                $this->stats['calendarEvents'][] = [
+                    'id' => 'invoice-' . $invoice->invoice_id,
+                    'title' => 'Invoice Due: $' . number_format($invoice->amount_due, 2),
+                    'start' => $invoice->due_date,
+                    'color' => '#f43f5e', // Red
+                    'description' => 'Invoice #' . $invoice->invoice_number . ' is due'
+                ];
+            }
+            
+            // Add maintenance appointments
+            $upcomingMaintenance = MaintenanceRequest::whereIn('status', ['approved', 'pending'])
+                ->whereNotNull('scheduled_date')
+                ->whereDate('scheduled_date', '>=', now())
+                ->whereDate('scheduled_date', '<=', now()->addDays(30))
+                ->get();
+                
+            foreach ($upcomingMaintenance as $maintenance) {
+                $this->stats['calendarEvents'][] = [
+                    'id' => 'maintenance-' . $maintenance->request_id,
+                    'title' => 'Maintenance: ' . ucfirst($maintenance->category),
+                    'start' => $maintenance->scheduled_date,
+                    'color' => '#3b82f6', // Blue
+                    'description' => $maintenance->description
+                ];
+            }
+        } catch (\Exception $e) {
+            // If anything fails, just leave the array empty
+            \Log::error('Error loading calendar events: ' . $e->getMessage());
+        }
     }
     
     public function render()

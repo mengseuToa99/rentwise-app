@@ -371,9 +371,9 @@
             }
         ];
 
-        const events = @json($stats['calendarEvents'] ?? []).length > 0 
-            ? @json($stats['calendarEvents']) 
-            : fallbackEvents;
+        // Make sure we have an array, checking both existence and type
+        const serverEvents = Array.isArray(@json($stats['calendarEvents'] ?? [])) ? @json($stats['calendarEvents'] ?? []) : [];
+        const events = serverEvents.length > 0 ? serverEvents : fallbackEvents;
 
         // Check if FullCalendar is available
         if (typeof FullCalendar === 'undefined') {

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('category', ['plumbing', 'electricity', 'cleaning', 'other']);
             $table->text('description');
             $table->enum('status', ['pending', 'approved', 'rejected', 'completed']);
+            $table->date('scheduled_date')->nullable();
             $table->timestamps();
     
             $table->foreign('tenant_id')->references('user_id')->on('user_details')->onDelete('cascade');
