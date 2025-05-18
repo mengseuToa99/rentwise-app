@@ -11,7 +11,17 @@
                         </a>
                         <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $property->property_name }}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $property->address }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        @php
+                            $addressParts = [];
+                            if($property->house_building_number) $addressParts[] = $property->house_building_number;
+                            if($property->street) $addressParts[] = $property->street;
+                            if($property->village) $addressParts[] = $property->village;
+                            if($property->commune) $addressParts[] = $property->commune;
+                            if($property->district) $addressParts[] = $property->district;
+                        @endphp
+                        {{ implode(', ', $addressParts) }}
+                    </p>
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('properties.edit', $propertyId) }}" class="inline-flex items-center px-3 py-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
@@ -121,7 +131,24 @@
                             
                             <div>
                                 <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Address</h3>
-                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ $property->address }}</p>
+                                <div class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                                    @if($property->house_building_number)
+                                        <p>{{ $property->house_building_number }} (ផ្ទះលេខ/អគារលេខ)</p>
+                                    @endif
+                                    @if($property->street)
+                                        <p>{{ $property->street }} (ផ្លូវ)</p>
+                                    @endif
+                                    @if($property->village)
+                                        <p>{{ $property->village }} (ភូមិ)</p>
+                                    @endif
+                                    @if($property->commune)
+                                        <p>{{ $property->commune }} (សង្កាត់/ឃុំ)</p>
+                                    @endif
+                                    @if($property->district)
+                                        <p>{{ $property->district }} (ខណ្ឌ/ស្រុក)</p>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

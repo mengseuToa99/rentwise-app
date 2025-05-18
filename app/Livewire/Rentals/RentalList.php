@@ -17,6 +17,9 @@ class RentalList extends Component
     public $search = '';
     public $propertyFilter = '';
     public $statusFilter = '';
+    public $perPage = 10; // Default number of rentals per page
+    
+    protected $queryString = ['search', 'propertyFilter', 'statusFilter', 'perPage'];
     
     public function mount()
     {
@@ -24,6 +27,11 @@ class RentalList extends Component
         if (!Auth::check()) {
             return redirect()->route('login');
         }
+    }
+    
+    public function updatedPerPage()
+    {
+        $this->resetPage(); // Reset pagination when changing items per page
     }
     
     public function render()
@@ -64,7 +72,10 @@ class RentalList extends Component
         }
         
         // Get rentals with relationships
-        $rentals = $query->with(['tenant', 'unit', 'unit.property'])->paginate(10);
+        // If perPage is set to 'all', get all records, otherwise paginate
+        $rentals = $this->perPage === 'all' 
+            ? $query->with(['tenant', 'unit', 'unit.property'])->get() 
+            : $query->with(['tenant', 'unit', 'unit.property'])->paginate($this->perPage);
         
         // Get properties for filter dropdown - only from this landlord
         $properties = \App\Models\Property::where('landlord_id', $user->user_id)
@@ -78,10 +89,20 @@ class RentalList extends Component
             'pending' => 'Pending'
         ];
         
+        // Create array of pagination options
+        $paginationOptions = [
+            10 => '10 per page',
+            25 => '25 per page',
+            50 => '50 per page',
+            100 => '100 per page',
+            'all' => 'Show All'
+        ];
+        
         return view('livewire.rentals.rental-list', [
             'rentals' => $rentals,
             'properties' => $properties,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'paginationOptions' => $paginationOptions
         ]);
     }
     
@@ -95,15 +116,14 @@ class RentalList extends Component
                 return;
             }
             
-            // Verify authorization by checking if this landlord owns the rental
+            // Verify authorization
             $user = Auth::user();
-            
             if ($rental->landlord_id !== $user->user_id) {
                 session()->flash('error', 'You are not authorized to delete this rental');
                 return;
             }
             
-            // Make the unit available again
+            // Make the room available again
             $unit = Unit::find($rental->room_id);
             if ($unit) {
                 $unit->available = true;

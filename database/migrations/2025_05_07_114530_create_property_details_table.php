@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id('property_id');
             $table->unsignedBigInteger('landlord_id');
             $table->string('property_name');
-            $table->string('address');
-            $table->string('location');
+            $table->string('house_building_number')->nullable(); // ផ្ទះលេខ / អគារលេខ
+            $table->string('street')->nullable(); // ផ្លូវ
+            $table->string('village')->nullable(); // ភូមិ
+            $table->string('commune')->nullable(); // សង្កាត់/ឃុំ
+            $table->string('district')->nullable(); // ខណ្ឌ/ស្រុក
             $table->integer('total_floors');
             $table->integer('total_rooms');
             $table->text('description')->nullable();

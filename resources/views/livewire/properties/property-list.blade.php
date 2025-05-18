@@ -67,7 +67,17 @@
                             <div class="absolute inset-0 bg-black/10"></div>
                             <div class="absolute bottom-0 left-0 right-0 p-4">
                                 <h2 class="text-lg font-medium text-white">{{ $property->property_name }}</h2>
-                                <p class="text-sm text-white/80 truncate">{{ $property->address }}</p>
+                                <p class="text-sm text-white/80 truncate">
+                                    @php
+                                        $addressParts = [];
+                                        if($property->house_building_number) $addressParts[] = $property->house_building_number;
+                                        if($property->street) $addressParts[] = $property->street;
+                                        if($property->village) $addressParts[] = $property->village;
+                                        if($property->commune) $addressParts[] = $property->commune;
+                                        if($property->district) $addressParts[] = $property->district;
+                                    @endphp
+                                    {{ implode(', ', $addressParts) }}
+                                </p>
                             </div>
                         </div>
                         

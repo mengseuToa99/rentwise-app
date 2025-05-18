@@ -79,6 +79,17 @@
                         </select>
                     </div>
                 </div>
+                
+                <div class="flex justify-end mt-3 border-t dark:border-zinc-700 pt-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Rows per page:</span>
+                        <select wire:model.live="perPage" class="bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm py-1 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            @foreach($paginationOptions as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -150,7 +161,13 @@
             </div>
             
             <div class="mt-4">
-                {{ $units->links() }}
+                @if($perPage !== 'all')
+                    {{ $units->links() }}
+                @else
+                    <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
+                        Showing all {{ $units->count() }} results
+                    </div>
+                @endif
             </div>
         @endif
     </div>

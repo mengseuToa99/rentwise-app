@@ -40,7 +40,11 @@ class PropertyList extends Component
         if (!empty($this->search)) {
             $query->where(function($q) {
                 $q->where('property_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('address', 'like', '%' . $this->search . '%')
+                  ->orWhere('house_building_number', 'like', '%' . $this->search . '%')
+                  ->orWhere('street', 'like', '%' . $this->search . '%')
+                  ->orWhere('village', 'like', '%' . $this->search . '%')
+                  ->orWhere('commune', 'like', '%' . $this->search . '%')
+                  ->orWhere('district', 'like', '%' . $this->search . '%')
                   ->orWhere('description', 'like', '%' . $this->search . '%');
             });
         }
@@ -59,37 +63,20 @@ class PropertyList extends Component
     
     public function deleteProperty($propertyId)
     {
-        $property = Property::find($propertyId);
-        
-        if (!$property) {
-            session()->flash('error', 'Property not found');
-            return;
-        }
-        
-        // Verify ownership
-        $user = Auth::user();
-        
-        if (!$user) {
-            session()->flash('error', 'Authentication failed. Please log in again.');
-            return redirect()->route('login');
-        }
-        
-        // Only allow deleting own properties
-        if ($property->landlord_id !== $user->user_id) {
-            session()->flash('error', 'You are not authorized to delete this property');
-            return;
-        }
-        
         try {
-            // Delete associated units first
-            $property->units()->delete();
+            $property = Property::findOrFail($propertyId);
             
-            // Delete the property
+            // Check if user owns this property
+            if ($property->landlord_id !== Auth::id()) {
+                session()->flash('error', 'You do not have permission to delete this property.');
+                return;
+            }
+            
             $property->delete();
+            session()->flash('success', 'Property deleted successfully.');
             
-            session()->flash('success', 'Property deleted successfully');
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to delete property: ' . $e->getMessage());
+            session()->flash('error', 'Error deleting property: ' . $e->getMessage());
         }
     }
     

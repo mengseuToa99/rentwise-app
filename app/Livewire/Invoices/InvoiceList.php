@@ -21,8 +21,9 @@ class InvoiceList extends Component
     public $dateTo;
     public $viewMode = 'all'; // 'all', 'landlord', 'tenant'
     public $displayMode = 'card'; // 'card' or 'table' view mode
+    public $perPage = 10; // Default number of invoices per page
     
-    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode'];
+    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage'];
     
     public function mount($viewMode = null)
     {
@@ -59,6 +60,11 @@ class InvoiceList extends Component
     {
         $this->viewMode = 'tenant';
         return $this->render();
+    }
+    
+    public function updatedPerPage()
+    {
+        $this->resetPage(); // Reset pagination when changing items per page
     }
     
     public function render()
@@ -117,9 +123,6 @@ class InvoiceList extends Component
         // Order by most recent first
         $query->orderBy('invoice_details.created_at', 'desc');
         
-        // Get invoices with relationships
-        $invoices = $query->with(['rental', 'rental.tenant', 'rental.unit'])->paginate(10);
-        
         // Get rentals for filter dropdown based on view mode
         $rentalsQuery = Rental::query()
                             ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
@@ -133,11 +136,28 @@ class InvoiceList extends Component
         
         $rentals = $rentalsQuery->pluck('tenant_name', 'rental_id');
         
+        // Define pagination options
+        $paginationOptions = [
+            10 => '10',
+            25 => '25',
+            50 => '50',
+            100 => '100',
+            'all' => 'All'
+        ];
+        
+        // If perPage is set to 'all', get all results without pagination
+        if ($this->perPage === 'all') {
+            $invoices = $query->get();
+        } else {
+            $invoices = $query->paginate($this->perPage);
+        }
+        
         return view('livewire.invoices.invoice-list', [
             'invoices' => $invoices,
             'rentals' => $rentals,
             'viewMode' => $this->viewMode,
-            'displayMode' => $this->displayMode
+            'displayMode' => $this->displayMode,
+            'paginationOptions' => $paginationOptions
         ])->layout('components.layouts.app', ['preserveSidebar' => true]);
     }
     

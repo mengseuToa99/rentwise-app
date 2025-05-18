@@ -23,7 +23,6 @@ class PropertyEdit extends Component
     public $description;
     public $totalFloors;
     public $totalRooms;
-    public $location;
     public $status;
     
     protected $rules = [
@@ -37,7 +36,6 @@ class PropertyEdit extends Component
         'description' => 'required|string',
         'totalFloors' => 'required|integer|min:1',
         'totalRooms' => 'required|integer|min:0',
-        'location' => 'required|string|max:255',
         'status' => 'required|string|in:active,inactive',
     ];
     
@@ -48,28 +46,15 @@ class PropertyEdit extends Component
             return redirect()->route('login');
         }
         
-        $this->propertyId = $property;
-        
-        $property = Property::find($this->propertyId);
-        
-        if (!$property) {
-            session()->flash('error', 'Property not found');
-            return redirect()->route('properties.index');
+        // If $property is just an ID (string), fetch the property
+        if (is_string($property) || is_numeric($property)) {
+            $this->propertyId = $property;
+            $property = Property::findOrFail($property);
+        } else {
+            $this->propertyId = $property->property_id;
         }
         
-        // Check if user is authorized to edit this property
-        $authUser = Auth::user();
-        
-        if (!$authUser) {
-            session()->flash('error', 'User profile not found');
-            return redirect()->route('properties.index');
-        }
-        
-        $userRoles = $authUser->roles ?? collect([]);
-        // if (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $authUser->user_id) {
-        //     abort(403, 'Unauthorized action.');
-        // }
-        
+        // Now $property is definitely a Property model
         $this->property_name = $property->property_name;
         
         // Parse the address into individual components
@@ -78,7 +63,6 @@ class PropertyEdit extends Component
         $this->description = $property->description;
         $this->totalFloors = $property->total_floors;
         $this->totalRooms = $property->total_rooms;
-        $this->location = $property->location;
         $this->status = $property->status;
     }
     
@@ -146,12 +130,7 @@ class PropertyEdit extends Component
         $this->validate();
         
         try {
-            $property = Property::find($this->propertyId);
-            
-            if (!$property) {
-                session()->flash('error', 'Property not found');
-                return redirect()->route('properties.index');
-            }
+            $property = Property::findOrFail($this->propertyId);
             
             // Build the full address from individual components
             $fullAddress = trim(implode(', ', array_filter([
@@ -168,15 +147,15 @@ class PropertyEdit extends Component
             $property->description = $this->description;
             $property->total_floors = $this->totalFloors;
             $property->total_rooms = $this->totalRooms;
-            $property->location = $this->location;
             $property->status = $this->status;
+            
             $property->save();
             
-            session()->flash('success', 'Property updated successfully!');
-            return redirect()->route('properties.show', $property->property_id);
+            session()->flash('success', 'Property updated successfully.');
+            return redirect()->route('properties.index');
             
         } catch (\Exception $e) {
-            session()->flash('error', 'Error updating property: ' . $e->getMessage());
+            session()->flash('error', 'Failed to update property: ' . $e->getMessage());
         }
     }
     

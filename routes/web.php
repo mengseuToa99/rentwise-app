@@ -120,6 +120,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/invoices/{invoiceId}/edit', InvoiceForm::class)->name('invoices.edit');
         Route::get('/invoices/{invoiceId}/view', \App\Livewire\Invoices\InvoiceDisplay::class)->name('invoices.view');
         
+        // Utilities management
+        Route::get('/utilities', \App\Livewire\Utilities\UtilityManagement::class)->name('utilities.index');
+        Route::get('/utilities/usage', \App\Livewire\Utilities\UtilityUsageForm::class)->name('utilities.usage');
+        
         // Landlord-specific named routes (for dashboard links)
         Route::get('/landlord/properties', PropertyList::class)->name('landlord.properties');
         Route::get('/landlord/invoices', InvoiceList::class)->name('landlord.invoices');

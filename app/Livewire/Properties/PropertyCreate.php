@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
+use App\Models\Unit;
 
 class PropertyCreate extends Component
 {
@@ -23,7 +24,6 @@ class PropertyCreate extends Component
     public $description;
     public $totalFloors = 1;
     public $totalRooms = 0;
-    public $location = '';
     public $propertyType = 'residential';
     public $yearBuilt;
     public $propertySize;
@@ -31,6 +31,12 @@ class PropertyCreate extends Component
     public $amenities = [];
     public $propertyImages = [];
     public $isPetsAllowed = false;
+    public $autoGenerateUnits = false;
+    public $unitsPerFloor = 4;
+    public $unitNamingConvention = 'numeric';
+    public $defaultRentAmount = 0;
+    public $defaultUnitType = 'Room';
+    public $showAutoGeneratePreview = false;
     
     protected $rules = [
         'property_name' => 'required|string|max:255',
@@ -43,7 +49,6 @@ class PropertyCreate extends Component
         'description' => 'required|string',
         'totalFloors' => 'required|integer|min:1',
         'totalRooms' => 'required|integer|min:0',
-        'location' => 'required|string|max:255',
         'propertyType' => 'required|string|in:residential,commercial,industrial,land',
         'yearBuilt' => 'nullable|integer|min:1800|max:2100',
         'propertySize' => 'nullable|numeric|min:1',
@@ -51,6 +56,11 @@ class PropertyCreate extends Component
         'amenities' => 'nullable|array',
         'propertyImages.*' => 'nullable|image|max:5120', // 5MB max per image
         'isPetsAllowed' => 'boolean',
+        'autoGenerateUnits' => 'boolean',
+        'unitsPerFloor' => 'required_if:autoGenerateUnits,true|integer|min:1',
+        'unitNamingConvention' => 'required_if:autoGenerateUnits,true|string|in:numeric,letter,ordinal',
+        'defaultRentAmount' => 'required_if:autoGenerateUnits,true|numeric|min:0',
+        'defaultUnitType' => 'required_if:autoGenerateUnits,true|string|max:50',
     ];
 
     protected $messages = [
@@ -104,7 +114,6 @@ class PropertyCreate extends Component
             $property->property_name = $this->property_name;
             $property->address = $fullAddress;
             $property->description = $this->description;
-            $property->location = $this->location;
             $property->landlord_id = $user->user_id;
             $property->status = 'active';
             $property->total_floors = $this->totalFloors;
@@ -165,6 +174,11 @@ class PropertyCreate extends Component
                 }
             }
             
+            // Generate units if enabled
+            if ($this->autoGenerateUnits) {
+                $this->generateUnits($property);
+            }
+            
             session()->flash('success', 'Property created successfully!');
             return redirect()->route('properties.show', $property->property_id);
             
@@ -173,26 +187,50 @@ class PropertyCreate extends Component
         }
     }
     
+    /**
+     * Generate units for the property based on floors and units per floor
+     */
+    protected function generateUnits($property)
+    {
+        for ($floor = 1; $floor <= $this->totalFloors; $floor++) {
+            for ($unit = 1; $unit <= $this->unitsPerFloor; $unit++) {
+                $unitName = '';
+                $roomNumber = '';
+                
+                // Generate unit name and room number based on naming convention
+                if ($this->unitNamingConvention === 'numeric') {
+                    $unitName = "Unit " . $floor . str_pad($unit, 2, '0', STR_PAD_LEFT);
+                    $roomNumber = $floor . str_pad($unit, 2, '0', STR_PAD_LEFT);
+                } elseif ($this->unitNamingConvention === 'letter') {
+                    $unitName = "Unit " . $floor . chr(64 + $unit);
+                    $roomNumber = $floor . chr(64 + $unit);
+                } else {
+                    $unitName = $floor . "th Floor Room " . $unit;
+                    $roomNumber = $floor . "-" . $unit;
+                }
+                
+                // Create the unit
+                $unitModel = new Unit();
+                $unitModel->property_id = $property->property_id;
+                $unitModel->room_name = $unitName;
+                $unitModel->room_number = $roomNumber;
+                $unitModel->floor_number = $floor;
+                $unitModel->type = $this->defaultUnitType;
+                $unitModel->room_type = $this->defaultUnitType;
+                $unitModel->rent_amount = $this->defaultRentAmount;
+                $unitModel->due_date = now()->format('Y-m-d'); // Default due date
+                $unitModel->status = 'vacant';
+                $unitModel->description = "Auto-generated unit for " . $property->property_name;
+                $unitModel->save();
+            }
+        }
+    }
+    
+    /**
+     * Render the property create view
+     */
     public function render()
     {
-        $authUser = Auth::user();
-        
-        if (!$authUser) {
-            session()->flash('error', 'Authentication failed. Please log in again.');
-            return redirect()->route('login');
-        }
-        
-        $availableAmenities = [
-            'parking' => 'Parking',
-            'gym' => 'Gym',
-            'pool' => 'Swimming Pool',
-            'security' => '24/7 Security',
-            'elevator' => 'Elevator',
-            'wifi' => 'WiFi',
-            'ac' => 'Air Conditioning',
-            'heating' => 'Heating'
-        ];
-        
         $propertyTypes = [
             'residential' => 'Residential',
             'commercial' => 'Commercial',
@@ -201,16 +239,57 @@ class PropertyCreate extends Component
         ];
         
         $sizeUnits = [
-            'sqft' => 'Square Feet',
-            'sqm' => 'Square Meters',
-            'acre' => 'Acres',
-            'hectare' => 'Hectares'
+            'sqft' => 'sq ft',
+            'sqm' => 'sq m',
+            'acre' => 'acre',
+            'hectare' => 'hectare'
+        ];
+        
+        $availableAmenities = [
+            'parking' => 'Parking',
+            'swimming_pool' => 'Swimming Pool',
+            'gym' => 'Gym',
+            'security' => '24/7 Security',
+            'elevator' => 'Elevator',
+            'internet' => 'Internet',
+            'air_conditioning' => 'Air Conditioning',
+            'furnished' => 'Furnished'
         ];
         
         return view('livewire.properties.property-create', [
-            'availableAmenities' => $availableAmenities,
             'propertyTypes' => $propertyTypes,
-            'sizeUnits' => $sizeUnits
+            'sizeUnits' => $sizeUnits,
+            'availableAmenities' => $availableAmenities
         ]);
     }
-} 
+
+    public function updatedAutoGenerateUnits()
+    {
+        // When toggle is clicked, immediately show/hide the preview
+        $this->showAutoGeneratePreview = $this->autoGenerateUnits;
+    }
+    
+    public function updatedUnitsPerFloor()
+    {
+        // When units per floor changes, update the preview if auto-generate is enabled
+        if ($this->autoGenerateUnits) {
+            $this->showAutoGeneratePreview = true;
+        }
+    }
+    
+    public function updatedUnitNamingConvention()
+    {
+        // When naming convention changes, update the preview if auto-generate is enabled
+        if ($this->autoGenerateUnits) {
+            $this->showAutoGeneratePreview = true;
+        }
+    }
+    
+    public function updatedTotalFloors()
+    {
+        // When total floors changes, update the preview if auto-generate is enabled
+        if ($this->autoGenerateUnits) {
+            $this->showAutoGeneratePreview = true;
+        }
+    }
+}

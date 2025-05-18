@@ -93,12 +93,6 @@
                     </div>
                     
                     <div class="grid gap-1.5">
-                        <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
-                        <input wire:model="location" type="text" id="location" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
-                        @error('location') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
-                    
-                    <div class="grid gap-1.5">
                         <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                         <select wire:model="status" id="status" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             <option value="active">Active</option>

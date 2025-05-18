@@ -17,6 +17,7 @@ class Unit extends Model
         'property_id',
         'pricing_group_id',
         'room_number',
+        'type',
         'room_type',
         'floor_number',
         'room_name',
@@ -51,6 +52,7 @@ class Unit extends Model
     {
         if ($this->pricing_group_id && $this->pricingGroup) {
             $this->rent_amount = $this->pricingGroup->base_price;
+            $this->type = $this->pricingGroup->room_type;
             $this->room_type = $this->pricingGroup->room_type;
             $this->save();
         }

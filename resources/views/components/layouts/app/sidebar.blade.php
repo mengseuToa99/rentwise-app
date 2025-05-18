@@ -258,6 +258,8 @@
                 <!-- Finance - For Landlords only -->
                 <flux:navlist.group :heading="__('Finance')" class="grid">
                     <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('Invoices') }}</flux:navlist.item>
+                    <flux:navlist.item icon="bolt" :href="route('utilities.index')" :current="request()->routeIs('utilities.index')" wire:navigate>{{ __('Utilities') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('Utility Usage') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @endif
 

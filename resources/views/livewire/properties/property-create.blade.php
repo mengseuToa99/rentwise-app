@@ -101,7 +101,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="grid gap-1.5">
                             <label for="totalFloors" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total Floors*</label>
-                            <input wire:model="totalFloors" type="number" min="1" id="totalFloors" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model.live="totalFloors" type="number" min="1" id="totalFloors" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             @error('totalFloors') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                         </div>
                         
@@ -130,6 +130,153 @@
                         <textarea wire:model="description" id="description" rows="4" placeholder="Detailed description of the property" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
                         @error('description') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
+                </div>
+                
+                <!-- Auto Generate Units Section -->
+                <div class="border-b border-gray-300 dark:border-zinc-700 p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Auto Generate Units</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Save time by automatically creating units for all floors</p>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <div class="mr-3">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" wire:model.live="autoGenerateUnits" class="sr-only peer">
+                                    <div class="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">{{ $autoGenerateUnits ? 'Enabled' : 'Disabled' }}</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $autoGenerateUnits ? 'Units will be created automatically' : 'Toggle to enable auto-generation' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if($autoGenerateUnits)
+                    <div class="bg-gray-50 dark:bg-zinc-800 rounded-lg p-5 border border-gray-200 dark:border-zinc-700">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="grid gap-1.5">
+                                <label for="unitsPerFloor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center">
+                                        <span>Units Per Floor</span>
+                                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">(how many units on each floor)</span>
+                                    </div>
+                                </label>
+                                <div class="flex items-center">
+                                    <input wire:model.live="unitsPerFloor" type="number" min="1" id="unitsPerFloor" placeholder="e.g. 4" class="block w-full rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <div class="ml-2 text-gray-500 dark:text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @error('unitsPerFloor') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div class="grid gap-1.5">
+                                <label for="unitNamingConvention" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center">
+                                        <span>Unit Naming Convention</span>
+                                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">(how units will be numbered)</span>
+                                    </div>
+                                </label>
+                                <select wire:model.live="unitNamingConvention" id="unitNamingConvention" class="block w-full rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <option value="numeric">Numeric (101, 102, 201, 202)</option>
+                                    <option value="letter">Letter (1A, 1B, 2A, 2B)</option>
+                                    <option value="ordinal">Ordinal (1st Floor Room 1, 1st Floor Room 2)</option>
+                                </select>
+                                @error('unitNamingConvention') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div class="grid gap-1.5">
+                                <label for="defaultRentAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center">
+                                        <span>Default Rent Amount</span>
+                                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">(applied to all units)</span>
+                                    </div>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 dark:text-gray-400">$</span>
+                                    </div>
+                                    <input wire:model.live="defaultRentAmount" type="number" min="0" step="0.01" id="defaultRentAmount" placeholder="e.g. 1000.00" class="block w-full pl-8 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                </div>
+                                @error('defaultRentAmount') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div class="grid gap-1.5">
+                                <label for="defaultUnitType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center">
+                                        <span>Default Unit Type</span>
+                                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">(e.g. Studio, 1BHK)</span>
+                                    </div>
+                                </label>
+                                <input wire:model.live="defaultUnitType" type="text" id="defaultUnitType" placeholder="e.g. Studio, 1BHK" class="block w-full rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                @error('defaultUnitType') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                        
+                        @if($totalFloors > 0 && $unitsPerFloor > 0)
+                        <div class="bg-white dark:bg-zinc-900 rounded-lg p-5 border border-gray-200 dark:border-zinc-700">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-md font-medium text-gray-800 dark:text-white">Preview of Units</h3>
+                                <span class="text-sm text-blue-600 dark:text-blue-400">Total: {{ $totalFloors * $unitsPerFloor }} units</span>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                @php
+                                $maxFloorsToShow = min($totalFloors, 3); // Show max 3 floors in preview
+                                $maxUnitsPerFloorToShow = min($unitsPerFloor, 8); // Show max 8 units per floor
+                                @endphp
+                                
+                                @for($floor = 1; $floor <= $maxFloorsToShow; $floor++)
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Floor {{ $floor }}</h4>
+                                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
+                                            @for($unit = 1; $unit <= $maxUnitsPerFloorToShow; $unit++)
+                                                @php
+                                                $unitName = '';
+                                                if($unitNamingConvention === 'numeric') {
+                                                    $unitName = $floor . str_pad($unit, 2, '0', STR_PAD_LEFT);
+                                                } elseif($unitNamingConvention === 'letter') {
+                                                    $unitName = $floor . chr(64 + $unit);
+                                                } else {
+                                                    $unitName = $floor . '-' . $unit;
+                                                }
+                                                @endphp
+                                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-2 rounded-md text-xs text-center text-blue-700 dark:text-blue-300 font-medium">
+                                                    {{ $unitName }}
+                                                </div>
+                                            @endfor
+                                            
+                                            @if($unitsPerFloor > $maxUnitsPerFloorToShow)
+                                                <div class="flex items-center justify-center bg-gray-50 dark:bg-zinc-800 p-2 rounded-md text-xs text-gray-500 dark:text-gray-400">
+                                                    +{{ $unitsPerFloor - $maxUnitsPerFloorToShow }} more
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endfor
+                                
+                                @if($totalFloors > $maxFloorsToShow)
+                                    <div class="flex items-center justify-center bg-gray-50 dark:bg-zinc-800 p-3 rounded-md text-sm text-gray-500 dark:text-gray-400">
+                                        +{{ $totalFloors - $maxFloorsToShow }} more floors
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Units will be created with the specified details when you save the property</span>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
                 </div>
                 
                 <!-- Amenities Section -->

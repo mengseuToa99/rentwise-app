@@ -15,6 +15,9 @@ class UnitList extends Component
     public $search = '';
     public $propertyFilter = '';
     public $availabilityFilter = '';
+    public $perPage = 10; // Default number of units per page
+    
+    protected $queryString = ['search', 'propertyFilter', 'availabilityFilter', 'perPage'];
     
     public function mount()
     {
@@ -22,6 +25,11 @@ class UnitList extends Component
         if (!Auth::check()) {
             return redirect()->route('login');
         }
+    }
+    
+    public function updatedPerPage()
+    {
+        $this->resetPage();
     }
     
     public function render()
@@ -60,7 +68,10 @@ class UnitList extends Component
         }
         
         // Get units with their property information
-        $units = $query->with('property')->paginate(10);
+        // If perPage is set to 'all', get all records, otherwise paginate
+        $units = $this->perPage === 'all' 
+            ? $query->with('property')->get() 
+            : $query->with('property')->paginate($this->perPage);
         
         // Get properties for the filter dropdown
         $properties = Property::query();
@@ -70,9 +81,19 @@ class UnitList extends Component
         }
         $properties = $properties->pluck('property_name', 'property_id');
         
+        // Create array of pagination options
+        $paginationOptions = [
+            10 => '10 per page',
+            25 => '25 per page',
+            50 => '50 per page',
+            100 => '100 per page',
+            'all' => 'Show All'
+        ];
+        
         return view('livewire.units.unit-list', [
             'units' => $units,
-            'properties' => $properties
+            'properties' => $properties,
+            'paginationOptions' => $paginationOptions
         ]);
     }
     

@@ -177,7 +177,18 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-sm text-gray-600 dark:text-gray-400">Address:</span>
-                                    <span class="text-sm text-gray-900 dark:text-white">{{ $invoice->rental->unit->property->address ?? 'Not available' }}</span>
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        @php
+                                            $property = $invoice->rental->unit->property;
+                                            $addressParts = [];
+                                            if($property->house_building_number) $addressParts[] = $property->house_building_number;
+                                            if($property->street) $addressParts[] = $property->street;
+                                            if($property->village) $addressParts[] = $property->village;
+                                            if($property->commune) $addressParts[] = $property->commune;
+                                            if($property->district) $addressParts[] = $property->district;
+                                        @endphp
+                                        {{ !empty($addressParts) ? implode(', ', $addressParts) : 'Not available' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>

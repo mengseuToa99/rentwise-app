@@ -16,8 +16,11 @@ class Property extends Model
     protected $fillable = [
         'landlord_id',
         'property_name',
-        'address',
-        'location',
+        'house_building_number',
+        'street',
+        'village',
+        'commune',
+        'district',
         'total_floors',
         'total_rooms',
         'description',
