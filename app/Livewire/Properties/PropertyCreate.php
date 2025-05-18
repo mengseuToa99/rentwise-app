@@ -14,7 +14,12 @@ class PropertyCreate extends Component
     use WithFileUploads;
     
     public $property_name;
-    public $address;
+    public $street_number = '';
+    public $house_number = '';
+    public $village = '';
+    public $commune = '';
+    public $district = '';
+    public $province = '';
     public $description;
     public $totalFloors = 1;
     public $totalRooms = 0;
@@ -29,7 +34,12 @@ class PropertyCreate extends Component
     
     protected $rules = [
         'property_name' => 'required|string|max:255',
-        'address' => 'required|string|max:255',
+        'street_number' => 'nullable|string|max:255',
+        'house_number' => 'nullable|string|max:255',
+        'village' => 'required|string|max:255',
+        'commune' => 'required|string|max:255',
+        'district' => 'required|string|max:255',
+        'province' => 'required|string|max:255',
         'description' => 'required|string',
         'totalFloors' => 'required|integer|min:1',
         'totalRooms' => 'required|integer|min:0',
@@ -80,9 +90,19 @@ class PropertyCreate extends Component
                 return redirect()->route('login');
             }
             
+            // Build the full address from individual components
+            $fullAddress = trim(implode(', ', array_filter([
+                $this->street_number,
+                $this->house_number,
+                $this->village,
+                $this->commune,
+                $this->district,
+                $this->province
+            ])));
+            
             $property = new Property();
             $property->property_name = $this->property_name;
-            $property->address = $this->address;
+            $property->address = $fullAddress;
             $property->description = $this->description;
             $property->location = $this->location;
             $property->landlord_id = $user->user_id;

@@ -34,9 +34,44 @@
                     </div>
                     
                     <div class="grid gap-1.5">
-                        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
-                        <textarea wire:model="address" id="address" rows="3" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
-                        @error('address') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address Details</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="street_number" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Street Number</label>
+                                <input wire:model="street_number" type="text" id="street_number" placeholder="Street Number" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('street_number') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="house_number" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">House Number</label>
+                                <input wire:model="house_number" type="text" id="house_number" placeholder="House Number" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('house_number') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="village" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Village/City</label>
+                                <input wire:model="village" type="text" id="village" placeholder="Village or City" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('village') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="commune" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Commune/Sangkat</label>
+                                <input wire:model="commune" type="text" id="commune" placeholder="Commune or Sangkat" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('commune') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="district" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">District/Khan</label>
+                                <input wire:model="district" type="text" id="district" placeholder="District or Khan" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('district') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="province" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Province/City</label>
+                                <input wire:model="province" type="text" id="province" placeholder="Province or City" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                @error('province') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="grid gap-1.5">
