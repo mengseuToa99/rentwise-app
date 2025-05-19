@@ -55,17 +55,33 @@ class Login extends Component
                 return;
             }
             
-            // Safely log user roles if they exist
-            $roles = $user->roles ? $user->roles->pluck('role_name') : collect(['none']);
-            Log::debug('Login attempt', [
-                'user_id' => $user->user_id,
+            // Debug log the hash details
+            Log::info('Login attempt details', [
                 'email' => $user->email,
-                'has_roles' => $user->roles !== null,
-                'roles' => $roles
+                'password_hash_exists' => !empty($user->password_hash),
+                'password_hash_length' => strlen($user->password_hash),
+                'password_hash_format' => substr($user->password_hash, 0, 4)
             ]);
             
-            // Direct password verification
-            if (Hash::check($this->password, $user->password_hash)) {
+            // Check if password hash exists and has the right format
+            if (empty($user->password_hash) || strlen($user->password_hash) < 20) {
+                Log::error('Invalid password hash format', [
+                    'email' => $user->email,
+                    'hash_length' => strlen($user->password_hash)
+                ]);
+                session()->flash('error', 'Account password is not properly set. Please use the password reset link.');
+                return;
+            }
+            
+            // Direct password verification with diagnostics
+            $passwordCorrect = Hash::check($this->password, $user->password_hash);
+            
+            Log::info('Password verification result', [
+                'email' => $user->email,
+                'result' => $passwordCorrect ? 'Correct' : 'Incorrect'
+            ]);
+            
+            if ($passwordCorrect) {
                 // Update login stats
                 $user->last_login = now();
                 $user->failed_login_attempts = 0;
@@ -74,18 +90,14 @@ class Login extends Component
                 // Manual authentication
                 Auth::login($user, $this->remember);
                 
-                // Safely log authenticated user info
-                $authUser = Auth::user();
-                $authRoles = $authUser && $authUser->roles ? $authUser->roles->pluck('role_name') : collect(['none']);
-                
-                Log::debug('User authenticated successfully', [
-                    'user_id' => Auth::id(),
-                    'has_roles' => $authUser && $authUser->roles !== null,
-                    'roles' => $authRoles
+                // Log success
+                Log::info('Login successful', [
+                    'email' => $user->email,
+                    'user_id' => $user->user_id
                 ]);
                 
                 // Redirect to dashboard
-                redirect()->intended(route('dashboard'));
+                $this->redirectRoute('dashboard');
                 return;
             }
             
@@ -93,14 +105,15 @@ class Login extends Component
             $user->failed_login_attempts = $user->failed_login_attempts + 1;
             $user->save();
             
-            session()->flash('error', 'Invalid credentials');
+            // Detailed error message
+            session()->flash('error', 'Invalid password. Please try again or use the "Forgot password" link.');
             
         } catch (\Exception $e) {
             Log::error('Login error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            session()->flash('error', 'An error occurred during login');
+            session()->flash('error', 'An error occurred during login. Please try again.');
         }
     }
 

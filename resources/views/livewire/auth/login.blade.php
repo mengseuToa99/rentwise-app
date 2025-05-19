@@ -19,13 +19,24 @@
                         <p class="text-balance text-sm text-gray-500 dark:text-gray-400">
                             Enter your email below to login to your account
                         </p>
-        </div>
+                    </div>
 
-            @if (session('error'))
+                    @if (session('status'))
+                        <div class="p-4 mb-2 text-sm text-green-800 bg-green-100 dark:bg-green-900/20 dark:text-green-300 rounded-md shadow-md border border-green-200 dark:border-green-800 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                {{ session('status') }}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
                         <div class="p-3 text-sm text-red-600 bg-red-100/40 dark:bg-red-900/20 dark:text-red-400 rounded-md">
-                    {{ session('error') }}
-                </div>
-            @endif
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     <div class="grid gap-4">
                         <div class="grid gap-1.5">
@@ -41,15 +52,15 @@
                             @error('email') 
                                 <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
                             @enderror
-                </div>
+                        </div>
 
                         <div class="grid gap-1.5">
                             <div class="flex items-center">
                                 <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                                <a href="#" class="ml-auto text-sm text-gray-500 dark:text-gray-400 underline-offset-4 hover:underline">
+                                <a href="{{ route('password.reset') }}" class="ml-auto text-sm text-gray-500 dark:text-gray-400 underline-offset-4 hover:underline">
                                     Forgot password?
                                 </a>
-                    </div>
+                            </div>
                             <input 
                                 wire:model="password"
                                 id="password"
@@ -60,7 +71,7 @@
                             @error('password') 
                                 <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
                             @enderror
-                    </div>
+                        </div>
                         
                         <div class="flex items-center space-x-2">
                             <input 
@@ -70,7 +81,7 @@
                                 class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-gray-600 focus:ring-gray-500 dark:bg-zinc-700"
                             >
                             <label for="remember" class="text-sm text-gray-600 dark:text-gray-400">Remember me</label>
-                </div>
+                        </div>
 
                         <button 
                             type="submit"
@@ -84,7 +95,7 @@
                             <span class="relative z-10 bg-gray-50 dark:bg-zinc-900 px-2 text-gray-500 dark:text-gray-400">
                                 Or continue with
                             </span>
-                </div>
+                        </div>
 
                         <div class="flex justify-center gap-4">
                             <!-- Google Login Button -->
@@ -128,7 +139,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="#1877F2">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                 </svg>
-                    </a>
+                            </a>
                         </div>
                     </div>
                     
@@ -147,7 +158,7 @@
                     </div>
                     
                     <!-- Theme Toggle Button removed from here and positioned fixed on the screen -->
-            </form>
+                </form>
             </div>
         </div>
     </div>

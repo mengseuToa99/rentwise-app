@@ -6,12 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanResetPassword;
 
     /**
      * The primary key for the model.
@@ -95,6 +97,24 @@ class User extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password_hash;
+    }
+    
+    /**
+     * Get the password attribute for Laravel's Password Broker
+     * This is needed for password reset to work properly
+     */
+    public function getPasswordAttribute()
+    {
+        return $this->password_hash;
+    }
+    
+    /**
+     * Set the password attribute for Laravel's Password Broker
+     * This is needed for password reset to work properly
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password_hash'] = $value;
     }
     
     /**

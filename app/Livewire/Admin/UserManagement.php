@@ -7,6 +7,8 @@ use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class UserManagement extends Component
 {
@@ -173,6 +175,36 @@ class UserManagement extends Component
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting user: ' . $e->getMessage());
+        }
+    }
+
+    public function sendResetPassword($userId)
+    {
+        try {
+            $user = User::find($userId);
+            if ($user) {
+                // Use Laravel's password broker to create reset token
+                $token = app('auth.password.broker')->createToken($user);
+                
+                // Store diagnostic information in logs
+                \Illuminate\Support\Facades\Log::info('Admin initiated password reset', [
+                    'user_email' => $user->email,
+                    'token_length' => strlen($token)
+                ]);
+
+                // Send password reset email
+                Mail::to($user->email)->send(new \App\Mail\ResetPassword($user, $token));
+                
+                session()->flash('success', 'Password reset email has been sent to ' . $user->email);
+            }
+        } catch (\Exception $e) {
+            // Log the error for diagnostics
+            \Illuminate\Support\Facades\Log::error('Error sending password reset email', [
+                'error' => $e->getMessage(),
+                'user_id' => $userId
+            ]);
+            
+            session()->flash('error', 'Error sending password reset email: ' . $e->getMessage());
         }
     }
 }

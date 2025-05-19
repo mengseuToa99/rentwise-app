@@ -44,6 +44,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\SocialAuthController;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password as PasswordFacade;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 // Public routes
 Route::get('/', function () {
@@ -517,3 +521,68 @@ Route::get('/fix-admin-role', function () {
         ], 500);
     }
 });
+
+Route::get('/reset-password', function () {
+    return view('auth.reset-password');
+})->name('password.reset');
+
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    // Log the reset attempt
+    \Illuminate\Support\Facades\Log::info('Password reset attempt', [
+        'email' => $request->email,
+        'has_token' => !empty($request->token)
+    ]);
+
+    $status = PasswordFacade::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function (User $user, string $password) {
+            // Direct update approach
+            $hashedPassword = Hash::make($password);
+            
+            // Log the hash details
+            \Illuminate\Support\Facades\Log::info('Password hash generated', [
+                'user_email' => $user->email,
+                'hash_length' => strlen($hashedPassword),
+                'hash_format' => substr($hashedPassword, 0, 4)
+            ]);
+            
+            // Update user directly (without forceFill)
+            $user->password_hash = $hashedPassword;
+            $user->save();
+            
+            // Verify the password hash works
+            $passwordVerifies = Hash::check($password, $user->password_hash);
+            
+            // Log verification result
+            \Illuminate\Support\Facades\Log::info('Password verification check', [
+                'user_email' => $user->email,
+                'verification' => $passwordVerifies ? 'Success' : 'Failed',
+                'db_hash_length' => strlen($user->password_hash)
+            ]);
+            
+            if (!$passwordVerifies) {
+                throw new \Exception('Password verification failed after reset');
+            }
+        }
+    );
+
+    // Log the result
+    \Illuminate\Support\Facades\Log::info('Password reset result', [
+        'email' => $request->email,
+        'status' => $status
+    ]);
+
+    if ($status == PasswordFacade::PASSWORD_RESET) {
+        return redirect()->route('login')
+            ->with('status', 'Your password has been reset successfully! You can now login with your new password.');
+    }
+
+    return back()->withInput($request->only('email'))
+            ->withErrors(['email' => __($status)]);
+})->name('password.update');
