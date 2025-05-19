@@ -2,9 +2,9 @@
     <div class="max-w-7xl mx-auto">
         <!-- Page Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Bulk Invoice Generator</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Monthly Invoice Generator</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                Enter utility readings for your properties
+                Generate invoices for units that are due or past due this month
             </p>
         </div>
         
@@ -31,7 +31,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Generate All Invoices
+                    Generate All Due Invoices
                 </button>
             </div>
             
@@ -122,7 +122,7 @@
                             <div class="flex justify-between items-center mb-4">
                                 <div class="text-sm text-gray-600 dark:text-gray-400">Due Date</div>
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ now()->addDays(15)->format('M d, Y') }}
+                                    {{ \Carbon\Carbon::parse($reading['due_date'])->format('M d, Y') }}
                                 </div>
                             </div>
 
@@ -150,9 +150,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 class="mt-4 text-xl font-medium text-gray-900 dark:text-white">No active rentals found</h3>
+                <h3 class="mt-4 text-xl font-medium text-gray-900 dark:text-white">No units due for invoice</h3>
                 <p class="mt-2 text-gray-500 dark:text-gray-400">
-                    There are no active rentals that need utility readings at this time.
+                    There are no units that need invoices at this time. Check back later when units are due.
                 </p>
             </div>
         @endif

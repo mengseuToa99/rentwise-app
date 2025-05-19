@@ -33,6 +33,7 @@ class BulkInvoiceGenerator extends Component
     public function loadSuggestedReadings()
     {
         $user = Auth::user();
+        $today = now();
         
         // Get all active rentals for the landlord's properties
         $rentals = Rental::join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
@@ -56,6 +57,25 @@ class BulkInvoiceGenerator extends Component
         $this->readings = [];
         
         foreach ($rentals as $rental) {
+            // Calculate the next due date based on rental start date
+            $startDate = Carbon::parse($rental->start_date);
+            $nextDueDate = $this->calculateNextDueDate($startDate);
+            
+            // Skip if the next due date is more than 5 days in the future
+            if ($nextDueDate->diffInDays($today) > 5) {
+                continue;
+            }
+            
+            // Check if an invoice already exists for this month
+            $existingInvoice = Invoice::where('rental_id', $rental->rental_id)
+                ->whereMonth('created_at', $today->month)
+                ->whereYear('created_at', $today->year)
+                ->first();
+                
+            if ($existingInvoice) {
+                continue;
+            }
+            
             foreach ($utilities as $utility) {
                 // Get the last reading for this unit and utility
                 $lastReading = UtilityUsage::where('room_id', $rental->room_id)
@@ -83,10 +103,25 @@ class BulkInvoiceGenerator extends Component
                     'amount_used' => 0,
                     'rate' => $currentRate,
                     'total_charge' => 0,
-                    'include' => true
+                    'include' => true,
+                    'due_date' => $nextDueDate->format('Y-m-d')
                 ];
             }
         }
+    }
+    
+    protected function calculateNextDueDate($startDate)
+    {
+        $today = now();
+        $startDay = $startDate->day;
+        
+        // If we're past the start day this month, use next month
+        if ($today->day > $startDay) {
+            return $today->copy()->addMonth()->setDay($startDay);
+        }
+        
+        // Otherwise use this month
+        return $today->copy()->setDay($startDay);
     }
     
     public function updatedReadings($value, $key)
@@ -125,9 +160,10 @@ class BulkInvoiceGenerator extends Component
             
             $invoicesCreated = 0;
             $readingDate = now()->format('Y-m-d');
-            $dueDate = now()->addDays(15)->format('Y-m-d');
             
             if (isset($this->readings[$roomId])) {
+                $dueDate = $this->readings[$roomId][array_key_first($this->readings[$roomId])]['due_date'];
+                
                 foreach ($this->readings[$roomId] as $utilityId => $reading) {
                     if ($reading['include'] && 
                         !empty($reading['new_reading']) && 
@@ -191,9 +227,10 @@ class BulkInvoiceGenerator extends Component
             
             $invoicesCreated = 0;
             $readingDate = now()->format('Y-m-d');
-            $dueDate = now()->addDays(15)->format('Y-m-d');
             
             foreach ($this->readings as $roomId => $utilityReadings) {
+                $dueDate = $utilityReadings[array_key_first($utilityReadings)]['due_date'];
+                
                 foreach ($utilityReadings as $utilityId => $reading) {
                     if ($reading['include'] && 
                         !empty($reading['new_reading']) && 
