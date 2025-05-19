@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\User;
 
 class UtilityUsageForm extends Component
 {
@@ -139,6 +140,66 @@ class UtilityUsageForm extends Component
         }
     }
     
+    public function calculate()
+    {
+        if (!$this->utility_id || !$this->room_id) {
+            return;
+        }
+        
+        // Get the utility and room
+        $utility = Utility::find($this->utility_id);
+        $room = Room::find($this->room_id);
+        
+        if (!$utility || !$room) {
+            return;
+        }
+        
+        // Get latest reading for this utility and room
+        $this->previousReading = UtilityUsage::where('utility_id', $this->utility_id)
+            ->where('room_id', $this->room_id)
+            ->latest('usage_date')
+            ->first();
+        
+        if ($this->previousReading) {
+            $this->old_meter_reading = $this->previousReading->new_meter_reading;
+        } else {
+            // If no previous reading, start from 0 or a default value
+            $this->old_meter_reading = 0;
+        }
+        
+        $this->calculateUsageAndCharge();
+    }
+    
+    public function calculateUsageAndCharge()
+    {
+        if ($this->new_meter_reading === null || $this->old_meter_reading === null) {
+            return;
+        }
+        
+        // Calculate usage
+        $this->amount_used = max(0, $this->new_meter_reading - $this->old_meter_reading);
+        
+        // Get the unit price
+        $utility = Utility::find($this->utility_id);
+        
+        if ($utility) {
+            $this->rate_per_unit = $utility->rate_per_unit;
+            // Calculate charge
+            $this->calculated_charge = $this->amount_used * $this->rate_per_unit;
+        }
+    }
+    
+    public function updated($name, $value)
+    {
+        if ($name === 'new_meter_reading' || $name === 'rate_per_unit') {
+            $this->calculateUsageAndCharge();
+        }
+        
+        if ($name === 'utility_id' || $name === 'room_id') {
+            $this->calculate();
+        }
+    }
+    
     public function save()
     {
         $this->validate();
@@ -178,19 +239,35 @@ class UtilityUsageForm extends Component
                     'amount_due' => $this->calculated_charge,
                     'due_date' => $this->due_date,
                     'payment_status' => 'pending',
-                    'description' => "{$utilityName} usage ({$this->amount_used} units) from " . Carbon::parse($this->previousReading?->usage_date ?? $this->usage_date)->format('d M Y') . " to " . Carbon::parse($this->usage_date)->format('d M Y')
+                    'payment_method' => 'cash',
+                    'paid' => false,
+                    'description' => "{$utilityName} usage ({$this->amount_used} units) from " . 
+                        Carbon::parse($this->previousReading?->usage_date ?? $this->usage_date)->format('d M Y') . 
+                        " to " . Carbon::parse($this->usage_date)->format('d M Y')
                 ]);
+                
+                // Send notification to tenant
+                try {
+                    $tenant = User::find($rental->tenant_id);
+                    if ($tenant && $tenant->email) {
+                        // You can implement email notification here
+                        // Mail::to($tenant->email)->send(new InvoiceCreated($invoice));
+                    }
+                } catch (\Exception $e) {
+                    // Log the error but continue with the process
+                    \Log::error("Failed to send invoice notification: " . $e->getMessage());
+                }
             }
             
             DB::commit();
             
             session()->flash('success', 'Utility usage recorded successfully' . 
-                ($this->create_invoice ? ' and invoice created.' : '.'));
+                ($this->create_invoice ? ' and invoice created' : ''));
                 
-            $this->resetForm();
+            return redirect()->route('utilities.usage.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error recording utility usage: ' . $e->getMessage());
+            session()->flash('error', 'Failed to save utility usage: ' . $e->getMessage());
         }
     }
     

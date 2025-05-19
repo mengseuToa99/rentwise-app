@@ -26,12 +26,20 @@
                 </button>
                 
                 @if($viewMode !== 'tenant')
-                <a href="{{ route('invoices.create') }}" class="inline-flex items-center px-3 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md font-medium text-sm text-white shadow-sm transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add Invoice
-                </a>
+                <div class="flex space-x-2">
+                    <a href="{{ route('invoices.create') }}" class="inline-flex items-center px-3 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md font-medium text-sm text-white shadow-sm transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Invoice
+                    </a>
+                    <a href="{{ route('invoices.bulk-create') }}" class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 rounded-md font-medium text-sm text-white shadow-sm transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        Bulk Create
+                    </a>
+                </div>
                 @endif
             </div>
         </div>
@@ -86,6 +94,20 @@
                             <option value="pending">Pending</option>
                             <option value="paid">Paid</option>
                             <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="propertyFilter" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Property</label>
+                        <select 
+                            wire:model.live="propertyFilter" 
+                            id="propertyFilter" 
+                            class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="">All Properties</option>
+                            @foreach ($properties as $id => $name)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     
@@ -168,61 +190,92 @@
                             <div class="relative w-full h-full transform transition-all duration-700 ease-in-out" 
                                 x-data="{ isFlipped: false }"
                                 :class="{ 'rotate-y-180': isFlipped }"
-                                style="transform-style: preserve-3d; min-height: 360px;">
+                                style="transform-style: preserve-3d; min-height: 500px;">
                                 
                                 <!-- Front of Card (Summary) -->
-                                <div class="absolute w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 backface-hidden border border-gray-200 dark:border-zinc-800" style="min-height: 360px;">
-                                    <div class="relative">
-                                        <!-- Status Badge (top right corner) -->
-                                        @php
-                                            $statusColors = [
-                                                'paid' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                                                'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-                                                'overdue' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-                                            ];
-                                            $statusColor = $statusColors[$invoice->payment_status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
-                                        @endphp
-                                        <div class="absolute top-4 right-4">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
-                                                {{ ucfirst($invoice->payment_status) }}
-                                            </span>
-                                        </div>
-                                        
-                                        <!-- Card Header -->
-                                        <div class="p-5 border-b border-gray-200 dark:border-zinc-700">
-                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                                                INV-{{ str_pad($invoice->invoice_id, 5, '0', STR_PAD_LEFT) }}
-                                            </h3>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                Due: {{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}
-                                            </p>
+                                <div class="absolute w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 backface-hidden border border-gray-200 dark:border-zinc-800" style="min-height: 500px;">
+                                    <div class="relative h-full flex flex-col">
+                                        <!-- Card Header with Status -->
+                                        <div class="p-4 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                                                        INV-{{ str_pad($invoice->invoice_id, 5, '0', STR_PAD_LEFT) }}
+                                                    </h3>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                        Due: {{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}
+                                                    </p>
+                                                </div>
+                                                @php
+                                                    $statusColors = [
+                                                        'paid' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                                                        'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                                        'overdue' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+                                                    ];
+                                                    $statusColor = $statusColors[$invoice->payment_status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+                                                @endphp
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                    {{ ucfirst($invoice->payment_status) }}
+                                                </span>
+                                            </div>
                                         </div>
                                         
                                         <!-- Card Content -->
-                                        <div class="p-5 space-y-3">
-                                            <div class="flex justify-between">
-                                                <span class="text-sm text-gray-600 dark:text-gray-400">Tenant:</span>
-                                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->tenant_name }}</span>
+                                        <div class="p-4 space-y-4 flex-grow">
+                                            <!-- Basic Info -->
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">Tenant</p>
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->tenant_name }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">Property</p>
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->property_name }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">Room</p>
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->room_number }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">Issue Date</p>
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($invoice->created_at)->format('M d, Y') }}</p>
+                                                </div>
                                             </div>
+
+                                            <!-- Utility Readings -->
+                                            @if(isset($invoice->utility_readings) && count($invoice->utility_readings) > 0)
+                                                <div class="border-t border-gray-200 dark:border-zinc-700 pt-3">
+                                                    <h4 class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Utility Readings</h4>
+                                                    <div class="space-y-2">
+                                                        @foreach($invoice->utility_readings as $reading)
+                                                            <div class="bg-gray-50 dark:bg-zinc-800 rounded-md p-2">
+                                                                <div class="flex justify-between items-center mb-1">
+                                                                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $reading->utility_name }}</span>
+                                                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                                                        {{ $reading->previous_reading }} → {{ $reading->new_reading }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                                                    <span>Usage: {{ $reading->usage_amount }} units</span>
+                                                                    <span>Rate: ${{ number_format($reading->rate, 2) }}/unit</span>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
                                             
-                                            <div class="flex justify-between">
-                                                <span class="text-sm text-gray-600 dark:text-gray-400">Property:</span>
-                                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->property_name }}</span>
-                                            </div>
-                                            
-                                            <div class="flex justify-between">
-                                                <span class="text-sm text-gray-600 dark:text-gray-400">Room:</span>
-                                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->room_number }}</span>
-                                            </div>
-                                            
-                                            <div class="flex justify-between border-t border-gray-200 dark:border-zinc-700 pt-3 mt-3">
-                                                <span class="text-base font-bold text-gray-900 dark:text-white">Total:</span>
-                                                <span class="text-base font-bold text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</span>
+                                            <!-- Total Amount -->
+                                            <div class="border-t border-gray-200 dark:border-zinc-700 pt-3 mt-auto">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-white">Total Amount</span>
+                                                    <span class="text-lg font-bold text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                         
                                         <!-- Card Footer/Actions -->
-                                        <div class="bg-gray-50 dark:bg-zinc-800 px-5 py-3 flex justify-end space-x-2">
+                                        <div class="bg-gray-50 dark:bg-zinc-800 px-4 py-3 flex justify-end space-x-2 border-t border-gray-200 dark:border-zinc-700">
                                             @if($viewMode !== 'tenant' && $invoice->payment_status !== 'paid')
                                                 <button 
                                                     wire:click="markAsPaid({{ $invoice->invoice_id }})" 
@@ -252,8 +305,8 @@
                                 </div>
                                 
                                 <!-- Back of Card (Details) -->
-                                <div class="absolute w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 backface-hidden rotate-y-180 border border-gray-200 dark:border-zinc-800" style="min-height: 360px;">
-                                    <div class="relative">
+                                <div class="absolute w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 backface-hidden rotate-y-180 border border-gray-200 dark:border-zinc-800" style="min-height: 500px;">
+                                    <div class="relative h-full flex flex-col">
                                         <!-- Back Header -->
                                         <div class="p-5 border-b border-gray-200 dark:border-zinc-700 flex justify-between items-center">
                                             <div>
@@ -270,26 +323,64 @@
                                         </div>
                                         
                                         <!-- Detailed Content -->
-                                        <div class="p-5 space-y-4">
-                                            <!-- Line Items -->
-                                            <div class="border border-gray-200 dark:border-zinc-700 rounded-md p-3 mb-3">
-                                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Line Items</h4>
-                                                <div class="space-y-1">
-                                                    <div class="flex justify-between text-sm">
-                                                        <span class="text-gray-600 dark:text-gray-400">Monthly Rent:</span>
-                                                        <span class="text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</span>
+                                        <div class="p-5 space-y-4 flex-grow">
+                                            <!-- Basic Info -->
+                                            <div class="border border-gray-200 dark:border-zinc-700 rounded-md p-3">
+                                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Basic Information</h4>
+                                                <div class="space-y-2 text-sm">
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600 dark:text-gray-400">Tenant:</span>
+                                                        <span class="text-gray-900 dark:text-white">{{ $invoice->tenant_name }}</span>
                                                     </div>
-                                                    <div class="flex justify-between text-sm font-semibold pt-1 border-t border-gray-200 dark:border-zinc-700">
-                                                        <span class="text-gray-900 dark:text-white">Total:</span>
-                                                        <span class="text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</span>
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600 dark:text-gray-400">Property:</span>
+                                                        <span class="text-gray-900 dark:text-white">{{ $invoice->property_name }}</span>
+                                                    </div>
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600 dark:text-gray-400">Room:</span>
+                                                        <span class="text-gray-900 dark:text-white">{{ $invoice->room_number }}</span>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Utility Readings -->
+                                            @if(isset($invoice->utility_readings) && count($invoice->utility_readings) > 0)
+                                                <div class="border border-gray-200 dark:border-zinc-700 rounded-md p-3">
+                                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Utility Readings</h4>
+                                                    <div class="space-y-3">
+                                                        @foreach($invoice->utility_readings as $reading)
+                                                            <div class="border-b border-gray-200 dark:border-zinc-700 last:border-0 pb-2 last:pb-0">
+                                                                <div class="flex justify-between items-center mb-1">
+                                                                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $reading->utility_name }}</span>
+                                                                </div>
+                                                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                                                    <div>
+                                                                        <span class="text-gray-600 dark:text-gray-400">Previous:</span>
+                                                                        <span class="text-gray-900 dark:text-white ml-1">{{ $reading->previous_reading }}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="text-gray-600 dark:text-gray-400">New:</span>
+                                                                        <span class="text-gray-900 dark:text-white ml-1">{{ $reading->new_reading }}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="text-gray-600 dark:text-gray-400">Usage:</span>
+                                                                        <span class="text-gray-900 dark:text-white ml-1">{{ $reading->usage_amount }} units</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="text-gray-600 dark:text-gray-400">Rate:</span>
+                                                                        <span class="text-gray-900 dark:text-white ml-1">${{ number_format($reading->rate, 2) }}/unit</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
                                             
-                                            <!-- Payment Terms -->
+                                            <!-- Payment Details -->
                                             <div class="border border-gray-200 dark:border-zinc-700 rounded-md p-3">
-                                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Payment Terms</h4>
-                                                <div class="space-y-1 text-sm">
+                                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Payment Details</h4>
+                                                <div class="space-y-2 text-sm">
                                                     <div class="flex justify-between">
                                                         <span class="text-gray-600 dark:text-gray-400">Due Date:</span>
                                                         <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}</span>
@@ -297,6 +388,10 @@
                                                     <div class="flex justify-between">
                                                         <span class="text-gray-600 dark:text-gray-400">Issue Date:</span>
                                                         <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($invoice->created_at)->format('M d, Y') }}</span>
+                                                    </div>
+                                                    <div class="flex justify-between font-semibold pt-2 border-t border-gray-200 dark:border-zinc-700">
+                                                        <span class="text-gray-900 dark:text-white">Total Amount:</span>
+                                                        <span class="text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</span>
                                                     </div>
                                                 </div>
                                             </div>

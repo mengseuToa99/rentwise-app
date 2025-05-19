@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Invoice;
 use App\Models\Rental;
 use App\Models\User;
+use App\Models\Property;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -17,13 +18,14 @@ class InvoiceList extends Component
     public $search = '';
     public $statusFilter = '';
     public $rentalFilter = '';
+    public $propertyFilter = '';
     public $dateFrom;
     public $dateTo;
     public $viewMode = 'all'; // 'all', 'landlord', 'tenant'
     public $displayMode = 'card'; // 'card' or 'table' view mode
     public $perPage = 10; // Default number of invoices per page
     
-    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage'];
+    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage', 'propertyFilter'];
     
     public function mount($viewMode = null)
     {
@@ -67,28 +69,45 @@ class InvoiceList extends Component
         $this->resetPage(); // Reset pagination when changing items per page
     }
     
+    public function updatedPropertyFilter()
+    {
+        $this->resetPage();
+    }
+    
     public function render()
     {
         $user = Auth::user();
-        $query = Invoice::query();
         
-        // Join with related tables for better filtering
-        $query->join('rental_details', 'invoice_details.rental_id', '=', 'rental_details.rental_id')
-              ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
-              ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
-              ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-              ->select('invoice_details.*', 
-                       DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"), 
-                       'property_details.property_name', 
-                       'room_details.room_number');
+        // Get properties for filter dropdown first
+        $properties = Property::where('landlord_id', $user->user_id)
+            ->orderBy('property_name')
+            ->pluck('property_name', 'property_id')
+            ->toArray();
+        
+        // Build the invoice query
+        $query = Invoice::query()
+            ->join('rental_details', 'invoice_details.rental_id', '=', 'rental_details.rental_id')
+            ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
+            ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
+            ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
+            ->select(
+                'invoice_details.*',
+                DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"),
+                'property_details.property_name',
+                'property_details.property_id',
+                'room_details.room_number'
+            );
         
         // Apply view mode filters
         if ($this->viewMode === 'landlord' || $this->viewMode === 'all') {
-            // In 'all' or 'landlord' mode, always restrict to landlord's invoices
-            // (admin can't access this page anymore)
             $query->where('rental_details.landlord_id', $user->user_id);
         } elseif ($this->viewMode === 'tenant') {
             $query->where('rental_details.tenant_id', $user->user_id);
+        }
+        
+        // Apply property filter
+        if (!empty($this->propertyFilter)) {
+            $query->where('property_details.property_id', $this->propertyFilter);
         }
         
         // Apply status filter
@@ -123,10 +142,10 @@ class InvoiceList extends Component
         // Order by most recent first
         $query->orderBy('invoice_details.created_at', 'desc');
         
-        // Get rentals for filter dropdown based on view mode
+        // Get rentals for filter dropdown
         $rentalsQuery = Rental::query()
-                            ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
-                            ->select('rental_details.rental_id', DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"));
+            ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
+            ->select('rental_details.rental_id', DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"));
         
         if ($this->viewMode === 'landlord' || $this->viewMode === 'all') {
             $rentalsQuery->where('rental_details.landlord_id', $user->user_id);
@@ -145,7 +164,7 @@ class InvoiceList extends Component
             'all' => 'All'
         ];
         
-        // If perPage is set to 'all', get all results without pagination
+        // Get paginated results
         if ($this->perPage === 'all') {
             $invoices = $query->get();
         } else {
@@ -155,6 +174,7 @@ class InvoiceList extends Component
         return view('livewire.invoices.invoice-list', [
             'invoices' => $invoices,
             'rentals' => $rentals,
+            'properties' => $properties,
             'viewMode' => $this->viewMode,
             'displayMode' => $this->displayMode,
             'paginationOptions' => $paginationOptions
