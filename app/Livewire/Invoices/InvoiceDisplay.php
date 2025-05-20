@@ -30,9 +30,17 @@ class InvoiceDisplay extends Component
     public function mount($invoiceId = null)
     {
         if ($invoiceId) {
-        $this->invoiceId = $invoiceId;
-        $this->loadInvoice();
+            $this->invoiceId = $invoiceId;
+            $this->loadInvoice();
         }
+        
+        // Initialize filters from query string parameters
+        $this->search = request()->query('search', '');
+        $this->statusFilter = request()->query('statusFilter', '');
+        $this->rentalFilter = request()->query('rentalFilter', '');
+        $this->dateFrom = request()->query('dateFrom', '');
+        $this->dateTo = request()->query('dateTo', '');
+        $this->perPage = request()->query('perPage', 10);
     }
     
     public function loadInvoice()

@@ -125,22 +125,46 @@
                         </select>
                     </div>
                     
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Due Date Range</label>
-                        <div class="flex space-x-2">
-                            <input 
-                                type="date" 
-                                wire:model.live="dateFrom"
-                                class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="From"
-                            >
-                            <input 
-                                type="date" 
-                                wire:model.live="dateTo"
-                                class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="To"
-                            >
-                        </div>
+                    <!-- Date Range Filter -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label for="dateRange" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date Range</label>
+                        <select 
+                            wire:model.live="dateRange" 
+                            id="dateRange"
+                            class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="">All Time</option>
+                            <option value="this_month">This Month</option>
+                            <option value="last_month">Last Month</option>
+                            <option value="two_months_ago">Two Months Ago</option>
+                            <option value="three_months_ago">Three Months Ago</option>
+                            <option value="around_two_months">Around Two Months</option>
+                            <option value="around_three_months">Around Three Months</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+
+                        @if($showCustomDateRange)
+                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                <div>
+                                    <label for="dateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
+                                    <input 
+                                        type="date" 
+                                        wire:model.live="dateFrom" 
+                                        id="dateFrom"
+                                        class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="dateTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
+                                    <input 
+                                        type="date" 
+                                        wire:model.live="dateTo" 
+                                        id="dateTo"
+                                        class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 
@@ -182,7 +206,6 @@
                 @endif
             </div>
         @else
-            <!-- Card View -->
             @if($displayMode === 'card')
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach ($invoices as $invoice)
@@ -521,7 +544,6 @@
             transform-style: preserve-3d;
         }
         
-        /* For users who prefer reduced motion */
         @media (prefers-reduced-motion: reduce) {
             .rotate-y-180, [x-cloak][x-data] {
                 transition: none !important;
@@ -532,14 +554,12 @@
     @push('scripts')
     <script>
         document.addEventListener('livewire:init', () => {
-            // Ensure Alpine.js is properly initializing the card flip animation
             if (window.Alpine) {
                 window.Alpine.initTree(document.body);
             }
         });
 
         document.addEventListener('livewire:navigated', () => {
-            // Re-initialize Alpine after navigation
             if (window.Alpine) {
                 window.Alpine.initTree(document.body);
             }

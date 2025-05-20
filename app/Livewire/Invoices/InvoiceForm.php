@@ -253,6 +253,30 @@ class InvoiceForm extends Component
         }
     }
     
+    public function cancel()
+    {
+        // Get all current query parameters
+        $params = request()->query();
+        
+        // Debug the parameters
+        logger('Cancel clicked - Current parameters:', $params);
+        
+        // Get the previous URL parameters from the referrer
+        $referrer = request()->header('referer');
+        logger('Referrer URL:', ['url' => $referrer]);
+        
+        if ($referrer) {
+            $referrerParams = parse_url($referrer, PHP_URL_QUERY);
+            if ($referrerParams) {
+                parse_str($referrerParams, $params);
+                logger('Parameters from referrer:', $params);
+            }
+        }
+        
+        // Redirect to invoices index with preserved parameters
+        return redirect()->route('invoices.index', $params);
+    }
+    
     public function render()
     {
         return view('livewire.invoices.invoice-form');

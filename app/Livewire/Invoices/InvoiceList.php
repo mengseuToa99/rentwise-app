@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Property;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 
 class InvoiceList extends Component
 {
@@ -24,8 +25,10 @@ class InvoiceList extends Component
     public $viewMode = 'all'; // 'all', 'landlord', 'tenant'
     public $displayMode = 'card'; // 'card' or 'table' view mode
     public $perPage = 10; // Default number of invoices per page
+    public $dateRange = '';
+    public $showCustomDateRange = false;
     
-    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage', 'propertyFilter'];
+    protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage', 'propertyFilter', 'dateRange'];
     
     public function mount($viewMode = null)
     {
@@ -34,12 +37,71 @@ class InvoiceList extends Component
             return redirect()->route('login');
         }
         
+        // Debug incoming parameters
+        logger('InvoiceList mount - Request parameters:', request()->query());
+        
         // Set the view mode based on the route or parameter
         if (request()->routeIs('tenant.invoices')) {
             $this->viewMode = 'tenant';
         } else {
             $this->viewMode = $viewMode ?? 'all';
         }
+        
+        // Initialize filters from query string parameters
+        $this->search = request()->query('search', '');
+        $this->statusFilter = request()->query('statusFilter', '');
+        $this->propertyFilter = request()->query('propertyFilter', '');
+        $this->dateRange = request()->query('dateRange', '');
+        $this->dateFrom = request()->query('dateFrom', '');
+        $this->dateTo = request()->query('dateTo', '');
+        $this->displayMode = request()->query('displayMode', 'card');
+        $this->perPage = request()->query('perPage', 10);
+        
+        // Debug initialized values
+        logger('InvoiceList mount - Initialized values:', [
+            'search' => $this->search,
+            'statusFilter' => $this->statusFilter,
+            'propertyFilter' => $this->propertyFilter,
+            'dateFrom' => $this->dateFrom,
+            'dateTo' => $this->dateTo,
+            'displayMode' => $this->displayMode,
+            'perPage' => $this->perPage
+        ]);
+        
+        // Show custom date range if dates are set but no preset is selected
+        if (!empty($this->dateFrom) && !empty($this->dateTo) && empty($this->dateRange)) {
+            $this->showCustomDateRange = true;
+            $this->dateRange = 'custom';
+        }
+        
+        // If a date range is selected, set the dates accordingly
+        if (!empty($this->dateRange) && $this->dateRange !== 'custom') {
+            $this->updatedDateRange($this->dateRange);
+        }
+        
+        // Force a re-render to ensure filters are applied
+        $this->dispatch('filters-updated');
+    }
+    
+    #[On('redirect')]
+    public function handleRedirect($url)
+    {
+        // Preserve all filter parameters in the URL
+        $params = [
+            'search' => $this->search,
+            'statusFilter' => $this->statusFilter,
+            'propertyFilter' => $this->propertyFilter,
+            'dateFrom' => $this->dateFrom,
+            'dateTo' => $this->dateTo,
+            'displayMode' => $this->displayMode,
+            'perPage' => $this->perPage
+        ];
+        
+        // Remove empty parameters
+        $params = array_filter($params);
+        
+        // Redirect with preserved parameters
+        return redirect()->to($url . '?' . http_build_query($params));
     }
     
     public function toggleDisplayMode()
@@ -70,6 +132,79 @@ class InvoiceList extends Component
     }
     
     public function updatedPropertyFilter()
+    {
+        $this->resetPage();
+    }
+    
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+    
+    public function updatedStatusFilter()
+    {
+        $this->resetPage();
+    }
+    
+    public function updatedDateRange($value)
+    {
+        $this->resetPage();
+        
+        if ($value === 'custom') {
+            $this->showCustomDateRange = true;
+            return;
+        }
+        
+        $this->showCustomDateRange = false;
+        
+        switch ($value) {
+            case 'this_month':
+                $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->endOfMonth()->format('Y-m-d');
+                break;
+            case 'last_month':
+                $this->dateFrom = now()->subMonth()->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->subMonth()->endOfMonth()->format('Y-m-d');
+                break;
+            case 'two_months_ago':
+                $this->dateFrom = now()->subMonths(2)->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->subMonths(2)->endOfMonth()->format('Y-m-d');
+                break;
+            case 'three_months_ago':
+                $this->dateFrom = now()->subMonths(3)->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->subMonths(3)->endOfMonth()->format('Y-m-d');
+                break;
+            case 'around_two_months':
+                $this->dateFrom = now()->subMonths(2)->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->addMonths(2)->endOfMonth()->format('Y-m-d');
+                break;
+            case 'around_three_months':
+                $this->dateFrom = now()->subMonths(3)->startOfMonth()->format('Y-m-d');
+                $this->dateTo = now()->addMonths(3)->endOfMonth()->format('Y-m-d');
+                break;
+            default:
+                $this->dateFrom = '';
+                $this->dateTo = '';
+        }
+    }
+    
+    public function updatedDateFrom()
+    {
+        $this->resetPage();
+        if (!empty($this->dateFrom) && !empty($this->dateTo)) {
+            $this->dateRange = 'custom';
+        }
+    }
+    
+    public function updatedDateTo()
+    {
+        $this->resetPage();
+        if (!empty($this->dateFrom) && !empty($this->dateTo)) {
+            $this->dateRange = 'custom';
+        }
+    }
+    
+    public function updatedDisplayMode()
     {
         $this->resetPage();
     }
