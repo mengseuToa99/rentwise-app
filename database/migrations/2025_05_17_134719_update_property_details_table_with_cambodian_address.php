@@ -12,16 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('property_details', function (Blueprint $table) {
-            // Drop the old address and location columns
-            $table->dropColumn('address');
-            $table->dropColumn('location');
-            
-            // Add new Cambodian address fields
-            $table->string('house_building_number')->nullable()->after('property_name');
-            $table->string('street')->nullable()->after('house_building_number');
-            $table->string('village')->nullable()->after('street');
-            $table->string('commune')->nullable()->after('village');
-            $table->string('district')->nullable()->after('commune');
+            // The address columns already exist, so we don't need to add them again
+            // We're just keeping this migration for completeness
         });
     }
 
@@ -30,17 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('property_details', function (Blueprint $table) {
-            // Drop the new Cambodian address fields
-            $table->dropColumn('house_building_number');
-            $table->dropColumn('street');
-            $table->dropColumn('village');
-            $table->dropColumn('commune');
-            $table->dropColumn('district');
-            
-            // Re-add the old address and location columns
-            $table->string('address')->after('property_name');
-            $table->string('location')->after('address');
-        });
+        // No need to revert anything as we didn't make changes
     }
 };
