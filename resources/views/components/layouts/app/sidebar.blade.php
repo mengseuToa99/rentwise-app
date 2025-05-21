@@ -117,6 +117,7 @@
                 <!-- Leasing - For Landlords only -->
                 <flux:navlist.group :heading="__('Leasing')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('Rentals') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('tenants.index')" :current="request()->routeIs('tenants.*')" wire:navigate>{{ __('Tenant Info') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
                 <!-- Finance - For Landlords only -->

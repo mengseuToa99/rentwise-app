@@ -121,6 +121,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rentals/create', RentalForm::class)->name('rentals.create');
         Route::get('/rentals/{rentalId}/edit', RentalForm::class)->name('rentals.edit');
         
+        // Tenants
+        Route::get('/tenants', \App\Livewire\Tenants\TenantList::class)->name('tenants.index');
+        Route::get('/tenants/{tenant}', \App\Livewire\Tenants\TenantDetail::class)->name('tenants.show');
+        
         // Invoices management
         Route::get('/invoices', InvoiceList::class)->name('invoices.index');
         Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
@@ -135,6 +139,7 @@ Route::middleware(['auth'])->group(function () {
         // Landlord-specific named routes (for dashboard links)
         Route::get('/landlord/properties', PropertyList::class)->name('landlord.properties');
         Route::get('/landlord/invoices', InvoiceList::class)->name('landlord.invoices');
+        Route::get('/landlord/tenants', \App\Livewire\Tenants\TenantList::class)->name('landlord.tenants');
     });
     
     // Tenant-only routes
