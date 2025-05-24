@@ -85,26 +85,35 @@
                                         <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">Terminated</span>
                                     @elseif($tenant->rental_status === 'pending')
                                         <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">Pending</span>
+                                    @else
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">No Rental</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="mt-3 text-sm">
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-500 dark:text-gray-400">Property:</span>
-                                    <span class="text-gray-900 dark:text-white">{{ $tenant->property_name }}</span>
+                                    <span class="text-gray-900 dark:text-white">{{ $tenant->property_name ?? 'Not assigned' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-500 dark:text-gray-400">Unit:</span>
-                                    <span class="text-gray-900 dark:text-white">{{ $tenant->room_number }}</span>
+                                    <span class="text-gray-900 dark:text-white">{{ $tenant->room_number ?? 'Not assigned' }}</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="font-medium text-gray-500 dark:text-gray-400">Start Date:</span>
-                                    <span class="text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($tenant->start_date)) }}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-medium text-gray-500 dark:text-gray-400">End Date:</span>
-                                    <span class="text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($tenant->end_date)) }}</span>
-                                </div>
+                                @if($tenant->start_date && $tenant->end_date)
+                                    <div class="flex justify-between">
+                                        <span class="font-medium text-gray-500 dark:text-gray-400">Start Date:</span>
+                                        <span class="text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($tenant->start_date)) }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium text-gray-500 dark:text-gray-400">End Date:</span>
+                                        <span class="text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($tenant->end_date)) }}</span>
+                                    </div>
+                                @else
+                                    <div class="flex justify-between">
+                                        <span class="font-medium text-gray-500 dark:text-gray-400">Lease:</span>
+                                        <span class="text-gray-900 dark:text-white">No active lease</span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="mt-4 flex justify-end">
                                 <button wire:click="viewTenantDetails({{ $tenant->user_id }})" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-600">
@@ -155,14 +164,18 @@
                                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ $tenant->phone_number }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <div class="text-sm text-gray-900 dark:text-white">{{ $tenant->property_name }}</div>
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ $tenant->property_name ?? 'Not assigned' }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <div class="text-sm text-gray-900 dark:text-white">{{ $tenant->room_number }}</div>
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ $tenant->room_number ?? 'Not assigned' }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <div class="text-sm text-gray-900 dark:text-white">
-                                            {{ date('M d, Y', strtotime($tenant->start_date)) }} - {{ date('M d, Y', strtotime($tenant->end_date)) }}
+                                            @if($tenant->start_date && $tenant->end_date)
+                                                {{ date('M d, Y', strtotime($tenant->start_date)) }} - {{ date('M d, Y', strtotime($tenant->end_date)) }}
+                                            @else
+                                                No active lease
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
@@ -174,6 +187,8 @@
                                             <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">Terminated</span>
                                         @elseif($tenant->rental_status === 'pending')
                                             <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">Pending</span>
+                                        @else
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">No Rental</span>
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">

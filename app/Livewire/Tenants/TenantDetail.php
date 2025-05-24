@@ -30,17 +30,32 @@ class TenantDetail extends Component
     {
         $user = Auth::user();
         
-        // Get the tenant with their rentals from this landlord
+        // First check if this is a valid tenant
         $tenant = User::query()
-            ->join('rental_details', 'users.user_id', '=', 'rental_details.tenant_id')
-            ->where('rental_details.landlord_id', $user->user_id)
+            ->join('user_roles', 'users.user_id', '=', 'user_roles.user_id')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.role_id')
+            ->where('roles.role_name', 'tenant')
             ->where('users.user_id', $this->tenantId)
             ->select('users.*')
-            ->distinct()
             ->first();
             
         if (!$tenant) {
             return redirect()->route('tenants.index')->with('error', 'Tenant not found or you do not have permission to view this tenant.');
+        }
+        
+        // For landlords, check if this tenant rents from them
+        if ($user->hasRole('landlord')) {
+            $hasRental = Rental::where('tenant_id', $this->tenantId)
+                ->where('landlord_id', $user->user_id)
+                ->exists();
+                
+            // If not, check if tenant has any rentals
+            $hasAnyRental = Rental::where('tenant_id', $this->tenantId)->exists();
+            
+            // If tenant has rentals but not from this landlord, restrict access
+            if ($hasAnyRental && !$hasRental && !$user->hasRole('admin')) {
+                return redirect()->route('tenants.index')->with('error', 'You do not have permission to view this tenant.');
+            }
         }
         
         $this->tenant = $tenant;
@@ -51,17 +66,22 @@ class TenantDetail extends Component
         $user = Auth::user();
         
         // Get all rentals for this tenant from this landlord
-        $this->rentals = Rental::query()
+        $query = Rental::query()
             ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
             ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->where('rental_details.landlord_id', $user->user_id)
             ->where('rental_details.tenant_id', $this->tenantId)
             ->select(
                 'rental_details.*',
                 'room_details.room_number',
                 'property_details.property_name'
-            )
-            ->get();
+            );
+            
+        // If user is a landlord, only show rentals for their properties
+        if ($user->hasRole('landlord')) {
+            $query->where('rental_details.landlord_id', $user->user_id);
+        }
+            
+        $this->rentals = $query->get();
     }
     
     protected function loadTenantInvoices()
@@ -69,19 +89,24 @@ class TenantDetail extends Component
         $user = Auth::user();
         
         // Get all invoices for this tenant from this landlord
-        $this->invoices = Invoice::query()
+        $query = Invoice::query()
             ->join('rental_details', 'invoice_details.rental_id', '=', 'rental_details.rental_id')
             ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
             ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->where('rental_details.landlord_id', $user->user_id)
             ->where('rental_details.tenant_id', $this->tenantId)
             ->select(
                 'invoice_details.*',
                 'room_details.room_number',
                 'property_details.property_name'
             )
-            ->orderBy('invoice_details.due_date', 'desc')
-            ->get();
+            ->orderBy('invoice_details.due_date', 'desc');
+            
+        // If user is a landlord, only show invoices for their properties
+        if ($user->hasRole('landlord')) {
+            $query->where('rental_details.landlord_id', $user->user_id);
+        }
+            
+        $this->invoices = $query->get();
     }
     
     protected function loadPaymentHistory()
@@ -89,12 +114,11 @@ class TenantDetail extends Component
         $user = Auth::user();
         
         // Get payment history for this tenant
-        $this->paymentHistory = DB::table('payment_histories')
+        $query = DB::table('payment_histories')
             ->join('invoice_details', 'payment_histories.invoice_id', '=', 'invoice_details.invoice_id')
             ->join('rental_details', 'invoice_details.rental_id', '=', 'rental_details.rental_id')
             ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
             ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->where('rental_details.landlord_id', $user->user_id)
             ->where('rental_details.tenant_id', $this->tenantId)
             ->select(
                 'payment_histories.payment_id',
@@ -106,8 +130,14 @@ class TenantDetail extends Component
                 'room_details.room_number',
                 'property_details.property_name'
             )
-            ->orderBy('payment_histories.payment_date', 'desc')
-            ->get();
+            ->orderBy('payment_histories.payment_date', 'desc');
+            
+        // If user is a landlord, only show payments for their properties
+        if ($user->hasRole('landlord')) {
+            $query->where('rental_details.landlord_id', $user->user_id);
+        }
+            
+        $this->paymentHistory = $query->get();
     }
     
     public function render()

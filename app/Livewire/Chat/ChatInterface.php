@@ -6,9 +6,11 @@ use Livewire\Component;
 use App\Models\ChatRoom;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Models\Rental;
 use App\Events\ChatMessageSent;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\DB;
 
 class ChatInterface extends Component
 {
@@ -50,22 +52,46 @@ class ChatInterface extends Component
         $query = User::query();
 
         // Filter users based on role
-        if ($user->roles->contains('role_name', 'Admin')) {
+        if ($user->roles->contains('role_name', 'admin')) {
+            // Admins can see all landlords and tenants
             $query->whereHas('roles', function ($q) {
-                $q->whereIn('role_name', ['Landlord', 'Tenant']);
+                $q->whereIn('role_name', ['landlord', 'tenant']);
             });
-        } elseif ($user->roles->contains('role_name', 'Landlord')) {
-            $query->whereHas('roles', function ($q) {
-                $q->where('role_name', 'Tenant');
+        } elseif ($user->roles->contains('role_name', 'landlord')) {
+            // Landlords can only see their tenants
+            $tenantIds = Rental::where('landlord_id', $user->user_id)
+                               ->where('status', 'active')
+                               ->pluck('tenant_id')
+                               ->toArray();
+
+            $query->whereIn('user_id', $tenantIds);
+            
+            // Also always include admin users for support
+            $query->orWhereHas('roles', function ($q) {
+                $q->where('role_name', 'admin');
             });
-        } elseif ($user->roles->contains('role_name', 'Tenant')) {
-            $query->whereHas('roles', function ($q) {
-                $q->where('role_name', 'Landlord');
+        } elseif ($user->roles->contains('role_name', 'tenant')) {
+            // Tenants can only see their landlords
+            $landlordIds = Rental::where('tenant_id', $user->user_id)
+                                 ->where('status', 'active')
+                                 ->pluck('landlord_id')
+                                 ->toArray();
+
+            $query->whereIn('user_id', $landlordIds);
+            
+            // Also always include admin users for support
+            $query->orWhereHas('roles', function ($q) {
+                $q->where('role_name', 'admin');
             });
         }
 
         if (!empty($this->search)) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where(function($q) {
+                $q->where('first_name', 'like', '%' . $this->search . '%')
+                  ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                  ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
         }
 
         $this->users = $query->get();

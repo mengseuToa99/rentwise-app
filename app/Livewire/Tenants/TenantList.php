@@ -37,24 +37,55 @@ class TenantList extends Component
     {
         $user = Auth::user();
         
-        // Get tenants who are renting properties from this landlord
-        $query = User::query()
-            ->join('rental_details', 'users.user_id', '=', 'rental_details.tenant_id')
-            ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
-            ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->join('roles', 'roles.role_id', '=', DB::raw('(SELECT role_id FROM user_roles WHERE user_id = users.user_id AND role_id = (SELECT role_id FROM roles WHERE role_name = "tenant" LIMIT 1))'))
-            ->where('rental_details.landlord_id', $user->user_id)
-            ->select(
-                'users.*',
-                'rental_details.rental_id',
-                'rental_details.start_date',
-                'rental_details.end_date',
-                'rental_details.status as rental_status',
-                'room_details.room_number',
-                'property_details.property_id',
-                'property_details.property_name'
-            )
-            ->distinct();
+        // Base query depends on user role
+        if ($user->hasRole('admin')) {
+            // Admins see all tenants
+            $query = User::query()
+                ->join('user_roles', 'users.user_id', '=', 'user_roles.user_id')
+                ->join('roles', 'user_roles.role_id', '=', 'roles.role_id')
+                ->where('roles.role_name', 'tenant')
+                ->select('users.*')
+                ->distinct();
+                
+                // Add rental information via left join
+                $query->leftJoin('rental_details', 'users.user_id', '=', 'rental_details.tenant_id')
+                      ->leftJoin('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
+                      ->leftJoin('property_details', 'room_details.property_id', '=', 'property_details.property_id')
+                      ->addSelect(
+                          DB::raw('rental_details.rental_id'),
+                          DB::raw('rental_details.start_date'),
+                          DB::raw('rental_details.end_date'),
+                          DB::raw('rental_details.status as rental_status'),
+                          DB::raw('room_details.room_number'),
+                          DB::raw('property_details.property_id'),
+                          DB::raw('property_details.property_name')
+                      );
+        } else if ($user->hasRole('landlord')) {
+            // Landlords see only tenants who rent from them
+            // This query gets tenants that have rental records with this landlord
+            $query = User::query()
+                ->join('user_roles', 'users.user_id', '=', 'user_roles.user_id')
+                ->join('roles', 'user_roles.role_id', '=', 'roles.role_id')
+                ->join('rental_details', 'users.user_id', '=', 'rental_details.tenant_id')
+                ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
+                ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
+                ->where('roles.role_name', 'tenant')
+                ->where('rental_details.landlord_id', $user->user_id)
+                ->select(
+                    'users.*',
+                    'rental_details.rental_id',
+                    'rental_details.start_date',
+                    'rental_details.end_date',
+                    'rental_details.status as rental_status',
+                    'room_details.room_number',
+                    'property_details.property_id',
+                    'property_details.property_name'
+                )
+                ->distinct();
+        } else {
+            // Default case - return empty collection
+            $query = User::where('user_id', 0); // No results
+        }
         
         // Apply property filter
         if (!empty($this->propertyFilter)) {

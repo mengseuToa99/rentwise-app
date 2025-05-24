@@ -45,6 +45,8 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,     // Depends on PermissionGroups
             LogSeeder::class,            // Depends on Users with roles
             PropertySeeder::class,       // Depends on Users with roles
+            LandlordTenantSeeder::class, // Our new seeder for landlords, tenants, properties, and units
+            RentalAssignmentSeeder::class, // Assign rentals to actual tenants
         ]);
     }
 }
