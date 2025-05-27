@@ -4,9 +4,9 @@ namespace App\Livewire\Tenants;
 
 use Livewire\Component;
 use App\Models\User;
-use App\Models\RentalDetail;
+use App\Models\Rental;
 use App\Models\Property;
-use App\Models\RoomDetail;
+use App\Models\Unit;
 use Illuminate\Support\Facades\Auth;
 
 class PropertyDetails extends Component
@@ -25,15 +25,15 @@ class PropertyDetails extends Component
         $user = Auth::user();
         
         // Find the active rental for this tenant
-        $rental = RentalDetail::where('tenant_id', $user->user_id)
+        $rental = Rental::where('tenant_id', $user->user_id)
             ->where('status', 'active')
-            ->with(['room', 'room.property'])
+            ->with(['unit', 'unit.property'])
             ->first();
         
         if ($rental) {
             $this->rental = $rental;
-            $this->unit = $rental->room;
-            $this->property = $rental->room->property;
+            $this->unit = $rental->unit;
+            $this->property = $rental->unit->property;
         }
     }
 

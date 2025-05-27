@@ -168,6 +168,7 @@
             <!-- Tenant Access Only -->
             <flux:navlist.group :heading="__('My Rentals')" class="grid">
                 <flux:navlist.item icon="currency-dollar" :href="route('tenant.invoices')" :current="request()->routeIs('tenant.invoices')" wire:navigate>{{ __('My Invoices') }}</flux:navlist.item>
+                <flux:navlist.item icon="building-office" :href="route('tenant.property')" :current="request()->routeIs('tenant.property')" wire:navigate>{{ __('My Property') }}</flux:navlist.item>
             </flux:navlist.group>
             @endif
             @endif
