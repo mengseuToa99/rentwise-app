@@ -3,7 +3,7 @@
     <!-- Key Stats Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <!-- Tenant's Invoices stats -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('tenant.invoices') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -27,10 +27,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
         
         <!-- Upcoming Payment Card -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('tenant.invoices') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -78,10 +78,10 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </a>
         
         <!-- Lease Information Card -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('tenant.invoices') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -130,11 +130,70 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </a>
     </div>
     
     <!-- Spending and Utility Charts -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Property Details Card -->
+        <a href="{{ route('tenant.property') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+            <div class="p-3 sm:p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-medium leading-6 text-gray-900 dark:text-white">My Property</h3>
+                    <span class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 hover:underline">View details</span>
+                </div>
+                
+                @if(!empty($stats['property']))
+                    <div class="flex items-center mb-3">
+                        <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-zinc-700">
+                            @if(!empty($stats['property']['image_url']))
+                                <img src="{{ $stats['property']['image_url'] }}" alt="{{ $stats['property']['name'] }}" class="h-full w-full object-cover object-center">
+                            @else
+                                <div class="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-zinc-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">{{ $stats['property']['name'] ?? 'Property Name' }}</h4>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $stats['property']['address'] ?? 'Property Address' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 dark:border-zinc-700 pt-3">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Unit</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $stats['property']['unit_name'] ?? 'Unit A' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Type</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $stats['property']['unit_type'] ?? 'Apartment' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Size</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $stats['property']['unit_size'] ?? '800' }} sq ft</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Rent</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">${{ number_format($stats['property']['rent_amount'] ?? 1200, 2) }}/month</dd>
+                            </div>
+                        </dl>
+                    </div>
+                @else
+                    <div class="text-center py-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No property information available</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Property details will appear here once you have an active lease.</p>
+                    </div>
+                @endif
+            </div>
+        </a>
+        
         <!-- Spending Chart -->
         <x-charts.spending-chart 
             id="tenant-spending-chart"
@@ -143,8 +202,10 @@
             :amounts="$stats['spendingHistory']['apex']['amounts'] ?? []"
             data-persist-chart="true"
         />
-        
-        <!-- Utility Usage Chart -->
+    </div>
+    
+    <!-- Utility Usage Chart -->
+    <div class="grid grid-cols-1 gap-3">
         <x-charts.utility-chart 
             id="tenant-utility-chart"
             title="Utility Usage"

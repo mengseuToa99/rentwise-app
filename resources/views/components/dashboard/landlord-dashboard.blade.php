@@ -3,7 +3,7 @@
     <!-- Main Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Properties stats -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('landlord.properties') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -17,13 +17,13 @@
                     </div>
                 </div>
                 <div class="mt-2 flex items-center text-xs">
-                    <a href="{{ route('landlord.properties') }}" wire:navigate class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View all properties →</a>
+                    <span class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View all properties →</span>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Units stats -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('units.index') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -49,10 +49,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Active rentals -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('rentals.index') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -75,10 +75,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Income summary -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('invoices.index') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Second Row: Leases, Payments and Calendar -->

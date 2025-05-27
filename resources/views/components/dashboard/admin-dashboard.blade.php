@@ -3,7 +3,7 @@
     <!-- Quick stats cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Property count -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('admin.dashboard') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -26,10 +26,10 @@
                     <span class="ml-2 text-gray-500 dark:text-gray-400">vs last {{ $timeframe }}</span>
                 </div>
             </div>
-        </div>
+        </a>
         
         <!-- Active rentals -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('admin.dashboard') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -52,10 +52,10 @@
                     <span class="ml-2 text-gray-500 dark:text-gray-400">vs last {{ $timeframe }}</span>
                 </div>
             </div>
-        </div>
+        </a>
         
         <!-- Total users -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('admin.users') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -81,10 +81,10 @@
                     <span class="ml-2 text-gray-500 dark:text-gray-400">vs last {{ $timeframe }}</span>
                 </div>
             </div>
-        </div>
+        </a>
         
         <!-- Occupancy rate -->
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
+        <a href="{{ route('admin.dashboard') }}" class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -104,7 +104,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     
     <!-- Financial Summary and Charts -->
@@ -113,7 +113,7 @@
         <div class="lg:col-span-1">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Financial Summary</h2>
             <div class="space-y-2">
-                <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800">
+                <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                     <div class="flex items-center">
                         <div class="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -126,9 +126,9 @@
                             <dd class="text-xl font-semibold text-green-600 dark:text-green-400 mt-1">${{ number_format($stats['total_revenue'] ?? 0, 2) }}</dd>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800">
+                <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                     <div class="flex items-center">
                         <div class="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -141,9 +141,9 @@
                             <dd class="text-xl font-semibold text-yellow-600 dark:text-yellow-400 mt-1">${{ number_format($stats['pending_payments'] ?? 0, 2) }}</dd>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800">
+                <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                     <div class="flex items-center">
                         <div class="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -157,7 +157,7 @@
                             <dd class="text-xl font-semibold text-red-600 dark:text-red-400 mt-1">${{ number_format($stats['overdue_payments'] ?? 0, 2) }}</dd>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
         
@@ -165,7 +165,7 @@
         <div class="lg:col-span-2">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Maintenance Overview</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800">
+                <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                     <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance Requests by Status</h4>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         @foreach($stats['maintenance_by_status'] ?? [] as $status => $count)
@@ -191,9 +191,9 @@
                             <span class="font-semibold text-gray-800 dark:text-gray-200">{{ array_sum($stats['maintenance_by_status'] ?? []) }}</span>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800">
+                <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
                     <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance by Category</h4>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         @foreach($stats['maintenance_by_category'] ?? [] as $category => $count)
@@ -220,7 +220,7 @@
                             </div>
                         </div>
                     @endif
-                </div>
+                </a>
             </div>
         </div>
     </div>
@@ -229,9 +229,9 @@
     <div>
         <div class="flex justify-between items-center mb-2">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Maintenance Requests</h2>
-            <a href="#" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">View all</a>
+            <a href="{{ route('admin.dashboard') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">View all</a>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <!-- Mobile view (card-based) -->
             <div class="block md:hidden">
                 <div class="px-3 py-2 space-y-2">
@@ -262,7 +262,7 @@
                                 </div>
                                 <div class="flex justify-between mt-1">
                                     <span>{{ \Carbon\Carbon::parse($request['created_at'])->format('M d, Y') }}</span>
-                                    <a href="#" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</a>
+                                    <span class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</span>
                                 </div>
                             </div>
                         </div>
@@ -319,7 +319,7 @@
                                         {{ \Carbon\Carbon::parse($request['created_at'])->format('M d, Y') }}
                                     </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</a>
+                                        <span class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</span>
                                     </td>
                                 </tr>
                             @endforeach
@@ -327,7 +327,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Add Calendar Section -->
@@ -335,11 +335,11 @@
         <div class="flex justify-between items-center mb-2">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Calendar Overview</h2>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
             <div class="p-3 sm:p-4">
                 <div class="h-64 sm:h-80" id="admin-calendar"></div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 

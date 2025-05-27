@@ -148,6 +148,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tenant/invoices', \App\Livewire\Invoices\InvoiceList::class)->name('tenant.invoices');
         Route::get('/tenant/invoices/view', \App\Livewire\Invoices\InvoiceDisplay::class)->name('tenant.invoices.view');
         Route::get('/tenant/invoices/{invoiceId}', \App\Livewire\Invoices\InvoiceDisplay::class)->name('tenant.invoice.view');
+        
+        // Tenant property details
+        Route::get('/tenant/property', \App\Livewire\Tenants\PropertyDetails::class)->name('tenant.property');
     });
     
     // Admin-only routes
