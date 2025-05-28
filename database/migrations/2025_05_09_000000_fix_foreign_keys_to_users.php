@@ -14,27 +14,7 @@ class FixForeignKeysToUsers extends Migration
      */
     public function up()
     {
-        // Get the list of tables with foreign keys to user_details
-        $foreignKeys = $this->getForeignKeysToUserDetails();
-        
-        foreach ($foreignKeys as $foreignKey) {
-            $tableName = $foreignKey->TABLE_NAME;
-            $constraintName = $foreignKey->CONSTRAINT_NAME;
-            $columnName = $foreignKey->COLUMN_NAME;
-            
-            // Drop the existing foreign key
-            Schema::table($tableName, function (Blueprint $table) use ($constraintName) {
-                $table->dropForeign($constraintName);
-            });
-            
-            // Add new foreign key to users table
-            Schema::table($tableName, function (Blueprint $table) use ($columnName) {
-                $table->foreign($columnName)
-                      ->references('user_id')
-                      ->on('users')
-                      ->onDelete('cascade');
-            });
-        }
+        $this->updateForeignKeys();
     }
 
     /**
@@ -44,8 +24,8 @@ class FixForeignKeysToUsers extends Migration
      */
     public function down()
     {
-        // This is a cleanup migration, no down action needed
-        // as we can't revert to pointing to a non-existent table
+        // Since we're consolidating user tables, there's no need for a rollback
+        // as the user_details table will no longer exist
     }
     
     /**
@@ -54,15 +34,39 @@ class FixForeignKeysToUsers extends Migration
     private function getForeignKeysToUserDetails()
     {
         return DB::select("
-            SELECT
-                TABLE_NAME,
-                COLUMN_NAME,
-                CONSTRAINT_NAME
+            SELECT DISTINCT
+                tc.table_name,
+                kcu.column_name,
+                tc.constraint_name
             FROM 
-                INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-            WHERE
-                REFERENCED_TABLE_NAME = 'user_details'
-                AND TABLE_SCHEMA = DATABASE()
+                information_schema.table_constraints tc
+            JOIN 
+                information_schema.key_column_usage kcu 
+                ON tc.constraint_name = kcu.constraint_name
+            JOIN 
+                information_schema.constraint_column_usage ccu 
+                ON ccu.constraint_name = tc.constraint_name
+            WHERE 
+                tc.constraint_type = 'FOREIGN KEY'
+                AND ccu.table_name = 'user_details'
         ");
+    }
+
+    private function updateForeignKeys()
+    {
+        $foreignKeys = $this->getForeignKeysToUserDetails();
+
+        foreach ($foreignKeys as $fk) {
+            Schema::table($fk->table_name, function (Blueprint $table) use ($fk) {
+                // Drop the existing foreign key
+                $table->dropForeign($fk->constraint_name);
+
+                // Add the new foreign key pointing to users table
+                $table->foreign($fk->column_name)
+                      ->references('user_id')
+                      ->on('users')
+                      ->onDelete('cascade');
+            });
+        }
     }
 } 

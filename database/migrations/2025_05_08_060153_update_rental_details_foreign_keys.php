@@ -22,43 +22,28 @@ return new class extends Migration
     /**
      * Update a specific foreign key from user_details to users
      */
-    private function updateForeignKey($columnName)
+    private function updateForeignKey($column)
     {
-        // First, get the constraint name
-        $constraintName = '';
+        // First, drop the existing foreign key if it exists
         $constraints = DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-            WHERE TABLE_NAME = 'rental_details' 
-            AND COLUMN_NAME = '{$columnName}' 
-            AND REFERENCED_TABLE_NAME = 'user_details'
-            AND CONSTRAINT_SCHEMA = DATABASE()
-        ");
+            SELECT tc.constraint_name 
+            FROM information_schema.table_constraints tc 
+            JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name
+            WHERE tc.table_name = 'rental_details' 
+            AND kcu.column_name = ?
+            AND tc.constraint_type = 'FOREIGN KEY'
+        ", [$column]);
 
-        if (!empty($constraints)) {
-            $constraintName = $constraints[0]->CONSTRAINT_NAME;
-        }
-
-        // Drop the existing foreign key constraint
-        if ($constraintName !== '') {
-            Schema::table('rental_details', function (Blueprint $table) use ($constraintName) {
-                $table->dropForeign($constraintName);
-            });
-        } else {
-            // If we couldn't get the name dynamically, try the standard Laravel naming convention
-            Schema::table('rental_details', function (Blueprint $table) use ($columnName) {
-                try {
-                    $table->dropForeign(['rental_details_' . $columnName . '_foreign']);
-                } catch (\Exception $e) {
-                    // If this fails, log or output a message
-                    echo "Could not drop foreign key for {$columnName} with standard name: " . $e->getMessage() . "\n";
-                }
+        foreach ($constraints as $constraint) {
+            Schema::table('rental_details', function (Blueprint $table) use ($constraint) {
+                $table->dropForeign($constraint->constraint_name);
             });
         }
 
-        // Add the new foreign key constraint pointing to the users table
-        Schema::table('rental_details', function (Blueprint $table) use ($columnName) {
-            $table->foreign($columnName)
+        // Add the new foreign key
+        Schema::table('rental_details', function (Blueprint $table) use ($column) {
+            $table->foreign($column)
                   ->references('user_id')
                   ->on('users')
                   ->onDelete('cascade');

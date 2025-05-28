@@ -12,39 +12,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, get the constraint name
-        $constraintName = '';
+        // First, drop the existing foreign key if it exists
         $constraints = DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-            WHERE TABLE_NAME = 'user_roles' 
-            AND COLUMN_NAME = 'user_id' 
-            AND REFERENCED_TABLE_NAME = 'user_details'
-            AND CONSTRAINT_SCHEMA = DATABASE()
+            SELECT tc.constraint_name 
+            FROM information_schema.table_constraints tc 
+            JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name
+            WHERE tc.table_name = 'user_roles' 
+            AND kcu.column_name = 'user_id' 
+            AND tc.constraint_type = 'FOREIGN KEY'
         ");
 
-        if (!empty($constraints)) {
-            $constraintName = $constraints[0]->CONSTRAINT_NAME;
-        }
-
-        // Drop the existing foreign key constraint
-        if ($constraintName !== '') {
-            Schema::table('user_roles', function (Blueprint $table) use ($constraintName) {
-                $table->dropForeign($constraintName);
-            });
-        } else {
-            // If we couldn't get the name dynamically, try the standard Laravel naming convention
-            Schema::table('user_roles', function (Blueprint $table) {
-                try {
-                    $table->dropForeign('user_roles_user_id_foreign');
-                } catch (\Exception $e) {
-                    // If this fails, log or output a message
-                    echo "Could not drop foreign key with standard name: " . $e->getMessage() . "\n";
-                }
+        foreach ($constraints as $constraint) {
+            Schema::table('user_roles', function (Blueprint $table) use ($constraint) {
+                $table->dropForeign($constraint->constraint_name);
             });
         }
 
-        // Add the new foreign key constraint pointing to the users table
+        // Add the new foreign key
         Schema::table('user_roles', function (Blueprint $table) {
             $table->foreign('user_id')
                   ->references('user_id')
@@ -58,17 +43,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop the new foreign key constraint
         Schema::table('user_roles', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-        });
-
-        // Add back the original foreign key constraint pointing to user_details
-        Schema::table('user_roles', function (Blueprint $table) {
-            $table->foreign('user_id')
-                  ->references('user_id')
-                  ->on('user_details')
-                  ->onDelete('cascade');
         });
     }
 };
