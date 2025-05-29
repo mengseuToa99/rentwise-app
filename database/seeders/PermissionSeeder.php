@@ -106,14 +106,16 @@ class PermissionSeeder extends Seeder
                 $groupIdMap[$group['name']] = $existingGroup->group_id;
             } else {
                 // Create a new group if it doesn't exist
-                $id = DB::table('permission_groups')->insertGetId([
+                DB::table('permission_groups')->insert([
                     'group_name' => $group['name'],
                     'description' => $group['description'],
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
                 
-                $groupIdMap[$group['name']] = $id;
+                $groupIdMap[$group['name']] = DB::table('permission_groups')
+                    ->where('group_name', $group['name'])
+                    ->value('group_id');
             }
         }
 
@@ -486,31 +488,15 @@ class PermissionSeeder extends Seeder
                 }
                 
                 if ($permissionData) {
-                    // Check if this permission has already been created for another role
-                    if (!isset($assignedPermissions[$permissionName])) {
-                        // Insert the permission and record its ID
-                        $permissionId = DB::table('access_permissions')->insertGetId([
-                            'permission_name' => $permissionName,
-                            'description' => $permissionData['description'],
-                            'group_id' => $permissionData['group_id'],
-                            'role_id' => $roleId,
-                            'created_at' => $now,
-                            'updated_at' => $now
-                        ]);
-                        
-                        $assignedPermissions[$permissionName] = $permissionId;
-                    } else {
-                        // This permission already exists for another role, 
-                        // create a duplicate entry for this role
-                        DB::table('access_permissions')->insert([
-                            'permission_name' => $permissionName,
-                            'description' => $permissionData['description'],
-                            'group_id' => $permissionData['group_id'],
-                            'role_id' => $roleId,
-                            'created_at' => $now,
-                            'updated_at' => $now
-                        ]);
-                    }
+                    // Insert the permission
+                    DB::table('access_permissions')->insert([
+                        'permission_name' => $permissionName,
+                        'description' => $permissionData['description'],
+                        'group_id' => $permissionData['group_id'],
+                        'role_id' => $roleId,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ]);
                 }
             }
         }
@@ -519,7 +505,7 @@ class PermissionSeeder extends Seeder
         // Check if admin user exists
         $admin = DB::table('users')->where('username', 'admin')->first();
         if (!$admin) {
-            $adminId = DB::table('users')->insertGetId([
+            DB::table('users')->insert([
                 'username' => 'admin',
                 'password_hash' => Hash::make('password'),
                 'email' => 'admin@example.com',
@@ -530,6 +516,7 @@ class PermissionSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
+            $adminId = DB::table('users')->where('username', 'admin')->value('user_id');
         } else {
             $adminId = $admin->user_id;
         }
@@ -537,7 +524,7 @@ class PermissionSeeder extends Seeder
         // Check if landlord user exists
         $landlord = DB::table('users')->where('username', 'landlord')->first();
         if (!$landlord) {
-            $landlordId = DB::table('users')->insertGetId([
+            DB::table('users')->insert([
                 'username' => 'landlord',
                 'password_hash' => Hash::make('password'),
                 'email' => 'landlord@example.com',
@@ -548,6 +535,7 @@ class PermissionSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
+            $landlordId = DB::table('users')->where('username', 'landlord')->value('user_id');
         } else {
             $landlordId = $landlord->user_id;
         }
@@ -555,7 +543,7 @@ class PermissionSeeder extends Seeder
         // Check if tenant user exists
         $tenant = DB::table('users')->where('username', 'tenant')->first();
         if (!$tenant) {
-            $tenantId = DB::table('users')->insertGetId([
+            DB::table('users')->insert([
                 'username' => 'tenant',
                 'password_hash' => Hash::make('password'),
                 'email' => 'tenant@example.com',
@@ -566,6 +554,7 @@ class PermissionSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
+            $tenantId = DB::table('users')->where('username', 'tenant')->value('user_id');
         } else {
             $tenantId = $tenant->user_id;
         }

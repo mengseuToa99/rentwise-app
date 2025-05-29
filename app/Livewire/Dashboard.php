@@ -208,10 +208,13 @@ class Dashboard extends Component
                 
             // Monthly income statistics for the current year
             $currentYear = date('Y');
-            $monthlyIncome = Invoice::select(DB::raw('MONTH(updated_at) as month'), DB::raw('SUM(amount_due) as total_amount'))
+            $monthlyIncome = Invoice::select(
+                    DB::raw('EXTRACT(MONTH FROM updated_at) as month'),
+                    DB::raw('SUM(amount_due) as total_amount')
+                )
                 ->where('payment_status', 'paid')
                 ->whereYear('updated_at', $currentYear)
-                ->groupBy(DB::raw('MONTH(updated_at)'))
+                ->groupBy(DB::raw('EXTRACT(MONTH FROM updated_at)'))
                 ->orderBy('month')
                 ->get();
                 
@@ -220,7 +223,7 @@ class Dashboard extends Component
             
             // Fill in actual data
             foreach ($monthlyIncome as $record) {
-                $monthlyIncomeData[$record->month] = $record->total_amount;
+                $monthlyIncomeData[(int)$record->month] = $record->total_amount;
             }
             
             // Format for chart
@@ -318,10 +321,10 @@ class Dashboard extends Component
             // Monthly income statistics for the current year
             $currentYear = date('Y');
             $monthlyIncome = Invoice::whereIn('rental_id', $rentals)
-                ->select(DB::raw('MONTH(updated_at) as month'), DB::raw('SUM(amount_due) as total_amount'))
+                ->select(DB::raw('EXTRACT(MONTH FROM updated_at) as month'), DB::raw('SUM(amount_due) as total_amount'))
                 ->where('payment_status', 'paid')
                 ->whereYear('updated_at', $currentYear)
-                ->groupBy(DB::raw('MONTH(updated_at)'))
+                ->groupBy(DB::raw('EXTRACT(MONTH FROM updated_at)'))
                 ->orderBy('month')
                 ->get();
                 
@@ -330,7 +333,7 @@ class Dashboard extends Component
             
             // Fill in actual data
             foreach ($monthlyIncome as $record) {
-                $monthlyIncomeData[$record->month] = $record->total_amount;
+                $monthlyIncomeData[(int)$record->month] = $record->total_amount;
             }
             
             // Format for chart
