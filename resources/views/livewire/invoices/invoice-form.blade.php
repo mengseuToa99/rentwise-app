@@ -1,5 +1,5 @@
 <div class="py-4 bg-gray-50 dark:bg-zinc-950">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 pr-8 sm:px-6 sm:pr-10 lg:px-8 lg:pr-12">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $mode === 'edit' ? 'Edit Invoice' : 'Create Invoice' }}</h1>
@@ -39,7 +39,7 @@
                             <select 
                                 wire:model.live="selectedProperty" 
                                 id="selectedProperty"
-                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4 pr-10"
                             >
                                 <option value="">Select Property</option>
                                 @foreach($properties as $id => $name)
@@ -55,7 +55,7 @@
                             <select 
                                 wire:model.live="selectedUnit" 
                                 id="selectedUnit"
-                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4 pr-10"
                                 {{ empty($selectedProperty) ? 'disabled' : '' }}
                             >
                                 <option value="">Select Unit</option>
@@ -74,7 +74,7 @@
                             <select 
                                 wire:model.live="selectedRental" 
                                 id="selectedRental"
-                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4 pr-10"
                             >
                                 <option value="">Select Active Rental</option>
                                 @if(isset($rentals) && !empty($rentals))
@@ -109,7 +109,7 @@
                                             <input 
                                                 type="number" 
                                                 wire:model.live="readings.{{ $utilityId }}.new_reading"
-                                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4"
                                                 step="0.01"
                                                 min="{{ $reading['previous_reading'] }}"
                                             >
@@ -126,7 +126,7 @@
                                                 <input 
                                                     type="number" 
                                                     wire:model.live="readings.{{ $utilityId }}.rate"
-                                                    class="block w-full pl-7 rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                    class="block w-full pl-7 rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4"
                                                     step="0.01"
                                                 >
                                             </div>
@@ -171,7 +171,7 @@
                                     type="date" 
                                     wire:model="dueDate" 
                                     id="dueDate"
-                                    class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4"
                                 >
                                 @error('dueDate') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -182,7 +182,7 @@
                                 <select 
                                     wire:model="paymentStatus" 
                                     id="paymentStatus"
-                                    class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    class="block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 text-base px-4 pr-10"
                                 >
                                     <option value="pending">Pending</option>
                                     <option value="paid">Paid</option>
@@ -210,11 +210,11 @@
                 <a 
                     href="{{ route('invoices.index', request()->query()) }}"
                     wire:navigate
-                    class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-zinc-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-zinc-700 rounded-md shadow-sm text-base font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                     Cancel
                 </a>
-                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <button type="submit" class="inline-flex items-center px-4 py-2.5 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     {{ $mode === 'edit' ? 'Update Invoice' : 'Create Invoice' }}
                 </button>
             </div>

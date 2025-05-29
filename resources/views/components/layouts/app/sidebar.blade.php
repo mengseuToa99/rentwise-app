@@ -144,25 +144,7 @@
                     <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('Utility Usage') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @endif
-            @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }))
-            <!-- Property Management - For Landlords only -->
-            <flux:navlist.group :heading="__('Property Management')" class="grid">
-                <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Properties') }}</flux:navlist.item>
-                <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Units') }}</flux:navlist.item>
-            </flux:navlist.group>
-
-            <!-- Leasing - For Landlords only -->
-            <flux:navlist.group :heading="__('Leasing')" class="grid">
-                <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('Rentals') }}</flux:navlist.item>
-            </flux:navlist.group>
-
-            <!-- Finance - For Landlords only -->
-            <flux:navlist.group :heading="__('Finance')" class="grid">
-                <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('Invoices') }}</flux:navlist.item>
-                <flux:navlist.item icon="bolt" :href="route('utilities.index')" :current="request()->routeIs('utilities.index')" wire:navigate>{{ __('Utilities') }}</flux:navlist.item>
-                <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('Utility Usage') }}</flux:navlist.item>
-            </flux:navlist.group>
-            @endif
+           
 
             @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }))
             <!-- Tenant Access Only -->
