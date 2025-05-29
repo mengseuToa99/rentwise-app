@@ -13,6 +13,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->register(FluxComponentsServiceProvider::class);
         $this->app->register(SocialiteServiceProvider::class);
+
+        if (env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
+        }
     }
 
     /**
