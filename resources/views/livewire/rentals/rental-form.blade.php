@@ -137,7 +137,7 @@
                                         <button 
                                             type="button" 
                                             wire:click="createAndSelectTenant" 
-                                            class="inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700"
+                                            class="inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition"
                                         >
                                             Create & Select
                                         </button>
@@ -156,7 +156,7 @@
                         <select 
                             wire:model.live="property_id" 
                             id="property_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 py-2.5 text-base px-4 pr-8"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 py-2.5 text-base px-4 pr-10"
                         >
                             <option value="">Select a property</option>
                             @foreach ($properties as $id => $name)
@@ -172,7 +172,7 @@
                         <select 
                             wire:model="room_id" 
                             id="room_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 py-2.5 text-base px-4 pr-8"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 py-2.5 text-base px-4 pr-10"
                             {{ empty($property_id) ? 'disabled' : '' }}
                         >
                             <option value="">Select a room</option>
@@ -214,26 +214,21 @@
                     
                     <!-- Lease Agreement -->
                     <div class="mb-6">
-                        <label for="lease_agreement" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lease Agreement (PDF, DOC, DOCX)</label>
+                        <label for="lease_agreement" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lease Agreement (Optional)</label>
                         <input 
                             type="file" 
                             wire:model="lease_agreement" 
                             id="lease_agreement"
+                            class="mt-1 block w-full text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 dark:file:bg-zinc-800 dark:file:text-gray-300 hover:file:bg-gray-200 dark:hover:file:bg-zinc-700"
                             accept=".pdf,.doc,.docx"
-                            class="mt-1 block w-full border border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm rounded-md text-sm focus:outline-none py-2.5 px-4"
                         >
-                        @if ($existing_lease_agreement)
-                            <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-gray-400 dark:text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a3 3 0 00-3-3 3 3 0 00-3 3v4a3 3 0 006 0V7a1 1 0 10-2 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd" />
-                                </svg>
-                                <span>Current document: </span>
-                                <a href="{{ Storage::url($existing_lease_agreement) }}" target="_blank" class="ml-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300">
-                                    View document
-                                </a>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Upload PDF, DOC, or DOCX file (max 10MB)</p>
+                        @if($existing_lease_agreement)
+                            <div class="mt-2 flex items-center space-x-2">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Current file:</span>
+                                <a href="{{ Storage::url($existing_lease_agreement) }}" target="_blank" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">View</a>
                             </div>
                         @endif
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Upload a copy of the signed lease agreement (max 10MB)</p>
                         @error('lease_agreement') <span class="text-red-500 dark:text-red-400 text-sm">{{ $message }}</span> @enderror
                     </div>
                     
