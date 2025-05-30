@@ -16,6 +16,7 @@ class TenantDetail extends Component
     public $rentals = [];
     public $invoices = [];
     public $paymentHistory = [];
+    public $statistics = [];
     
     public function mount($tenant)
     {
@@ -24,6 +25,7 @@ class TenantDetail extends Component
         $this->loadTenantRentals();
         $this->loadTenantInvoices();
         $this->loadPaymentHistory();
+        $this->calculateStatistics();
     }
     
     protected function loadTenant()
@@ -73,8 +75,12 @@ class TenantDetail extends Component
             ->select(
                 'rental_details.*',
                 'room_details.room_number',
-                'property_details.property_name'
-            );
+                'room_details.room_type',
+                'room_details.rent_amount',
+                'property_details.property_name',
+                'property_details.property_id'
+            )
+            ->orderBy('rental_details.start_date', 'desc');
             
         // If user is a landlord, only show rentals for their properties
         if ($user->hasRole('landlord')) {
@@ -97,7 +103,9 @@ class TenantDetail extends Component
             ->select(
                 'invoice_details.*',
                 'room_details.room_number',
-                'property_details.property_name'
+                'room_details.rent_amount',
+                'property_details.property_name',
+                'property_details.property_id'
             )
             ->orderBy('invoice_details.due_date', 'desc');
             
@@ -121,10 +129,7 @@ class TenantDetail extends Component
             ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
             ->where('rental_details.tenant_id', $this->tenantId)
             ->select(
-                'payment_histories.payment_id',
-                'payment_histories.payment_date',
-                'payment_histories.payment_method',
-                'payment_histories.payment_amount as amount',
+                'payment_histories.*',
                 'invoice_details.invoice_id',
                 'invoice_details.amount_due as invoice_amount',
                 'room_details.room_number',
@@ -140,13 +145,67 @@ class TenantDetail extends Component
         $this->paymentHistory = $query->get();
     }
     
+    protected function calculateStatistics()
+    {
+        // Calculate total rent paid
+        $totalPaid = $this->paymentHistory->sum('amount');
+        
+        // Calculate total rent due
+        $totalDue = $this->invoices
+            ->where('payment_status', 'pending')
+            ->sum('amount_due');
+        
+        // Calculate on-time payment percentage
+        $totalInvoices = $this->invoices->count();
+        $onTimePayments = $this->invoices
+            ->where('payment_status', 'paid')
+            ->where('paid_date', '<=', DB::raw('due_date'))
+            ->count();
+        $onTimePercentage = $totalInvoices > 0 ? round(($onTimePayments / $totalInvoices) * 100) : 0;
+        
+        // Get current active rental if any
+        $activeRental = $this->rentals
+            ->where('status', 'active')
+            ->first();
+        
+        // Calculate lease status and remaining days
+        $leaseStatus = 'No active lease';
+        $remainingDays = 0;
+        if ($activeRental) {
+            $endDate = \Carbon\Carbon::parse($activeRental->end_date);
+            $now = \Carbon\Carbon::now();
+            $remainingDays = $now->diffInDays($endDate, false);
+            
+            if ($remainingDays > 30) {
+                $leaseStatus = 'Active';
+            } elseif ($remainingDays > 0) {
+                $leaseStatus = 'Expiring Soon';
+            } else {
+                $leaseStatus = 'Expired';
+            }
+        }
+        
+        $this->statistics = [
+            'total_paid' => $totalPaid,
+            'total_due' => $totalDue,
+            'on_time_percentage' => $onTimePercentage,
+            'lease_status' => $leaseStatus,
+            'remaining_days' => $remainingDays,
+            'total_rentals' => $this->rentals->count(),
+            'active_rentals' => $this->rentals->where('status', 'active')->count(),
+            'total_invoices' => $totalInvoices,
+            'pending_invoices' => $this->invoices->where('payment_status', 'pending')->count()
+        ];
+    }
+    
     public function render()
     {
         return view('livewire.tenants.tenant-detail', [
             'tenant' => $this->tenant,
             'rentals' => $this->rentals,
             'invoices' => $this->invoices,
-            'paymentHistory' => $this->paymentHistory
+            'paymentHistory' => $this->paymentHistory,
+            'statistics' => $this->statistics
         ]);
     }
 } 
