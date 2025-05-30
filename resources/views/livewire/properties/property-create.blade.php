@@ -31,9 +31,9 @@
                     
                     <div class="grid gap-1.5">
                             <label for="propertyType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Type*</label>
-                            <select wire:model="propertyType" id="propertyType" class="block w-full rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <select wire:model="propertyType" id="propertyType" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-none focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                 @foreach($propertyTypes as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
+                                    <option value="{{ $value }}" class="bg-white dark:bg-zinc-800">{{ $label }}</option>
                                 @endforeach
                             </select>
                             @error('propertyType') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
@@ -114,10 +114,10 @@
                         <div class="grid gap-1.5">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Size</label>
                             <div class="flex gap-2">
-                                <input wire:model="propertySize" type="number" min="1" placeholder="Size" class="block w-2/3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
-                                <select wire:model="sizeMeasurement" class="block w-1/3 rounded-md bg-transparent border border-gray-300 dark:border-zinc-700 px-2 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                <input wire:model="propertySize" type="number" min="1" placeholder="Size" class="block w-2/3 rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-none focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                <select wire:model="sizeMeasurement" class="block w-1/3 rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-2 py-3 text-md text-gray-900 dark:text-white shadow-none focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                     @foreach($sizeUnits as $value => $label)
-                                        <option value="{{ $value }}">{{ $label }}</option>
+                                        <option value="{{ $value }}" class="bg-white dark:bg-zinc-800">{{ $label }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -182,10 +182,10 @@
                                         <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">(how units will be numbered)</span>
                                     </div>
                                 </label>
-                                <select wire:model.live="unitNamingConvention" id="unitNamingConvention" class="block w-full rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md shadow-none placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                    <option value="numeric">Numeric (101, 102, 201, 202)</option>
-                                    <option value="letter">Letter (1A, 1B, 2A, 2B)</option>
-                                    <option value="ordinal">Ordinal (1st Floor Room 1, 1st Floor Room 2)</option>
+                                <select wire:model.live="unitNamingConvention" id="unitNamingConvention" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-none focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                    <option value="numeric" class="bg-white dark:bg-zinc-800">Numeric (101, 102, 201, 202)</option>
+                                    <option value="letter" class="bg-white dark:bg-zinc-800">Letter (1A, 1B, 2A, 2B)</option>
+                                    <option value="ordinal" class="bg-white dark:bg-zinc-800">Ordinal (1st Floor Room 1, 1st Floor Room 2)</option>
                                 </select>
                                 @error('unitNamingConvention') <p class="text-xs text-red-500 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
@@ -302,7 +302,7 @@
                 
                 <!-- Images Upload Section -->
                 <div class="p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Property Images</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Property Image</h2>
                     
                     <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-zinc-700 border-dashed rounded-md">
                         <div class="space-y-1 text-center">
@@ -310,36 +310,32 @@
                                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <div class="flex text-sm text-gray-600 dark:text-gray-400">
-                                <label for="propertyImages" class="relative cursor-pointer bg-white dark:bg-black rounded-md font-medium text-blue-600 dark:text-blue-500 hover:text-blue-500 dark:hover:text-blue-400 focus-within:outline-none">
-                                    <span>Upload images</span>
-                                    <input id="propertyImages" wire:model="propertyImages" type="file" class="sr-only" multiple accept="image/*">
+                                <label for="propertyImage" class="relative cursor-pointer bg-gray-50 dark:bg-zinc-800 rounded-md font-medium text-blue-600 dark:text-blue-500 hover:text-blue-500 dark:hover:text-blue-400 focus-within:outline-none">
+                                    <span>Upload image</span>
+                                    <input id="propertyImage" wire:model="propertyImages" type="file" class="sr-only" accept="image/*">
                                 </label>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
-                                PNG, JPG, GIF up to 5MB each
+                                PNG, JPG, GIF up to 5MB
                             </p>
                         </div>
                     </div>
                     
-                    @error('propertyImages.*') 
+                    @error('propertyImages') 
                         <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ $message }}</p> 
                     @enderror
                     
                     @if(!empty($propertyImages))
                         <div class="mt-4">
-                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Images:</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                @foreach($propertyImages as $index => $image)
-                                    <div class="relative">
-                                        <img src="{{ $image->temporaryUrl() }}" alt="Property image" class="h-24 w-full object-cover rounded-md">
-                                        <button type="button" wire:click="removeImage({{ $index }})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                @endforeach
+                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Image:</h3>
+                            <div class="relative w-full max-w-sm">
+                                <img src="{{ $propertyImages[0]->temporaryUrl() }}" alt="Property image" class="w-full aspect-video object-cover rounded-lg">
+                                <button type="button" wire:click="removeImage(0)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     @endif
