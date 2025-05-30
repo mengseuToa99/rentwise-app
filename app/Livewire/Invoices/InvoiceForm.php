@@ -3,15 +3,15 @@
 namespace App\Livewire\Invoices;
 
 use Livewire\Component;
-use App\Models\Invoice;
-use App\Models\Rental;
-use App\Models\Unit;
 use App\Models\Property;
 use App\Models\Utility;
+use App\Models\Invoice;
 use App\Models\UtilityUsage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Models\Rental;
+use App\Models\Unit;
 
 class InvoiceForm extends Component
 {
@@ -79,6 +79,39 @@ class InvoiceForm extends Component
             $this->loadInvoice();
         } else {
             $this->due_date = now()->addDays(15)->format('Y-m-d');
+        }
+    }
+    
+    public function loadInvoice()
+    {
+        $invoice = Invoice::with(['rental.unit.property', 'utilityUsages'])
+            ->findOrFail($this->invoiceId);
+
+        // Load basic invoice data
+        $this->selectedProperty = $invoice->rental->unit->property_id;
+        $this->selectedUnit = $invoice->rental->room_id;
+        $this->selectedRental = $invoice->rental_id;
+        $this->amount_due = $invoice->amount_due;
+        $this->due_date = Carbon::parse($invoice->due_date)->format('Y-m-d');
+        $this->paid = $invoice->paid;
+        $this->payment_method = $invoice->payment_method;
+        $this->payment_status = $invoice->payment_status;
+
+        // Load the units for the selected property
+        $this->updatedSelectedProperty($this->selectedProperty);
+
+        // Load the rentals for the selected unit
+        $this->updatedSelectedUnit($this->selectedUnit);
+
+        // Load utility readings
+        $this->loadReadings();
+
+        // Update readings with actual values
+        foreach ($invoice->utilityUsages as $usage) {
+            if (isset($this->readings[$usage->utility_id])) {
+                $this->readings[$usage->utility_id]['new_reading'] = $usage->new_meter_reading;
+                $this->calculateUsage($usage->utility_id);
+            }
         }
     }
     
@@ -200,7 +233,10 @@ class InvoiceForm extends Component
             // Create utility usage records and calculate total amount
             $totalAmount = 0;
             $descriptions = [];
+            $utilityUsages = [];
             
+            // Validate that at least one utility reading is included
+            $hasReadings = false;
             foreach ($this->readings as $utilityId => $reading) {
                 if ($reading['include'] && 
                     !empty($reading['new_reading']) && 
@@ -211,7 +247,7 @@ class InvoiceForm extends Component
                     $utilityName = $utility ? $utility->utility_name : 'Utility';
                     
                     // Create utility usage record
-                    UtilityUsage::create([
+                    $usage = UtilityUsage::create([
                         'room_id' => $this->selectedUnit,
                         'utility_id' => $utilityId,
                         'usage_date' => $readingDate,
@@ -220,6 +256,7 @@ class InvoiceForm extends Component
                         'amount_used' => $reading['amount_used'],
                     ]);
                     
+                    $utilityUsages[] = $usage->usage_id;
                     $totalAmount += $reading['total_charge'];
                     
                     $previousDate = $reading['previous_date'] 
@@ -241,6 +278,16 @@ class InvoiceForm extends Component
                 'paid' => $this->paid,
                 'description' => implode("\n", $descriptions)
             ]);
+            
+            // Link utility usages to the invoice
+            foreach ($utilityUsages as $usageId) {
+                DB::table('invoice_utility_usages')->insert([
+                    'invoice_id' => $invoice->invoice_id,
+                    'usage_id' => $usageId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
             
             DB::commit();
             

@@ -40,6 +40,12 @@ class Invoice extends Model
         return $this->hasMany(PaymentHistory::class, 'invoice_id', 'invoice_id');
     }
 
+    public function utilityUsages()
+    {
+        return $this->belongsToMany(UtilityUsage::class, 'invoice_utility_usages', 'invoice_id', 'usage_id')
+            ->withTimestamps();
+    }
+
     // Helper method to get pending invoices
     public function scopePending($query)
     {
