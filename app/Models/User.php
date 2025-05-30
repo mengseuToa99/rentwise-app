@@ -114,6 +114,10 @@ class User extends Authenticatable implements CanResetPasswordContract
      */
     public function setPasswordAttribute($value)
     {
+        if ($value && !str_starts_with($value, '$2y$')) {
+            // Only hash if it's not already hashed
+            $value = bcrypt($value);
+        }
         $this->attributes['password_hash'] = $value;
     }
     
