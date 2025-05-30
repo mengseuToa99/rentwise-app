@@ -61,4 +61,9 @@ class Property extends Model
     {
         return $this->hasMany(PropertyImage::class, 'property_id', 'property_id');
     }
+    
+    public function __toString()
+    {
+        return $this->property_name;
+    }
 } 

@@ -26,7 +26,7 @@ class UnitCreate extends Component
     public $pricing_group_id;
     
     protected $rules = [
-        'propertyId' => 'required|exists:property_details,property_id',
+        'propertyId' => 'required|integer|exists:property_details,property_id',
         'roomName' => 'required|string|max:255',
         'roomNumber' => 'required|string|max:20',
         'floorNumber' => 'required|integer|min:1',
@@ -47,8 +47,12 @@ class UnitCreate extends Component
         // Set default due date to first day of next month
         $this->dueDate = now()->addMonth()->startOfMonth()->format('Y-m-d');
         
-        // Get property ID from query parameter if available
-        $this->propertyId = request()->query('property', '');
+        // Get property ID from query parameter if available and cast it to integer
+        $propertyId = request()->query('property');
+        if ($propertyId !== null && is_numeric($propertyId)) {
+            $this->propertyId = (int)$propertyId;
+            \Log::info('Property ID set from query:', ['id' => $this->propertyId, 'type' => gettype($this->propertyId)]);
+        }
         
         // Make sure the user has permission for this property
         if (!empty($this->propertyId)) {
@@ -60,6 +64,7 @@ class UnitCreate extends Component
             }
             
             $property = Property::find($this->propertyId);
+            \Log::info('Found property:', ['property' => $property ? $property->toArray() : null]);
             
             $userRoles = $authUser->roles ?? collect([]);
             if (!$property || (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $authUser->user_id)) {
@@ -79,6 +84,17 @@ class UnitCreate extends Component
     
     public function updatedPropertyId($value)
     {
+        \Log::info('Property ID updated:', ['raw_value' => $value, 'type' => gettype($value)]);
+        
+        // Cast the property ID to integer if it's not null and is numeric
+        if ($value !== null && $value !== '' && is_numeric($value)) {
+            $this->propertyId = (int)$value;
+            \Log::info('Property ID cast to int:', ['cast_value' => $this->propertyId, 'type' => gettype($this->propertyId)]);
+        } else {
+            $this->propertyId = null;
+            \Log::info('Property ID set to null');
+        }
+        
         // Load the pricing groups when property changes
         $this->loadPricingGroups();
         
@@ -110,9 +126,33 @@ class UnitCreate extends Component
     
     public function create()
     {
-        $this->validate();
+        \Log::info('Starting unit creation with data:', [
+            'propertyId' => $this->propertyId,
+            'type' => gettype($this->propertyId),
+            'roomName' => $this->roomName,
+            'roomNumber' => $this->roomNumber
+        ]);
+        
+        // Ensure propertyId is an integer
+        if (!is_numeric($this->propertyId)) {
+            session()->flash('error', 'Invalid property ID');
+            return;
+        }
+        
+        $this->propertyId = (int)$this->propertyId;
         
         try {
+            $this->validate();
+            
+            // Verify property exists
+            $property = Property::find($this->propertyId);
+            if (!$property) {
+                throw new \Exception('Selected property does not exist');
+            }
+            
+            // Parse and format the date properly
+            $dueDate = \Carbon\Carbon::parse($this->dueDate)->format('Y-m-d');
+            
             $unit = new Unit();
             $unit->property_id = $this->propertyId;
             $unit->pricing_group_id = $this->pricing_group_id;
@@ -122,10 +162,24 @@ class UnitCreate extends Component
             $unit->room_type = $this->type;
             $unit->description = $this->description;
             $unit->rent_amount = $this->rentAmount;
-            $unit->due_date = $this->dueDate;
+            $unit->due_date = $dueDate;
             $unit->available = $this->available;
             $unit->status = 'vacant';
+            
+            // Debug information before save
+            \Log::info('Unit data before save:', array_merge(
+                $unit->toArray(),
+                ['property_id_type' => gettype($unit->property_id)]
+            ));
+            
             $unit->save();
+            
+            // Debug information after save
+            \Log::info('Unit saved successfully:', [
+                'unit_id' => $unit->room_id,
+                'property_id' => $unit->property_id,
+                'property_id_type' => gettype($unit->property_id)
+            ]);
             
             session()->flash('success', 'Unit created successfully!');
             
@@ -136,6 +190,13 @@ class UnitCreate extends Component
             }
             
         } catch (\Exception $e) {
+            // More detailed error logging
+            \Log::error('Error creating unit:', [
+                'message' => $e->getMessage(),
+                'property_id' => $this->propertyId,
+                'property_id_type' => gettype($this->propertyId),
+                'trace' => $e->getTraceAsString()
+            ]);
             session()->flash('error', 'Error creating unit: ' . $e->getMessage());
         }
     }
@@ -151,7 +212,9 @@ class UnitCreate extends Component
             ]);
         }
         
-        $query = Property::query();
+        $query = Property::query()
+            ->select(['property_id', 'property_name'])
+            ->orderBy('property_name');
         
         // If not admin, show only properties owned by this landlord
         $userRoles = $authUser->roles ?? collect([]);
@@ -159,7 +222,17 @@ class UnitCreate extends Component
             $query->where('landlord_id', $authUser->user_id);
         }
         
-        $properties = $query->pluck('property_name', 'property_id');
+        // Get properties and log them for debugging
+        $properties = $query->get();
+        
+        \Log::info('Properties from database:', [
+            'properties' => $properties->map(function($prop) {
+                return [
+                    'id' => $prop->property_id,
+                    'name' => $prop->property_name
+                ];
+            })->toArray()
+        ]);
         
         return view('livewire.units.unit-create', [
             'properties' => $properties

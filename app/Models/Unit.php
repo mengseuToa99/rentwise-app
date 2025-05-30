@@ -30,6 +30,12 @@ class Unit extends Model
         'updated_at'
     ];
 
+    protected $casts = [
+        'due_date' => 'date:Y-m-d',
+        'available' => 'boolean',
+        'rent_amount' => 'decimal:2',
+    ];
+
     public function property()
     {
         return $this->belongsTo(Property::class, 'property_id', 'property_id');
