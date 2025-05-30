@@ -32,6 +32,12 @@ class UnitList extends Component
         $this->resetPage();
     }
     
+    public function refresh()
+    {
+        // This method will be called to refresh the component
+        $this->resetPage();
+    }
+    
     public function render()
     {
         $user = Auth::user();
@@ -39,7 +45,14 @@ class UnitList extends Component
         
         // Join with properties to access property data
         $query->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->select('room_details.*', 'property_details.property_name as property_name');
+            ->select([
+                'room_details.*',
+                'property_details.property_name',
+                'room_details.room_type as type',
+                'room_details.status',
+                'room_details.available'
+            ])
+            ->latest('room_details.updated_at'); // Order by latest updated first
         
         // If not admin, show only the units of properties owned by this landlord
         $userRoles = $user->roles ?? collect([]);
@@ -54,8 +67,11 @@ class UnitList extends Component
         
         // Apply availability filter
         if ($this->availabilityFilter !== '') {
-            $available = ($this->availabilityFilter === 'available');
-            $query->where('room_details.available', $available);
+            if ($this->availabilityFilter === 'available') {
+                $query->where('room_details.status', 'vacant');
+            } else {
+                $query->where('room_details.status', 'occupied');
+            }
         }
         
         // Apply search
@@ -63,23 +79,26 @@ class UnitList extends Component
             $query->where(function($q) {
                 $q->where('room_details.room_number', 'like', '%' . $this->search . '%')
                   ->orWhere('room_details.room_type', 'like', '%' . $this->search . '%')
+                  ->orWhere('room_details.room_name', 'like', '%' . $this->search . '%')
                   ->orWhere('property_details.property_name', 'like', '%' . $this->search . '%');
             });
         }
         
-        // Get units with their property information
-        // If perPage is set to 'all', get all records, otherwise paginate
+        // Order by property name and room number
+        $query->orderBy('property_details.property_name')
+              ->orderBy('room_details.room_number');
+        
+        // Get units with pagination
         $units = $this->perPage === 'all' 
-            ? $query->with('property')->get() 
-            : $query->with('property')->paginate($this->perPage);
+            ? $query->get() 
+            : $query->paginate($this->perPage);
         
         // Get properties for the filter dropdown
         $properties = Property::query();
-        $userRoles = $user->roles ?? collect([]);
         if (!$userRoles->contains('role_name', 'admin')) {
             $properties->where('landlord_id', $user->user_id);
         }
-        $properties = $properties->pluck('property_name', 'property_id');
+        $properties = $properties->orderBy('property_name')->pluck('property_name', 'property_id');
         
         // Create array of pagination options
         $paginationOptions = [

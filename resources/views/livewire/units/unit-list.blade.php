@@ -131,10 +131,13 @@
                                         {{ $unit->property_name }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ $unit->room_name }}
+                                        {{ $unit->room_name ?: 'N/A' }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $unit->room_number }} <span class="text-xs text-gray-400 dark:text-gray-500">(Floor {{ $unit->floor_number }})</span>
+                                        {{ $unit->room_number }} 
+                                        @if($unit->floor_number)
+                                            <span class="text-xs text-gray-400 dark:text-gray-500">(Floor {{ $unit->floor_number }})</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         {{ $unit->room_type }}
@@ -143,8 +146,8 @@
                                         ${{ number_format($unit->rent_amount, 2) }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $unit->available ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                            {{ $unit->available ? 'Available' : 'Occupied' }}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $unit->status === 'vacant' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
+                                            {{ ucfirst($unit->status) }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
