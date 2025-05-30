@@ -7,6 +7,7 @@ use App\Models\Property;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PropertyDetail extends Component
 {
@@ -16,6 +17,7 @@ class PropertyDetail extends Component
     public $totalUnits = 0;
     public $occupiedUnits = 0;
     public $vacantUnits = 0;
+    public $propertyImages = [];
     
     public function mount($property)
     {
@@ -37,7 +39,7 @@ class PropertyDetail extends Component
             return redirect()->route('properties.index');
         }
         
-        // Fetch the property with related data
+        // Fetch the property with related data including images
         $property = Property::with(['landlord', 'units'])
             ->where('property_id', $this->propertyId)
             ->first();
@@ -52,6 +54,12 @@ class PropertyDetail extends Component
         // if (!$userRoles->contains('role_name', 'admin') && $property->landlord_id !== $authUser->user_id) {
         //     abort(403, 'Unauthorized action.');
         // }
+        
+        // Load property images from the property_images table
+        $this->propertyImages = DB::table('property_images')
+            ->where('property_id', $this->propertyId)
+            ->pluck('image_path')
+            ->toArray();
         
         $this->property = $property;
         $this->totalUnits = $property->units->count();

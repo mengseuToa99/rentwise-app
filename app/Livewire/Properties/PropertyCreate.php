@@ -100,78 +100,51 @@ class PropertyCreate extends Component
                 return redirect()->route('login');
             }
             
-            // Build the full address from individual components
-            $fullAddress = trim(implode(', ', array_filter([
-                $this->street_number,
-                $this->house_number,
-                $this->village,
-                $this->commune,
-                $this->district,
-                $this->province
-            ])));
+            \DB::beginTransaction();
             
             $property = new Property();
             $property->property_name = $this->property_name;
-            $property->address = $fullAddress;
+            $property->house_building_number = $this->house_number;
+            $property->street = $this->street_number;
+            $property->village = $this->village;
+            $property->commune = $this->commune;
+            $property->district = $this->district;
             $property->description = $this->description;
             $property->landlord_id = $user->user_id;
             $property->status = 'active';
             $property->total_floors = $this->totalFloors;
             $property->total_rooms = $this->totalRooms;
-            
-            // Save new fields if they exist in the database
-            if (in_array('property_type', $property->getFillable())) {
-                $property->property_type = $this->propertyType;
-            }
-            
-            if (in_array('year_built', $property->getFillable())) {
-                $property->year_built = $this->yearBuilt;
-            }
-            
-            if (in_array('property_size', $property->getFillable())) {
-                $property->property_size = $this->propertySize;
-            }
-            
-            if (in_array('size_measurement', $property->getFillable())) {
-                $property->size_measurement = $this->sizeMeasurement;
-            }
-            
-            if (in_array('amenities', $property->getFillable())) {
-                $property->amenities = json_encode($this->amenities);
-            }
-            
-            if (in_array('is_pets_allowed', $property->getFillable())) {
-                $property->is_pets_allowed = $this->isPetsAllowed;
-            }
+            $property->property_type = $this->propertyType;
+            $property->year_built = $this->yearBuilt;
+            $property->property_size = $this->propertySize;
+            $property->size_measurement = $this->sizeMeasurement;
+            $property->amenities = json_encode($this->amenities);
+            $property->is_pets_allowed = $this->isPetsAllowed;
             
             $property->save();
             
-            // Handle image uploads if the property_images table exists
+            // Handle image uploads
+            $imageUrls = [];
             if (count($this->propertyImages) > 0) {
-                try {
-                    foreach ($this->propertyImages as $image) {
-                        $filename = 'property_' . $property->property_id . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                        $path = $image->storeAs('property-images', $filename, 'public');
-                        
-                        // If there's a property_images table, use it
-                        try {
-                            \DB::table('property_images')->insert([
-                                'property_id' => $property->property_id,
-                                'image_path' => '/storage/' . $path,
-                                'created_at' => now(),
-                                'updated_at' => now()
-                            ]);
-                        } catch (\Exception $e) {
-                            // If property_images table doesn't exist, store as JSON in the property table
-                            $imageUrls = json_decode($property->images ?? '[]', true);
-                            $imageUrls[] = '/storage/' . $path;
-                            $property->images = json_encode($imageUrls);
-                            $property->save();
-                        }
-                    }
-                } catch (\Exception $imageException) {
-                    session()->flash('warning', 'Property created but image upload failed: ' . $imageException->getMessage());
+                foreach ($this->propertyImages as $image) {
+                    $filename = 'property_' . $property->property_id . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                    $path = $image->storeAs('property-images', $filename, 'public');
+                    $fullPath = '/storage/' . $path;
+                    
+                    // Store in property_images table
+                    \DB::table('property_images')->insert([
+                        'property_id' => $property->property_id,
+                        'image_path' => $fullPath,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    
+                    $imageUrls[] = $fullPath;
                 }
+                
+                // Also store in the images JSON field as backup
+                $property->images = json_encode($imageUrls);
+                $property->save();
             }
             
             // Generate units if enabled
@@ -179,11 +152,15 @@ class PropertyCreate extends Component
                 $this->generateUnits($property);
             }
             
+            \DB::commit();
+            
             session()->flash('success', 'Property created successfully!');
             return redirect()->route('properties.show', $property->property_id);
             
         } catch (\Exception $e) {
+            \DB::rollBack();
             session()->flash('error', 'Error creating property: ' . $e->getMessage());
+            \Log::error('Property creation failed: ' . $e->getMessage());
         }
     }
     

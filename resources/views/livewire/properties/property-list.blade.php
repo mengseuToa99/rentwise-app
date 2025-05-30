@@ -67,8 +67,24 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach ($properties as $property)
                     <div class="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                        <div class="h-32 bg-gradient-to-r from-blue-500 to-indigo-600 relative">
-                            <div class="absolute inset-0 bg-black/10"></div>
+                        <div class="h-32 relative">
+                            @php
+                                $propertyImage = null;
+                                if ($property->images) {
+                                    $images = json_decode($property->images, true);
+                                    $propertyImage = !empty($images) ? $images[0] : null;
+                                }
+                            @endphp
+                            
+                            @if ($propertyImage)
+                                <img src="{{ $propertyImage }}" alt="{{ $property->property_name }}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20"></div>
+                            @else
+                                <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-600">
+                                    <div class="absolute inset-0 bg-black/10"></div>
+                                </div>
+                            @endif
+                            
                             <div class="absolute bottom-0 left-0 right-0 p-4">
                                 <h2 class="text-lg font-medium text-white">{{ $property->property_name }}</h2>
                                 <p class="text-sm text-white/80 truncate">
