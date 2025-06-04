@@ -14,17 +14,20 @@ return new class extends Migration
         Schema::create('room_details', function (Blueprint $table) {
             $table->id('room_id');
             $table->unsignedBigInteger('property_id');
-            $table->string('room_name');
+            $table->unsignedBigInteger('pricing_group_id')->nullable();
+            $table->string('room_name')->nullable();
             $table->integer('floor_number');
             $table->string('room_number');
-            $table->timestamp('due_date');
-            $table->string('room_type');
+            $table->string('type')->nullable();
             $table->text('description')->nullable();
             $table->boolean('available')->default(true);
-            $table->decimal('rent_amount', 10, 2);
+            $table->string('status')->default('vacant');
+            $table->decimal('rent_amount', 10, 2)->default(0);
+            $table->date('due_date')->nullable();
             $table->timestamps();
     
             $table->foreign('property_id')->references('property_id')->on('property_details')->onDelete('cascade');
+            $table->foreign('pricing_group_id')->references('group_id')->on('pricing_groups')->onDelete('set null');
         });
     }
 

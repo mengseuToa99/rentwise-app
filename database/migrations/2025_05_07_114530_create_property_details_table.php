@@ -22,6 +22,13 @@ return new class extends Migration
             $table->string('district')->nullable(); // ខណ្ឌ/ស្រុក
             $table->integer('total_floors');
             $table->integer('total_rooms');
+            $table->string('property_type')->default('residential');
+            $table->integer('year_built')->nullable();
+            $table->decimal('property_size', 10, 2)->nullable();
+            $table->string('size_measurement')->default('sqft');
+            $table->json('amenities')->nullable();
+            $table->boolean('is_pets_allowed')->default(false);
+            $table->json('images')->nullable();
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();

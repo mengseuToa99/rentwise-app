@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('start_date');
             $table->timestamp('end_date')->nullable();
             $table->string('lease_agreement')->nullable();
+            $table->enum('status', ['active', 'expired', 'terminated', 'pending'])->default('active');
             $table->timestamps();
     
             $table->foreign('landlord_id')->references('user_id')->on('user_details')->onDelete('cascade');
