@@ -40,15 +40,17 @@ class RentalList extends Component
         $query = Rental::query();
         
         // Join with related tables for better filtering
-        $query->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
+        $query->join('users', 'rental_details.tenant_id', '=', 'users.user_id')
               ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
               ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-              ->select('rental_details.*', 
-                      DB::raw("CONCAT(tenants.first_name, ' ', tenants.last_name) as tenant_name"), 
-                      'property_details.property_name', 
-                      'room_details.room_number');
+              ->select(
+                  'rental_details.*', 
+                  DB::raw("CONCAT(users.first_name, ' ', users.last_name) as tenant_name"), 
+                  'property_details.property_name', 
+                  'room_details.room_number'
+              );
         
-        // Always show only rentals related to this landlord (admin can't access this page anymore)
+        // Always show only rentals related to this landlord
         $query->where('rental_details.landlord_id', $user->user_id);
         
         // Apply property filter
@@ -64,21 +66,22 @@ class RentalList extends Component
         // Apply search
         if (!empty($this->search)) {
             $query->where(function($q) {
-                $q->where('tenants.first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('tenants.last_name', 'like', '%' . $this->search . '%')
+                $q->where('users.first_name', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.last_name', 'like', '%' . $this->search . '%')
                   ->orWhere('room_details.room_number', 'like', '%' . $this->search . '%')
                   ->orWhere('property_details.property_name', 'like', '%' . $this->search . '%');
             });
         }
         
         // Get rentals with relationships
-        // If perPage is set to 'all', get all records, otherwise paginate
         $rentals = $this->perPage === 'all' 
-            ? $query->with(['tenant', 'unit', 'unit.property'])->get() 
-            : $query->with(['tenant', 'unit', 'unit.property'])->paginate($this->perPage);
+            ? $query->get() 
+            : $query->paginate($this->perPage);
         
         // Get properties for filter dropdown - only from this landlord
         $properties = \App\Models\Property::where('landlord_id', $user->user_id)
+                             ->select('property_id', 'property_name')
+                             ->get()
                              ->pluck('property_name', 'property_id');
         
         // Get statuses for filter dropdown

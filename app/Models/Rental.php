@@ -59,10 +59,10 @@ class Rental extends Model
         return $this->hasOneThrough(
             Property::class,
             Unit::class,
-            'room_id', // Foreign key on room_detail table
-            'property_id', // Foreign key on property_detail table
-            'room_id', // Local key on rental_detail table
-            'property_id' // Local key on room_detail table
+            'room_id', // Foreign key on units table
+            'property_id', // Foreign key on properties table
+            'room_id', // Local key on rentals table
+            'property_id' // Local key on units table
         );
     }
 } 

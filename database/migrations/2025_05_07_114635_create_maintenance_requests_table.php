@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('maintenance_requests', function (Blueprint $table) {
             $table->id('request_id');
-            $table->unsignedBigInteger('tenant_id');
-            $table->unsignedBigInteger('room_id');
-            $table->enum('category', ['plumbing', 'electricity', 'cleaning', 'other']);
+            $table->foreignId('tenant_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->foreignId('property_id')->constrained('property_details', 'property_id')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('room_details', 'room_id')->onDelete('cascade');
+            $table->string('title');
             $table->text('description');
-            $table->enum('status', ['pending', 'approved', 'rejected', 'completed']);
-            $table->date('scheduled_date')->nullable();
+            $table->string('priority')->default('medium'); // low, medium, high, urgent
+            $table->string('status')->default('pending'); // pending, in_progress, completed, rejected
+            $table->text('landlord_notes')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
-    
-            $table->foreign('tenant_id')->references('user_id')->on('user_details')->onDelete('cascade');
-            $table->foreign('room_id')->references('room_id')->on('room_details')->onDelete('cascade');
         });
     }
 

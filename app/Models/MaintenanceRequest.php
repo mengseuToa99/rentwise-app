@@ -14,11 +14,18 @@ class MaintenanceRequest extends Model
     
     protected $fillable = [
         'tenant_id',
+        'property_id',
         'room_id',
-        'category',
+        'title',
         'description',
+        'priority',
         'status',
-        'scheduled_date'
+        'landlord_notes',
+        'completed_at'
+    ];
+    
+    protected $casts = [
+        'completed_at' => 'datetime',
     ];
     
     /**
@@ -30,11 +37,27 @@ class MaintenanceRequest extends Model
     }
     
     /**
+     * Get the property associated with the maintenance request
+     */
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'property_id');
+    }
+    
+    /**
      * Get the room associated with the maintenance request
      */
     public function room()
     {
-        return $this->belongsTo(RoomDetail::class, 'room_id', 'room_id');
+        return $this->belongsTo(Unit::class, 'room_id', 'room_id');
+    }
+    
+    /**
+     * Get the landlord through the property relationship
+     */
+    public function landlord()
+    {
+        return $this->property->landlord();
     }
     
     /**
@@ -58,10 +81,8 @@ class MaintenanceRequest extends Model
      */
     public function scopeForLandlord($query, $landlordId)
     {
-        return $query->whereHas('room', function ($q) use ($landlordId) {
-            $q->whereHas('property', function ($q) use ($landlordId) {
-                $q->where('landlord_id', $landlordId);
-            });
+        return $query->whereHas('property', function ($q) use ($landlordId) {
+            $q->where('landlord_id', $landlordId);
         });
     }
 } 

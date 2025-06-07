@@ -187,6 +187,14 @@ Route::middleware(['auth'])->group(function () {
         // ... existing routes ...
         Route::get('/readings', UtilityReadingForm::class)->name('readings');
     });
+
+    // Maintenance Request Routes
+    Route::get('/maintenance', \App\Livewire\Maintenance\MaintenanceList::class)->name('maintenance.index');
+    Route::get('/maintenance/create', \App\Livewire\Maintenance\MaintenanceRequestForm::class)->name('maintenance.create');
+    Route::get('/maintenance/{request}/edit', \App\Livewire\Maintenance\MaintenanceRequestForm::class)->name('maintenance.edit');
+
+    // Lease Agreement Routes
+    Route::get('/lease-agreements', App\Livewire\LeaseAgreement\LeaseAgreementList::class)->name('lease-agreements.index');
 });
 
 // Test and diagnostic routes
