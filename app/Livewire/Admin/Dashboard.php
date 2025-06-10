@@ -85,20 +85,20 @@ class Dashboard extends Component
         
         // Revenue by time period (month by default)
         $dateColumn = 'created_at';
-        $format = '%Y-%m';
+        $format = 'YYYY-MM';
         $days = 30;
         
         if ($this->timeframe == 'year') {
-            $format = '%Y';
+            $format = 'YYYY';
             $days = 365;
         } elseif ($this->timeframe == 'week') {
-            $format = '%Y-%u'; // Year and week number
+            $format = 'YYYY-IW'; // Year and ISO week number
             $days = 7;
         }
         
         $this->revenueSummary = Invoice::where('payment_status', 'paid')
             ->where($dateColumn, '>=', now()->subDays($days))
-            ->select(DB::raw("DATE_FORMAT($dateColumn, '$format') as period"), DB::raw('SUM(amount_due) as revenue'))
+            ->select(DB::raw("TO_CHAR($dateColumn, '$format') as period"), DB::raw('SUM(amount_due) as revenue'))
             ->groupBy('period')
             ->orderBy('period')
             ->get()
@@ -114,22 +114,24 @@ class Dashboard extends Component
             ->pluck('count', 'status')
             ->toArray();
         
-        // Maintenance requests by category
-        $this->stats['maintenance_by_category'] = MaintenanceRequest::select('category', DB::raw('COUNT(*) as count'))
-            ->groupBy('category')
+        // Maintenance requests by priority instead of category
+        $this->stats['maintenance_by_priority'] = MaintenanceRequest::select('priority', DB::raw('COUNT(*) as count'))
+            ->groupBy('priority')
             ->get()
-            ->pluck('count', 'category')
+            ->pluck('count', 'priority')
             ->toArray();
         
         // Average resolution time (for completed requests)
-        $completedRequests = MaintenanceRequest::where('status', 'completed')->get();
+        $completedRequests = MaintenanceRequest::where('status', 'completed')
+            ->whereNotNull('completed_at')
+            ->get();
         $totalResolutionTime = 0;
         $count = 0;
         
         foreach ($completedRequests as $request) {
             $created = Carbon::parse($request->created_at);
-            $updated = Carbon::parse($request->updated_at);
-            $totalResolutionTime += $created->diffInHours($updated);
+            $completed = Carbon::parse($request->completed_at);
+            $totalResolutionTime += $created->diffInHours($completed);
             $count++;
         }
         

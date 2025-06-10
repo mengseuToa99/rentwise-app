@@ -4,81 +4,66 @@
             <div class="sm:flex-auto">
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Maintenance Requests</h1>
                 <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                    A list of all maintenance requests {{ Auth::user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }) ? 'you have submitted' : 'for your properties' }}.
+                    @if($isLandlord)
+                        View and manage maintenance requests for your properties.
+                    @else
+                        Submit and track maintenance requests for your units.
+                    @endif
                 </p>
             </div>
-            <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <a
-                    href="{{ route('maintenance.create') }}"
-                    class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                >
+            @if(!$isLandlord)
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <a href="{{ route('maintenance.create') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
                     New Request
                 </a>
             </div>
+            @endif
         </div>
 
-        <!-- Filters -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
+        @if (session('success'))
+            <div class="mt-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Search and Filters -->
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="col-span-2">
                 <label for="search" class="sr-only">Search</label>
                 <div class="relative">
-                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                    <input type="text" wire:model.debounce.300ms="search" class="block w-full rounded-md border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 pr-10 focus:border-indigo-500 focus:ring-indigo-500 dark:text-white sm:text-sm" placeholder="Search requests...">
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input
-                        wire:model.live="search"
-                        type="search"
-                        name="search"
-                        id="search"
-                        class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-zinc-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-zinc-800 sm:text-sm sm:leading-6"
-                        placeholder="Search requests..."
-                    >
                 </div>
             </div>
-
             <div>
-                <select
-                    wire:model.live="statusFilter"
-                    class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-zinc-700 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-zinc-800 sm:text-sm sm:leading-6"
-                >
+                <select wire:model="statusFilter" class="block w-full rounded-md border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 focus:border-indigo-500 focus:ring-indigo-500 dark:text-white sm:text-sm">
                     <option value="">All Statuses</option>
                     @foreach($statuses as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
-
             <div>
-                <select
-                    wire:model.live="priorityFilter"
-                    class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-zinc-700 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-zinc-800 sm:text-sm sm:leading-6"
-                >
+                <select wire:model="priorityFilter" class="block w-full rounded-md border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 focus:border-indigo-500 focus:ring-indigo-500 dark:text-white sm:text-sm">
                     <option value="">All Priorities</option>
                     @foreach($priorities as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
-
-            <div>
-                <select
-                    wire:model.live="perPage"
-                    class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-zinc-700 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-zinc-800 sm:text-sm sm:leading-6"
-                >
-                    @foreach($paginationOptions as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
         </div>
 
-        <!-- Table -->
-        <div class="mt-8 flow-root">
-            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 dark:ring-zinc-700 rounded-lg">
+        <div class="mt-8 flex flex-col">
+            <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
                         <table class="min-w-full divide-y divide-gray-300 dark:divide-zinc-700">
                             <thead class="bg-gray-50 dark:bg-zinc-800">
                                 <tr>
@@ -87,7 +72,7 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Unit</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Priority</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Created</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Date</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                         <span class="sr-only">Actions</span>
                                     </th>
@@ -106,45 +91,84 @@
                                             {{ $request->room->room_number }}
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
-                                                @if($request->priority === 'urgent')
-                                                    bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20 dark:ring-red-500/20
-                                                @elseif($request->priority === 'high')
-                                                    bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 ring-orange-600/20 dark:ring-orange-500/20
-                                                @elseif($request->priority === 'medium')
-                                                    bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ring-yellow-600/20 dark:ring-yellow-500/20
-                                                @else
-                                                    bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20 dark:ring-green-500/20
-                                                @endif
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                @switch($request->priority)
+                                                    @case('urgent')
+                                                        bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400
+                                                        @break
+                                                    @case('high')
+                                                        bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400
+                                                        @break
+                                                    @case('medium')
+                                                        bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400
+                                                        @break
+                                                    @default
+                                                        bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400
+                                                @endswitch
                                             ">
                                                 {{ ucfirst($request->priority) }}
                                             </span>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
-                                                @if($request->status === 'pending')
-                                                    bg-gray-50 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400 ring-gray-600/20 dark:ring-gray-500/20
-                                                @elseif($request->status === 'in_progress')
-                                                    bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 ring-blue-600/20 dark:ring-blue-500/20
-                                                @elseif($request->status === 'completed')
-                                                    bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20 dark:ring-green-500/20
-                                                @else
-                                                    bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20 dark:ring-red-500/20
-                                                @endif
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                @switch($request->status)
+                                                    @case('pending')
+                                                        bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400
+                                                        @break
+                                                    @case('in_progress')
+                                                        bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400
+                                                        @break
+                                                    @case('completed')
+                                                        bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400
+                                                        @break
+                                                    @case('rejected')
+                                                        bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400
+                                                        @break
+                                                @endswitch
                                             ">
-                                                {{ str_replace('_', ' ', ucfirst($request->status)) }}
+                                                {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                             </span>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $request->created_at->diffForHumans() }}
+                                            {{ $request->created_at->format('M d, Y') }}
                                         </td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                            <a href="{{ route('maintenance.edit', $request->request_id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">Edit</a>
+                                            @if($isLandlord)
+                                                <div class="flex justify-end space-x-2">
+                                                    @if($request->status === 'pending')
+                                                    <button wire:click="quickAction({{ $request->request_id }}, 'in_progress')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                                        Accept
+                                                    </button>
+                                                    <button wire:click="quickAction({{ $request->request_id }}, 'rejected')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                                        Reject
+                                                    </button>
+                                                    @endif
+                                                    @if($request->status === 'in_progress')
+                                                    <button wire:click="quickAction({{ $request->request_id }}, 'completed')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                                        Complete
+                                                    </button>
+                                                    @endif
+                                                    <a href="/maintenance/{{ $request->request_id }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                        View Details
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <div class="flex justify-end space-x-2">
+                                                    <a href="/maintenance/{{ $request->request_id }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                        View
+                                                    </a>
+                                                    @if($request->status === 'pending')
+                                                    <a href="/maintenance/{{ $request->request_id }}/edit" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                                        Edit
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
                                             No maintenance requests found.
                                         </td>
                                     </tr>
@@ -157,10 +181,8 @@
         </div>
 
         <!-- Pagination -->
-        @if($maintenanceRequests instanceof \Illuminate\Pagination\LengthAwarePaginator)
-            <div class="mt-4">
-                {{ $maintenanceRequests->links() }}
-            </div>
-        @endif
+        <div class="mt-4">
+            {{ $maintenanceRequests->links() }}
+        </div>
     </div>
 </div> 

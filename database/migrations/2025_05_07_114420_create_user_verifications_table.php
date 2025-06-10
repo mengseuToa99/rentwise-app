@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('token_expiry')->nullable();
             $table->timestamps();
     
-            $table->foreign('user_id')->references('user_id')->on('user_details')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 

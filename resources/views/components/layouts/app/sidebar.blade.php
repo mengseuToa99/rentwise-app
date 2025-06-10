@@ -83,7 +83,7 @@
                 <a href="{{ route('profile') }}" class="flex items-center cursor-pointer" wire:navigate>
                 <!-- Profile Image -->
                 @if(auth()->user()->profile_picture)
-                    <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="Profile Image" class="h-10 w-10 rounded-full object-cover border-2 border-white dark:border-zinc-800 shadow-sm">
+                    <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ __('app.profile') }}" class="h-10 w-10 rounded-full object-cover border-2 border-white dark:border-zinc-800 shadow-sm">
                 @else
                     <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center border border-gray-200 dark:border-zinc-700 text-gray-400 dark:text-zinc-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -102,57 +102,57 @@
         <flux:navlist variant="outline">
             @if(auth()->user() && auth()->user()->roles && auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
             <!-- Admin User Navigation -->
-            <flux:navlist.group :heading="__('Platform')" class="grid">
-                <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('app.platform')" class="grid">
+                <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('app.dashboard') }}</flux:navlist.item>
+                <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('app.chat') }}</flux:navlist.item>
             </flux:navlist.group>
 
-            <flux:navlist.group :heading="__('User Management')" class="grid">
-                <flux:navlist.item icon="user-group" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
-                <flux:navlist.item icon="shield-check" :href="route('admin.roles')" :current="request()->routeIs('admin.roles')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
-                <flux:navlist.item icon="key" :href="route('admin.permissions')" :current="request()->routeIs('admin.permissions')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('app.users')" class="grid">
+                <flux:navlist.item icon="user-group" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('app.users') }}</flux:navlist.item>
+                <flux:navlist.item icon="shield-check" :href="route('admin.roles')" :current="request()->routeIs('admin.roles')" wire:navigate>{{ __('app.roles') }}</flux:navlist.item>
+                <flux:navlist.item icon="key" :href="route('admin.permissions')" :current="request()->routeIs('admin.permissions')" wire:navigate>{{ __('app.permissions') }}</flux:navlist.item>
             </flux:navlist.group>
 
-            <flux:navlist.group :heading="__('System')" class="grid">
-                <flux:navlist.item icon="cog" :href="route('admin.settings')" :current="request()->routeIs('admin.settings')" wire:navigate>{{ __('System Settings') }}</flux:navlist.item>
-                <flux:navlist.item icon="document-text" :href="route('admin.logs')" :current="request()->routeIs('admin.logs')" wire:navigate>{{ __('System Logs') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('app.system')" class="grid">
+                <flux:navlist.item icon="cog" :href="route('admin.settings')" :current="request()->routeIs('admin.settings')" wire:navigate>{{ __('app.system_settings') }}</flux:navlist.item>
+                <flux:navlist.item icon="document-text" :href="route('admin.logs')" :current="request()->routeIs('admin.logs')" wire:navigate>{{ __('app.system_logs') }}</flux:navlist.item>
             </flux:navlist.group>
             @else
             <!-- Non-Admin User Navigation -->
-            <flux:navlist.group :heading="__('Platform')" class="grid">
-                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('app.platform')" class="grid">
+                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('app.dashboard') }}</flux:navlist.item>
+                <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('app.chat') }}</flux:navlist.item>
             </flux:navlist.group>
 
                 @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }))
                 <!-- Property Management - For Landlords only -->
-                <flux:navlist.group :heading="__('Property Management')" class="grid">
-                    <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Properties') }}</flux:navlist.item>
-                    <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Units') }}</flux:navlist.item>
-                    <flux:navlist.item icon="wrench-screwdriver" :href="route('maintenance.index')" :current="request()->routeIs('maintenance.*')" wire:navigate>{{ __('Maintenance') }}</flux:navlist.item>
+                <flux:navlist.group :heading="__('app.property_management')" class="grid">
+                    <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('app.properties') }}</flux:navlist.item>
+                    <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('app.units') }}</flux:navlist.item>
+                    <flux:navlist.item icon="wrench-screwdriver" :href="route('maintenance.index')" :current="request()->routeIs('maintenance.*')" wire:navigate>{{ __('app.maintenance') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
                 <!-- Leasing - For Landlords only -->
-                <flux:navlist.group :heading="__('Leasing')" class="grid">
-                    <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('Rentals') }}</flux:navlist.item>
-                    <flux:navlist.item icon="user-group" :href="route('tenants.index')" :current="request()->routeIs('tenants.*')" wire:navigate>{{ __('Tenant Info') }}</flux:navlist.item>
+                <flux:navlist.group :heading="__('app.rentals')" class="grid">
+                    <flux:navlist.item icon="document-text" :href="route('rentals.index')" :current="request()->routeIs('rentals.*')" wire:navigate>{{ __('app.rentals') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('tenants.index')" :current="request()->routeIs('tenants.*')" wire:navigate>{{ __('app.tenant_info') }}</flux:navlist.item>
                 </flux:navlist.group>
                 
                 <!-- Finance - For Landlords only -->
-                <flux:navlist.group :heading="__('Finance')" class="grid">
-                    <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('Invoices') }}</flux:navlist.item>
-                    <flux:navlist.item icon="bolt" :href="route('utilities.index')" :current="request()->routeIs('utilities.index')" wire:navigate>{{ __('Utilities') }}</flux:navlist.item>
-                    <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('Utility Usage') }}</flux:navlist.item>
+                <flux:navlist.group :heading="__('app.finance')" class="grid">
+                    <flux:navlist.item icon="currency-dollar" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>{{ __('app.invoices') }}</flux:navlist.item>
+                    <flux:navlist.item icon="bolt" :href="route('utilities.index')" :current="request()->routeIs('utilities.index')" wire:navigate>{{ __('app.utilities') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('app.utility_usage') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @endif
            
 
             @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }))
             <!-- Tenant Access Only -->
-            <flux:navlist.group :heading="__('My Rentals')" class="grid">
-                <flux:navlist.item icon="currency-dollar" :href="route('tenant.invoices')" :current="request()->routeIs('tenant.invoices')" wire:navigate>{{ __('My Invoices') }}</flux:navlist.item>
-                <flux:navlist.item icon="building-office" :href="route('tenant.property')" :current="request()->routeIs('tenant.property')" wire:navigate>{{ __('My Property') }}</flux:navlist.item>
-                <flux:navlist.item icon="wrench-screwdriver" :href="route('maintenance.index')" :current="request()->routeIs('maintenance.*')" wire:navigate>{{ __('Maintenance') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('app.my_rentals')" class="grid">
+                <flux:navlist.item icon="currency-dollar" :href="route('tenant.invoices')" :current="request()->routeIs('tenant.invoices')" wire:navigate>{{ __('app.my_invoices') }}</flux:navlist.item>
+                <flux:navlist.item icon="building-office" :href="route('tenant.property')" :current="request()->routeIs('tenant.property')" wire:navigate>{{ __('app.my_property') }}</flux:navlist.item>
+                <flux:navlist.item icon="wrench-screwdriver" :href="route('maintenance.index')" :current="request()->routeIs('maintenance.*')" wire:navigate>{{ __('app.maintenance') }}</flux:navlist.item>
             </flux:navlist.group>
             @endif
             @endif
@@ -161,18 +161,9 @@
         <flux:spacer />
 
         <!-- Bottom Controls -->
-        <div class="mb-4 flex w-full items-center justify-between">
-            <!-- Logout Button -->
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </button>
-            </form>
+        <div class="mb-4 flex w-full items-center justify-between space-x-2">
+            <!-- Language Switcher -->
+            @livewire('language-switcher')
 
             <!-- Theme Toggle Button - Icon only -->
             <button
@@ -185,7 +176,9 @@
                         }
                     }"
                 @click="toggle()"
-                class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                title="{{ __('app.theme_toggle') }}"
+            >
                 <!-- Sun icon for dark mode -->
                 <svg
                     x-show="isDark"
@@ -222,6 +215,21 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
+
+            <!-- Logout Button -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" 
+                    class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    title="{{ __('app.logout') }}"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </form>
         </div>
     </flux:sidebar>
 

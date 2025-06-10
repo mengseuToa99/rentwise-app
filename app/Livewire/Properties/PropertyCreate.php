@@ -129,7 +129,7 @@ class PropertyCreate extends Component
                 foreach ($this->propertyImages as $image) {
                     $filename = 'property_' . $property->property_id . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
                     $path = $image->storeAs('property-images', $filename, 'public');
-                    $fullPath = '/storage/' . $path;
+                    $fullPath = $path; // Store relative path without /storage/ prefix
                     
                     // Store in property_images table
                     \DB::table('property_images')->insert([

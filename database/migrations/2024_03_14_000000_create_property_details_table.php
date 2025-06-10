@@ -26,7 +26,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
     
-            $table->foreign('landlord_id')->references('user_id')->on('user_details')->onDelete('cascade');
+            $table->foreign('landlord_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 

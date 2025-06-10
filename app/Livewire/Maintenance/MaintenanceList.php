@@ -6,21 +6,70 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\MaintenanceRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MaintenanceList extends Component
 {
     use WithPagination;
+    use AuthorizesRequests;
     
     public $search = '';
     public $statusFilter = '';
     public $priorityFilter = '';
     public $perPage = 10;
+    public $isLandlord;
     
-    protected $queryString = ['search', 'statusFilter', 'priorityFilter', 'perPage'];
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'statusFilter' => ['except' => ''],
+        'priorityFilter' => ['except' => ''],
+        'perPage' => ['except' => 10]
+    ];
+
+    public function mount()
+    {
+        $this->isLandlord = Auth::user()->roles->contains(function($role) {
+            return strtolower($role->role_name) === 'landlord';
+        });
+    }
     
     public function updatedPerPage()
     {
         $this->resetPage();
+    }
+
+    public function quickAction($requestId, $action)
+    {
+        $request = MaintenanceRequest::findOrFail($requestId);
+        $this->authorize('updateStatus', $request);
+
+        $message = '';
+        switch ($action) {
+            case 'in_progress':
+                $request->status = 'in_progress';
+                $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
+                    "Request accepted on " . now()->format('M d, Y H:i') . ".";
+                $message = 'Maintenance request accepted successfully.';
+                break;
+            case 'rejected':
+                $request->status = 'rejected';
+                $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
+                    "Request rejected on " . now()->format('M d, Y H:i') . ".";
+                $message = 'Maintenance request rejected.';
+                break;
+            case 'completed':
+                $request->status = 'completed';
+                $request->completed_at = now();
+                $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
+                    "Request marked as completed on " . now()->format('M d, Y H:i') . ".";
+                $message = 'Maintenance request marked as completed.';
+                break;
+            default:
+                return;
+        }
+
+        $request->save();
+        session()->flash('success', $message);
     }
     
     public function render()
@@ -49,26 +98,19 @@ class MaintenanceList extends Component
             });
         
         // Filter based on user role
-        if ($user->roles->contains(function($role) { 
-            return strtolower($role->role_name) === 'tenant';
-        })) {
-            $query->where('tenant_id', $user->user_id);
-        } elseif ($user->roles->contains(function($role) { 
-            return strtolower($role->role_name) === 'landlord';
-        })) {
+        if ($this->isLandlord) {
             $query->whereHas('property', function($q) use ($user) {
                 $q->where('landlord_id', $user->user_id);
             });
+        } else {
+            $query->where('tenant_id', $user->user_id);
         }
         
         $query->orderBy('created_at', 'desc');
         
-        $maintenanceRequests = $this->perPage === 'all' 
-            ? $query->get() 
-            : $query->paginate($this->perPage);
-        
         return view('livewire.maintenance.maintenance-list', [
-            'maintenanceRequests' => $maintenanceRequests,
+            'maintenanceRequests' => $query->paginate($this->perPage),
+            'isLandlord' => $this->isLandlord,
             'statuses' => [
                 'pending' => 'Pending',
                 'in_progress' => 'In Progress',
@@ -80,13 +122,6 @@ class MaintenanceList extends Component
                 'medium' => 'Medium',
                 'high' => 'High',
                 'urgent' => 'Urgent'
-            ],
-            'paginationOptions' => [
-                10 => '10 per page',
-                25 => '25 per page',
-                50 => '50 per page',
-                100 => '100 per page',
-                'all' => 'Show All'
             ]
         ]);
     }

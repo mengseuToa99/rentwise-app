@@ -117,7 +117,7 @@
                     <!-- Property Image Header -->
                     <div class="w-full h-48 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 relative">
                         @if(!empty($propertyImages))
-                            <img src="{{ asset(ltrim($propertyImages[0], '/')) }}" alt="{{ $property->property_name }}" class="w-full h-full object-cover">
+                            <img src="{{ Storage::url($propertyImages[0]) }}" alt="{{ $property->property_name }}" class="w-full h-full object-cover">
                         @endif
                     </div>
 

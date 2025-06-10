@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('lease_agreement')->nullable();
             $table->timestamps();
     
-            $table->foreign('landlord_id')->references('user_id')->on('user_details')->onDelete('cascade');
-            $table->foreign('tenant_id')->references('user_id')->on('user_details')->onDelete('cascade');
+            $table->foreign('landlord_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('tenant_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('room_id')->references('room_id')->on('room_details')->onDelete('cascade');
         });
     }

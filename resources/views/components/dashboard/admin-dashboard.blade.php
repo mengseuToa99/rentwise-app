@@ -194,19 +194,19 @@
                 </a>
                 
                 <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
-                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance by Category</h4>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance by Priority</h4>
                     <div class="mt-3 grid grid-cols-2 gap-2">
-                        @foreach($stats['maintenance_by_category'] ?? [] as $category => $count)
+                        @foreach($stats['maintenance_by_priority'] ?? [] as $priority => $count)
                             <div class="flex items-center">
                                 <div class="w-3 h-3 mr-2 rounded-full 
-                                    @if($category == 'plumbing') bg-blue-500 
-                                    @elseif($category == 'electricity') bg-yellow-500 
-                                    @elseif($category == 'cleaning') bg-green-500 
-                                    @else bg-purple-500 
+                                    @if($priority == 'urgent') bg-red-500 
+                                    @elseif($priority == 'high') bg-orange-500 
+                                    @elseif($priority == 'medium') bg-yellow-500 
+                                    @elseif($priority == 'low') bg-blue-500 
                                     @endif">
                                 </div>
                                 <div class="text-sm">
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ ucfirst($category) }}</span>
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ ucfirst($priority) }}</span>
                                     <span class="ml-1 text-gray-500 dark:text-gray-400">{{ $count }}</span>
                                 </div>
                             </div>
@@ -258,7 +258,7 @@
                             <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                 <div class="flex justify-between">
                                     <span>{{ $request['room']['room_name'] ?? '' }}</span>
-                                    <span>{{ ucfirst($request['category']) }}</span>
+                                    <span>{{ ucfirst($request['priority']) }}</span>
                                 </div>
                                 <div class="flex justify-between mt-1">
                                     <span>{{ \Carbon\Carbon::parse($request['created_at'])->format('M d, Y') }}</span>
@@ -278,7 +278,7 @@
                             <tr>
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Tenant</th>
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Room</th>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Category</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Priority</th>
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
                                 <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Date</th>
                                 <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
@@ -303,7 +303,7 @@
                                         {{ $request['room']['room_name'] ?? '' }}
                                     </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                                        {{ ucfirst($request['category']) }}
+                                        {{ ucfirst($request['priority']) }}
                                     </td>
                                     <td class="px-4 py-2 whitespace-nowrap">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full 

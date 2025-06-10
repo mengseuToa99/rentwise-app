@@ -36,6 +36,38 @@ class LandlordMaintenanceManager extends Component
         $this->landlord_notes = $this->maintenanceRequest->landlord_notes;
     }
 
+    public function quickAction($action)
+    {
+        $this->authorize('updateStatus', $this->maintenanceRequest);
+
+        $message = '';
+        switch ($action) {
+            case 'in_progress':
+                $this->status = 'in_progress';
+                $this->landlord_notes = ($this->landlord_notes ? $this->landlord_notes . "\n\n" : '') . 
+                    "Request accepted on " . now()->format('M d, Y H:i') . ".";
+                $message = 'Maintenance request accepted successfully.';
+                break;
+            case 'rejected':
+                $this->status = 'rejected';
+                $this->landlord_notes = ($this->landlord_notes ? $this->landlord_notes . "\n\n" : '') . 
+                    "Request rejected on " . now()->format('M d, Y H:i') . ".";
+                $message = 'Maintenance request rejected.';
+                break;
+            default:
+                return;
+        }
+
+        $this->maintenanceRequest->update([
+            'status' => $this->status,
+            'landlord_notes' => $this->landlord_notes,
+            'completed_at' => $this->status === 'completed' ? now() : null,
+        ]);
+
+        session()->flash('success', $message);
+        return redirect()->route('maintenance.index');
+    }
+
     public function updateStatus()
     {
         $this->validate();

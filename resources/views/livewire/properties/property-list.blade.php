@@ -77,7 +77,7 @@
                             @endphp
                             
                             @if ($propertyImage)
-                                <img src="{{ $propertyImage }}" alt="{{ $property->property_name }}" class="w-full h-full object-cover">
+                                <img src="{{ Storage::url($propertyImage) }}" alt="{{ $property->property_name }}" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20"></div>
                             @else
                                 <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-600">
