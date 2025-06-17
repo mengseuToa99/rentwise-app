@@ -27,6 +27,12 @@
                         </div>
                     @endif
 
+                    @if(session('success'))
+                        <div class="p-2 text-xs text-green-600 bg-green-100/40 dark:bg-green-900/20 dark:text-green-400 rounded-md">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     <div class="grid gap-2.5">
                         <!-- Name -->
                         <div class="grid gap-1">
@@ -94,7 +100,7 @@
                         <!-- Role Selection with Icons -->
                         <div class="grid gap-1.5">
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 text-center">Register as</label>
-                            <div class="grid grid-cols-3 gap-1.5">
+                            <div class="grid grid-cols-2 gap-1.5">
                                 <!-- Tenant Option -->
                                 <label class="cursor-pointer">
                                     <input type="radio" wire:model="role" value="tenant" class="sr-only peer" checked>
@@ -118,21 +124,6 @@
                                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                                         </svg>
                                         <span class="text-xs font-medium text-gray-700 dark:text-gray-300 peer-checked:text-gray-800 dark:peer-checked:text-white mt-0.5">Landlord</span>
-                                    </div>
-                                </label>
-                                
-                                <!-- Admin Option -->
-                                <label class="cursor-pointer">
-                                    <input type="radio" wire:model="role" value="admin" class="sr-only peer">
-                                    <div class="flex flex-col items-center py-1.5 rounded-md border border-gray-300 bg-transparent dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 peer-checked:border-gray-800 dark:peer-checked:border-white peer-checked:bg-gray-50 dark:peer-checked:bg-zinc-800 transition-all h-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-500 dark:text-gray-400 peer-checked:text-gray-800 dark:peer-checked:text-white">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                            <path d="M9 3v18"></path>
-                                            <path d="M14 3v18"></path>
-                                            <path d="M3 9h18"></path>
-                                            <path d="M3 14h18"></path>
-                                        </svg>
-                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300 peer-checked:text-gray-800 dark:peer-checked:text-white mt-0.5">Admin</span>
                                     </div>
                                 </label>
                             </div>
@@ -172,6 +163,7 @@
 </div> 
 
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Initialize Alpine.js globally for the theme toggle
     document.addEventListener('alpine:init', () => {
@@ -183,5 +175,45 @@
                 document.documentElement.classList.toggle('dark', this.dark);
             }
         }));
+    });
+
+    // Listen for Livewire events
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('showSuccess', (message) => {
+            Swal.fire({
+                title: 'Success!',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'Continue',
+                confirmButtonColor: '#4F46E5',
+                background: document.documentElement.classList.contains('dark') ? '#18181B' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/dashboard';
+                }
+            });
+        });
+
+        Livewire.on('showError', (message) => {
+            // Ensure message is a string
+            const errorMessage = typeof message === 'object' ? JSON.stringify(message) : message;
+            
+            Swal.fire({
+                title: 'Registration Error',
+                html: `<div class="text-left">
+                    <p class="mb-2">${errorMessage}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Please check your input and try again.</p>
+                </div>`,
+                icon: 'error',
+                confirmButtonText: 'Try Again',
+                confirmButtonColor: '#EF4444',
+                background: document.documentElement.classList.contains('dark') ? '#18181B' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000',
+                customClass: {
+                    htmlContainer: 'text-left'
+                }
+            });
+        });
     });
 </script> 

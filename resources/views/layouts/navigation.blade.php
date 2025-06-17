@@ -96,11 +96,11 @@
         </div>
 
         <!-- Responsive Language Switcher -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-zinc-700">
+        <!-- <div class="pt-4 pb-1 border-t border-gray-200 dark:border-zinc-700">
             <div class="px-4">
                 @livewire('language-switcher')
             </div>
-        </div>
+        </div> -->
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-zinc-700">

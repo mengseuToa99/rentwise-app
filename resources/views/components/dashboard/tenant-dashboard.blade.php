@@ -1,4 +1,3 @@
-<!-- Tenant Dashboard View -->
 <div class="mt-3 grid grid-cols-1 gap-3">
     <!-- Key Stats Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -112,15 +111,15 @@
                         
                         @if($activeLease['days_until_expiry'] < 0)
                             <div class="mt-1 rounded-md bg-red-100 dark:bg-red-900/30 px-2 py-1 text-center">
-                                <span class="text-sm font-medium text-red-800 dark:text-red-300">Expired {{ abs($activeLease['days_until_expiry']) }} days ago</span>
+                                <span class="text-sm font-medium text-red-800 dark:text-red-300">Expired {{ number_format(abs($activeLease['days_until_expiry']), 0) }} days ago</span>
                             </div>
                         @elseif($activeLease['days_until_expiry'] <= 30)
                             <div class="mt-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 text-center">
-                                <span class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Expires in {{ $activeLease['days_until_expiry'] }} days</span>
+                                <span class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Expires in {{ number_format($activeLease['days_until_expiry'], 0) }} days</span>
                             </div>
                         @else
                             <div class="mt-1 rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-center">
-                                <span class="text-sm font-medium text-green-800 dark:text-green-300">Expires in {{ $activeLease['days_until_expiry'] }} days</span>
+                                <span class="text-sm font-medium text-green-800 dark:text-green-300">Expires in {{ number_format($activeLease['days_until_expiry'], 0) }} days</span>
                             </div>
                         @endif
                     </div>
@@ -319,4 +318,4 @@
             </div>
         </div>
     </div>
-</div> 
+</div>

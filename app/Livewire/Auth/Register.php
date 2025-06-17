@@ -39,7 +39,7 @@ class Register extends Component
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
                 'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-                'role' => ['required', 'string', 'in:tenant,landlord,admin'],
+                'role' => ['required', 'string', 'in:tenant,landlord'],
                 'first_name' => ['required', 'string', 'max:255'],
                 'last_name' => ['required', 'string', 'max:255'],
             ]);
@@ -95,14 +95,31 @@ class Register extends Component
             Auth::login($user);
             Log::info('User logged in successfully', ['user_id' => $user->user_id]);
 
-            $this->redirect(route('dashboard', absolute: false), navigate: true);
+            // Show success popup instead of direct redirect
+            $this->dispatch('showSuccess', message: 'Registration successful! Welcome to Rentwise.');
+
         } catch (\Exception $e) {
             Log::error('Registration failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            $this->error_message = 'Registration failed: ' . $e->getMessage();
-            session()->flash('error', $this->error_message);
+
+            // Format error message based on the type of error
+            $errorMessage = 'Registration failed: ';
+            
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                $errors = $e->errors();
+                $errorMessage .= implode(' ', array_map(function($field, $messages) {
+                    return ucfirst($field) . ': ' . implode(', ', $messages);
+                }, array_keys($errors), $errors));
+            } else if ($e instanceof \Illuminate\Database\QueryException) {
+                $errorMessage .= 'Database error occurred. Please try again.';
+            } else {
+                $errorMessage .= $e->getMessage();
+            }
+
+            $this->error_message = $errorMessage;
+            $this->dispatch('showError', message: $errorMessage);
         }
     }
     
