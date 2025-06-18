@@ -162,9 +162,6 @@
 
         <!-- Bottom Controls -->
         <div class="mb-4 flex w-full items-center justify-between space-x-2">
-            <!-- Language Switcher -->
-            @livewire('language-switcher')
-
             <!-- Theme Toggle Button - Icon only -->
             <button
                 x-data="{
