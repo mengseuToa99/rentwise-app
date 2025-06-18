@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Unit extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $table = 'room_details';
     protected $primaryKey = 'room_id';
@@ -62,5 +64,24 @@ class Unit extends Model
             $this->room_type = $this->pricingGroup->room_type;
             $this->save();
         }
+    }
+
+    // Model Events for Logging
+    protected static function booted()
+    {
+        static::created(function ($unit) {
+            $propertyName = $unit->property ? $unit->property->property_name : 'Unknown Property';
+            $unit->logCreated('unit', $unit->room_name ?: "Room #{$unit->room_number}", "Added to {$propertyName} - Rent: \${$unit->rent_amount}");
+        });
+
+        static::updated(function ($unit) {
+            $propertyName = $unit->property ? $unit->property->property_name : 'Unknown Property';
+            $unit->logUpdated('unit', $unit->room_name ?: "Room #{$unit->room_number}", "Unit details updated in {$propertyName}");
+        });
+
+        static::deleted(function ($unit) {
+            $propertyName = $unit->property ? $unit->property->property_name : 'Unknown Property';
+            $unit->logDeleted('unit', $unit->room_name ?: "Room #{$unit->room_number}", "Removed from {$propertyName}");
+        });
     }
 }

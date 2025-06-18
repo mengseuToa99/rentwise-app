@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Property extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $table = 'property_details';
     protected $primaryKey = 'property_id';
@@ -65,5 +67,21 @@ class Property extends Model
     public function __toString()
     {
         return $this->property_name;
+    }
+
+    // Model Events for Logging
+    protected static function booted()
+    {
+        static::created(function ($property) {
+            $property->logCreated('property', $property->property_name, "Address: {$property->street}, {$property->village}");
+        });
+
+        static::updated(function ($property) {
+            $property->logUpdated('property', $property->property_name, "Property details updated");
+        });
+
+        static::deleted(function ($property) {
+            $property->logDeleted('property', $property->property_name, "Property removed from system");
+        });
     }
 } 

@@ -9,11 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Support\Str;
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, CanResetPassword;
+    use HasFactory, Notifiable, CanResetPassword, LogsActivity;
 
     /**
      * The primary key for the model.
@@ -192,5 +193,33 @@ class User extends Authenticatable implements CanResetPasswordContract
         return AccessPermission::whereIn('role_id', $roleIds)
             ->with('permissionGroup')
             ->get();
+    }
+
+    // Model Events for Logging
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->logCreated('user', $user->username, "Email: {$user->email}");
+        });
+
+        static::updated(function ($user) {
+            $changes = [];
+            if ($user->isDirty('status')) {
+                $changes[] = "Status changed to: {$user->status}";
+            }
+            if ($user->isDirty('email')) {
+                $changes[] = "Email updated";
+            }
+            if ($user->isDirty('phone_number')) {
+                $changes[] = "Phone updated";
+            }
+            
+            $changeDescription = !empty($changes) ? implode(', ', $changes) : "Profile updated";
+            $user->logUpdated('user', $user->username, $changeDescription);
+        });
+
+        static::deleted(function ($user) {
+            $user->logDeleted('user', $user->username, "User account removed");
+        });
     }
 }

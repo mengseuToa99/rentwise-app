@@ -14,10 +14,13 @@ use Livewire\Component;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Traits\LogsActivity;
 
 #[Layout('components.layouts.auth')]
 class Login extends Component
 {
+    use LogsActivity;
+
     #[Validate('required|string|email')]
     public string $email = '';
 
@@ -41,45 +44,28 @@ class Login extends Component
         $this->ensureIsNotRateLimited();
 
         try {
-            // Find the user by email
+            // Find user by email
             $user = User::where('email', $this->email)->first();
             
             if (!$user) {
-                session()->flash('error', 'User not found');
+                // Log failed login attempt
+                $this->logActivity('login_failed', "Failed login attempt for email: {$this->email} - User not found");
+                
+                session()->flash('error', 'These credentials do not match our records.');
                 return;
             }
             
-            // Check status first
+            // Check if user is active
             if ($user->status !== 'active') {
-                session()->flash('error', 'Account is not active');
+                // Log failed login attempt
+                $this->logActivity('login_failed', "Failed login attempt for {$user->username} - Account not active (Status: {$user->status})", $user->user_id);
+                
+                session()->flash('error', 'Your account is not active. Please contact support.');
                 return;
             }
             
-            // Debug log the hash details
-            Log::info('Login attempt details', [
-                'email' => $user->email,
-                'password_hash_exists' => !empty($user->password_hash),
-                'password_hash_length' => strlen($user->password_hash),
-                'password_hash_format' => substr($user->password_hash, 0, 4)
-            ]);
-            
-            // Check if password hash exists and has the right format
-            if (empty($user->password_hash) || strlen($user->password_hash) < 20) {
-                Log::error('Invalid password hash format', [
-                    'email' => $user->email,
-                    'hash_length' => strlen($user->password_hash)
-                ]);
-                session()->flash('error', 'Account password is not properly set. Please use the password reset link.');
-                return;
-            }
-            
-            // Direct password verification with diagnostics
+            // Check password
             $passwordCorrect = Hash::check($this->password, $user->password_hash);
-            
-            Log::info('Password verification result', [
-                'email' => $user->email,
-                'result' => $passwordCorrect ? 'Correct' : 'Incorrect'
-            ]);
             
             if ($passwordCorrect) {
                 // Update login stats
@@ -89,6 +75,9 @@ class Login extends Component
                 
                 // Manual authentication
                 Auth::login($user, $this->remember);
+                
+                // Log successful login
+                $this->logActivity('login', "Successful login", $user->user_id);
                 
                 // Log success
                 Log::info('Login successful', [
@@ -105,10 +94,16 @@ class Login extends Component
             $user->failed_login_attempts = $user->failed_login_attempts + 1;
             $user->save();
             
+            // Log failed login attempt
+            $this->logActivity('login_failed', "Failed login attempt for {$user->username} - Invalid password", $user->user_id);
+            
             // Detailed error message
             session()->flash('error', 'Invalid password. Please try again or use the "Forgot password" link.');
             
         } catch (\Exception $e) {
+            // Log system error
+            $this->logActivity('login_error', "System error during login attempt for email: {$this->email} - {$e->getMessage()}");
+            
             Log::error('Login error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

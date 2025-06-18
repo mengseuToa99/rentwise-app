@@ -8,10 +8,12 @@ use App\Models\User;
 use App\Models\Unit;
 use App\Models\Property;
 use App\Models\Invoice;
+use App\Traits\LogsActivity;
 
 class Rental extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $table = 'rental_details';
     protected $primaryKey = 'rental_id';
@@ -64,5 +66,27 @@ class Rental extends Model
             'room_id', // Local key on rentals table
             'property_id' // Local key on units table
         );
+    }
+
+    // Model Events for Logging
+    protected static function booted()
+    {
+        static::created(function ($rental) {
+            $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
+            $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
+            $rental->logCreated('rental', "Rental #{$rental->rental_id}", "New rental agreement: {$tenantName} -> {$unitName}");
+        });
+
+        static::updated(function ($rental) {
+            $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
+            $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
+            $rental->logUpdated('rental', "Rental #{$rental->rental_id}", "Rental updated: {$tenantName} -> {$unitName} (Status: {$rental->status})");
+        });
+
+        static::deleted(function ($rental) {
+            $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
+            $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
+            $rental->logDeleted('rental', "Rental #{$rental->rental_id}", "Rental terminated: {$tenantName} -> {$unitName}");
+        });
     }
 } 
