@@ -98,9 +98,9 @@
                             <dl>
                                 <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Lease Status</dt>
                                 <dd class="mt-1 flex items-center">
-                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">{{ $statistics['lease_status'] }}</span>
+                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">{{ @number_format($statistics['lease_status'], 0) }}</span>
                                     @if($statistics['remaining_days'] > 0)
-                                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">({{ $statistics['remaining_days'] }} days left)</span>
+                                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">({{ @number_format($statistics['remaining_days'], 0) }} days left)</span>
                                     @endif
                                 </dd>
                             </dl>

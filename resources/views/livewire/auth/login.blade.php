@@ -115,17 +115,4 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-<script>
-    // Initialize Alpine.js globally for the theme toggle
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('themeToggle', () => ({
-            dark: localStorage.theme === 'dark',
-            toggle() {
-                this.dark = !this.dark;
-                localStorage.theme = this.dark ? 'dark' : 'light';
-                document.documentElement.classList.toggle('dark', this.dark);
-            }
-        }));
-    });
-</script>
+<!-- Alpine.js and themeToggle are now loaded via layout -->

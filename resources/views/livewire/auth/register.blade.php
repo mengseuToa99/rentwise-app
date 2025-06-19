@@ -162,7 +162,7 @@
     </div>
 </div> 
 
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<!-- Alpine.js is now loaded via Vite bundle -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Initialize Alpine.js globally for the theme toggle

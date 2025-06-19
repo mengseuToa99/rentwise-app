@@ -432,7 +432,10 @@ class Dashboard extends Component
         $user = Auth::user();
         $events = [];
         
+        \Log::info('Loading calendar events for user: ' . $user->user_id . ' with roles: ' . $user->roles->pluck('role_name')->implode(', '));
+        
         if ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; })) {
+            \Log::info('Loading admin calendar events');
             // All upcoming invoices due dates
             $invoiceDueDates = Invoice::where('payment_status', 'pending')
                 ->where('due_date', '>=', now()->startOfMonth())
@@ -472,10 +475,13 @@ class Dashboard extends Component
             }
         } 
         elseif ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; })) {
+            \Log::info('Loading landlord calendar events');
             // Get landlord's properties
             $properties = Property::where('landlord_id', $user->user_id)->pluck('property_id')->toArray();
             $units = Unit::whereIn('property_id', $properties)->pluck('room_id')->toArray();
             $rentals = Rental::whereIn('room_id', $units)->pluck('rental_id')->toArray();
+            
+            \Log::info('Landlord has ' . count($properties) . ' properties, ' . count($units) . ' units, ' . count($rentals) . ' rentals');
             
             // Landlord's upcoming invoices due dates
             $invoiceDueDates = Invoice::whereIn('rental_id', $rentals)
@@ -484,6 +490,8 @@ class Dashboard extends Component
                 ->where('due_date', '<=', now()->addMonths(3)->endOfMonth())
                 ->with(['rental', 'rental.tenant', 'rental.unit'])
                 ->get();
+                
+            \Log::info('Found ' . $invoiceDueDates->count() . ' upcoming invoices for landlord');
                 
             foreach ($invoiceDueDates as $invoice) {
                 $events[] = [
@@ -505,6 +513,8 @@ class Dashboard extends Component
                 ->with(['tenant', 'unit', 'unit.property'])
                 ->get();
                 
+            \Log::info('Found ' . $leaseExpirations->count() . ' expiring leases for landlord');
+                
             foreach ($leaseExpirations as $lease) {
                 $events[] = [
                     'id' => 'lease-' . $lease->rental_id,
@@ -518,6 +528,7 @@ class Dashboard extends Component
             }
         } 
         elseif ($user->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; })) {
+            \Log::info('Loading tenant calendar events');
             // Get tenant's rentals
             $rentals = Rental::where('tenant_id', $user->user_id)->pluck('rental_id')->toArray();
             
@@ -561,6 +572,7 @@ class Dashboard extends Component
             }
         }
         
+        \Log::info('Total calendar events generated: ' . count($events));
         $this->stats['calendarEvents'] = $events;
     }
 

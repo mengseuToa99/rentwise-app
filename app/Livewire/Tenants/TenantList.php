@@ -44,7 +44,16 @@ class TenantList extends Component
                 ->join('user_roles', 'users.user_id', '=', 'user_roles.user_id')
                 ->join('roles', 'user_roles.role_id', '=', 'roles.role_id')
                 ->where('roles.role_name', 'tenant')
-                ->select('users.*')
+                ->select([
+                    'users.user_id',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                    'users.phone_number',
+                    'users.email_verified_at',
+                    'users.created_at',
+                    'users.updated_at'
+                ])
                 ->distinct();
                 
                 // Add rental information via left join
@@ -71,8 +80,15 @@ class TenantList extends Component
                 ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
                 ->where('roles.role_name', 'tenant')
                 ->where('rental_details.landlord_id', $user->user_id)
-                ->select(
-                    'users.*',
+                ->select([
+                    'users.user_id',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                    'users.phone_number',
+                    'users.email_verified_at',
+                    'users.created_at',
+                    'users.updated_at',
                     'rental_details.rental_id',
                     'rental_details.start_date',
                     'rental_details.end_date',
@@ -80,7 +96,7 @@ class TenantList extends Component
                     'room_details.room_number',
                     'property_details.property_id',
                     'property_details.property_name'
-                )
+                ])
                 ->distinct();
         } else {
             // Default case - return empty collection

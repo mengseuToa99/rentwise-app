@@ -75,18 +75,47 @@ class Rental extends Model
             $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
             $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
             $rental->logCreated('rental', "Rental #{$rental->rental_id}", "New rental agreement: {$tenantName} -> {$unitName}");
+            
+            // Update unit status to occupied
+            $unit = $rental->unit;
+            if ($unit) {
+                $unit->available = false;
+                $unit->status = 'occupied';
+                $unit->save();
+            }
         });
 
         static::updated(function ($rental) {
             $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
             $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
             $rental->logUpdated('rental', "Rental #{$rental->rental_id}", "Rental updated: {$tenantName} -> {$unitName} (Status: {$rental->status})");
+            
+            // Update unit status based on rental status
+            $unit = $rental->unit;
+            if ($unit) {
+                if (in_array($rental->status, ['expired', 'terminated'])) {
+                    $unit->available = true;
+                    $unit->status = 'vacant';
+                } elseif ($rental->status === 'active') {
+                    $unit->available = false;
+                    $unit->status = 'occupied';
+                }
+                $unit->save();
+            }
         });
 
         static::deleted(function ($rental) {
             $tenantName = $rental->tenant ? $rental->tenant->username : 'Unknown Tenant';
             $unitName = $rental->unit ? ($rental->unit->room_name ?: "Room #{$rental->unit->room_number}") : 'Unknown Unit';
             $rental->logDeleted('rental', "Rental #{$rental->rental_id}", "Rental terminated: {$tenantName} -> {$unitName}");
+            
+            // Update unit status to vacant when rental is deleted
+            $unit = $rental->unit;
+            if ($unit) {
+                $unit->available = true;
+                $unit->status = 'vacant';
+                $unit->save();
+            }
         });
     }
 } 

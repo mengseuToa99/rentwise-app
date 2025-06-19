@@ -7,19 +7,70 @@
 
         <title>{{ config('app.name', 'Rentwise') }}</title>
 
-        <!-- Prevent flash of wrong theme -->
+        <!-- CRITICAL: Theme toggle function must be available before Alpine starts -->
         <script>
             // Immediately set theme to prevent flashing
-            if (localStorage.theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-            
-            // Ensure there's always a theme preference
-            if (!localStorage.theme) {
-                localStorage.theme = 'light';
-            }
+            (function() {
+                function applyTheme() {
+                    if (localStorage.theme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                }
+                
+                // Ensure we always have a theme preference set
+                if (!localStorage.theme) {
+                    localStorage.theme = 'light';
+                }
+                
+                // Apply theme now
+                applyTheme();
+                
+                // CRITICAL: Define themeToggle globally before Alpine loads
+                window.themeToggle = function() {
+                    return {
+                        dark: localStorage.theme === 'dark',
+                        init() {
+                            this.applyTheme();
+                            
+                            // Listen for storage events (theme changes in other tabs)
+                            window.addEventListener('storage', (event) => {
+                                if (event.key === 'theme') {
+                                    this.dark = event.newValue === 'dark';
+                                    this.applyTheme();
+                                }
+                            });
+                            
+                            // Track page navigation
+                            document.addEventListener('livewire:navigated', () => {
+                                this.applyTheme();
+                            });
+                        },
+                        
+                        applyTheme() {
+                            // Force light mode unless explicitly set to dark  
+                            if (localStorage.theme !== 'dark') {
+                                localStorage.theme = 'light';
+                                document.documentElement.classList.remove('dark');
+                                this.dark = false;
+                            } else {
+                                document.documentElement.classList.add('dark');
+                                this.dark = true;
+                            }
+                        },
+                        
+                        toggle() {
+                            this.dark = !this.dark;
+                            localStorage.theme = this.dark ? 'dark' : 'light';
+                            this.applyTheme();
+                        }
+                    };
+                };
+                
+                // Re-apply theme on each page navigation
+                document.addEventListener('livewire:navigated', applyTheme);
+            })();
         </script>
 
         <!-- Fonts -->

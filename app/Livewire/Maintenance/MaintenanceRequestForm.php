@@ -120,7 +120,20 @@ class MaintenanceRequestForm extends Component
             return strtolower($role->role_name) === 'tenant';
         })) {
             // For tenants, get properties from their active rental agreements
-            $this->properties = Property::select('property_details.*')
+            $this->properties = Property::select([
+                'property_details.property_id',
+                'property_details.property_name',
+                'property_details.house_building_number',
+                'property_details.street',
+                'property_details.village',
+                'property_details.commune',
+                'property_details.district',
+                'property_details.total_floors',
+                'property_details.total_rooms',
+                'property_details.description',
+                'property_details.status',
+                'property_details.landlord_id'
+            ])
                 ->join('room_details', 'property_details.property_id', '=', 'room_details.property_id')
                 ->join('rental_details', 'room_details.room_id', '=', 'rental_details.room_id')
                 ->where('rental_details.tenant_id', $user->user_id)
@@ -155,7 +168,18 @@ class MaintenanceRequestForm extends Component
             return strtolower($role->role_name) === 'tenant';
         })) {
             // For tenants, get units from their active rental agreements
-            $this->units = Unit::select('room_details.*')
+            $this->units = Unit::select([
+                'room_details.room_id',
+                'room_details.property_id',
+                'room_details.room_number',
+                'room_details.floor_number',
+                'room_details.room_name',
+                'room_details.room_type',
+                'room_details.description',
+                'room_details.available',
+                'room_details.rent_amount',
+                'room_details.due_date'
+            ])
                 ->join('rental_details', 'room_details.room_id', '=', 'rental_details.room_id')
                 ->where('rental_details.tenant_id', $user->user_id)
                 ->where('room_details.property_id', $this->selectedProperty)

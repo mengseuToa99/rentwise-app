@@ -323,15 +323,20 @@
 
 @script
 <script>
+    console.log('Landlord dashboard script starting...');
+    
     // Initialize landlord calendar if the element exists
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, checking for calendar element...');
+        
         const calendarEl = document.getElementById('landlord-calendar');
         if (!calendarEl) {
             console.error('Calendar element not found');
             return;
         }
 
-        console.log('Initializing landlord calendar with events:', @json($stats['calendarEvents'] ?? []));
+        console.log('Calendar element found, initializing...');
+        console.log('Calendar events from server:', @json($stats['calendarEvents'] ?? []));
 
         // Fallback events if none are provided from server
         const fallbackEvents = [
@@ -353,9 +358,11 @@
             ? @json($stats['calendarEvents']) 
             : fallbackEvents;
 
+        console.log('Final events to display:', events);
+
         // Check if FullCalendar is available
         if (typeof FullCalendar === 'undefined') {
-            console.error('FullCalendar is not loaded. Adding script dynamically.');
+            console.log('FullCalendar is not loaded. Adding script dynamically.');
             
             // Load FullCalendar stylesheet
             const link = document.createElement('link');
@@ -370,6 +377,10 @@
                 console.log('FullCalendar loaded dynamically');
                 initCalendar(events);
             };
+            script.onerror = function() {
+                console.error('Failed to load FullCalendar script');
+                showFallbackMessage();
+            };
             document.head.appendChild(script);
         } else {
             console.log('FullCalendar is available, initializing calendar');
@@ -378,6 +389,8 @@
 
         function initCalendar(events) {
             try {
+                console.log('Initializing calendar with events:', events);
+                
                 const calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     headerToolbar: {
@@ -404,27 +417,27 @@
                 darkModeMediaQuery.addEventListener('change', fixDarkModeContrast);
             } catch (error) {
                 console.error('Error initializing calendar:', error);
-                
-                // Show fallback message if calendar fails to initialize
-                if (calendarEl) {
-                    calendarEl.innerHTML = '<div class="p-4 text-center text-gray-500 dark:text-gray-400">Unable to load calendar. Please try again later.</div>';
-                }
+                showFallbackMessage();
+            }
+        }
+
+        function showFallbackMessage() {
+            if (calendarEl) {
+                calendarEl.innerHTML = '<div class="p-4 text-center text-gray-500 dark:text-gray-400">Unable to load calendar. Please try again later.</div>';
             }
         }
 
         function fixDarkModeContrast() {
-            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (isDarkMode) {
-                const fcHeaderElements = document.querySelectorAll('.fc-header-toolbar, .fc-daygrid-day-number, .fc-col-header-cell');
-                fcHeaderElements.forEach(el => {
-                    el.style.color = 'white';
-                });
-                
-                // Additional fixes for dark mode
-                const fcTableElements = document.querySelectorAll('.fc-scrollgrid, .fc-theme-standard td, .fc-theme-standard th');
-                fcTableElements.forEach(el => {
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                });
+            // Fix contrast issues in dark mode
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const calendarContainer = document.querySelector('#landlord-calendar .fc');
+            
+            if (calendarContainer) {
+                if (isDark) {
+                    calendarContainer.classList.add('dark-mode');
+                } else {
+                    calendarContainer.classList.remove('dark-mode');
+                }
             }
         }
     });

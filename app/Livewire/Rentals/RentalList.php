@@ -126,10 +126,11 @@ class RentalList extends Component
                 return;
             }
             
-            // Make the room available again
+            // Make the room available again and set status to vacant
             $unit = Unit::find($rental->room_id);
             if ($unit) {
                 $unit->available = true;
+                $unit->status = 'vacant';
                 $unit->save();
             }
             

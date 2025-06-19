@@ -295,6 +295,7 @@ class RentalForm extends Component
                     $oldUnit = Unit::find($rental->room_id);
                     if ($oldUnit) {
                         $oldUnit->available = true;
+                        $oldUnit->status = 'vacant';
                         $oldUnit->save();
                     }
                     
@@ -302,6 +303,7 @@ class RentalForm extends Component
                     $newUnit = Unit::find($this->room_id);
                     if ($newUnit) {
                         $newUnit->available = false;
+                        $newUnit->status = 'occupied';
                         $newUnit->save();
                     }
                 }
@@ -311,10 +313,11 @@ class RentalForm extends Component
             } else {
                 Rental::create($rentalData);
                 
-                // Make the unit unavailable
+                // Make the unit unavailable and occupied
                 $unit = Unit::find($this->room_id);
                 if ($unit) {
                     $unit->available = false;
+                    $unit->status = 'occupied';
                     $unit->save();
                 }
                 
