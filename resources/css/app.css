@@ -45,6 +45,19 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    /* Smooth color transitions on the document root only — avoids per-element transitions
+       that cause layout glitches (Flux animations, scroll containers, sidebars). */
+    html {
+        transition-property: background-color, color;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+    }
+
+    .no-transitions,
+    .no-transitions * {
+        transition: none !important;
+    }
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {

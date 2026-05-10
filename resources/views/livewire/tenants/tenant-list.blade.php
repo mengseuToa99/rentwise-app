@@ -19,7 +19,7 @@
                                 <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <input wire:model.live.debounce.300ms="search" type="text" name="search" id="search" class="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 sm:text-sm" placeholder="Search tenants...">
+                        <input wire:model.live.debounce.300ms="search" type="text" name="search" id="search" class="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 sm:text-sm" placeholder="{{ __('Search tenants...') }}">
                     </div>
                 </div>
 
@@ -27,7 +27,7 @@
                 <div>
                     <label for="propertyFilter" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Property</label>
                     <select wire:model.live="propertyFilter" id="propertyFilter" name="propertyFilter" class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white sm:text-sm">
-                        <option value="">All Properties</option>
+                        <option value="">{{ __('All Properties') }}</option>
                         @foreach($properties as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
@@ -38,7 +38,7 @@
                 <div>
                     <label for="statusFilter" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Rental Status</label>
                     <select wire:model.live="statusFilter" id="statusFilter" name="statusFilter" class="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white sm:text-sm">
-                        <option value="">All Statuses</option>
+                        <option value="">{{ __('All Statuses') }}</option>
                         @foreach($statuses as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
@@ -117,13 +117,13 @@
                             </div>
                             <div class="mt-4 flex justify-end">
                                 <button wire:click="viewTenantDetails({{ $tenant->user_id }})" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-600">
-                                    View Details
+                                    {{ __('View Details') }}
                                 </button>
                             </div>
                         </div>
                     @empty
                         <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                            No tenants found.
+                            {{ __('No tenants found.') }}
                         </div>
                     @endforelse
                 </div>
@@ -192,13 +192,13 @@
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                        <button wire:click="viewTenantDetails({{ $tenant->user_id }})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View Details</button>
+                                        <button wire:click="viewTenantDetails({{ $tenant->user_id }})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">{{ __('View Details') }}</button>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                        No tenants found.
+                                        {{ __('No tenants found.') }}
                                     </td>
                                 </tr>
                             @endforelse

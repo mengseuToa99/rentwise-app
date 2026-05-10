@@ -93,7 +93,7 @@
                             @empty
                                 <tr>
                                     <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                        No lease agreements found.
+                                        {{ __('No lease agreements found.') }}
                                     </td>
                                 </tr>
                             @endforelse

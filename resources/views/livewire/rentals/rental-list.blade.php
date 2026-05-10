@@ -46,7 +46,7 @@
                                 wire:model.live.debounce.300ms="search" 
                                 type="text" 
                                 id="search"
-                                placeholder="Search rentals..." 
+                                placeholder="{{ __('Search rentals...') }}" 
                                 class="block w-full pl-10 py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                         </div>
@@ -59,7 +59,7 @@
                             id="propertyFilter" 
                             class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
-                            <option value="">All Properties</option>
+                            <option value="">{{ __('All Properties') }}</option>
                             @foreach ($properties as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
                             @endforeach
@@ -73,7 +73,7 @@
                             id="statusFilter" 
                             class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
-                            <option value="">All Statuses</option>
+                            <option value="">{{ __('All Statuses') }}</option>
                             @foreach ($statuses as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
@@ -101,7 +101,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No rentals found</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('No rentals found') }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">Add your first rental to start managing your property leases.</p>
                 <a href="{{ route('rentals.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md font-medium text-sm text-white shadow-sm transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

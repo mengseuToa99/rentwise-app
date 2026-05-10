@@ -125,7 +125,7 @@
                     </div>
                 @else
                     <div class="mt-2 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 text-center">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">No active lease found</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('No active lease found') }}</span>
                     </div>
                 @endif
             </div>

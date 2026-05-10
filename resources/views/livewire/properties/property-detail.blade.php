@@ -313,7 +313,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">No units found for this property</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">{{ __('No units found for this property') }}</p>
                             <a href="{{ route('units.create') }}?property={{ $propertyId }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md text-xs font-medium text-white shadow-sm transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

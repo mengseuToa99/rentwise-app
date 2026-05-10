@@ -50,7 +50,7 @@
                                 wire:model.live.debounce.300ms="search" 
                                 type="text" 
                                 id="search"
-                                placeholder="Search utilities..." 
+                                placeholder="{{ __('Search utilities...') }}" 
                                 class="block w-full pl-10 py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                         </div>
@@ -77,7 +77,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No utilities found</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('No utilities found') }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">Add your first utility to start tracking usage and rates.</p>
                 <button 
                     type="button" 

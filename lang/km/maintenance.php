@@ -21,9 +21,9 @@ return [
     // Priority Levels
     'priority' => [
         'label' => 'អាទិភាព',
-        'low' => 'អាទិភាពទាប',
-        'medium' => 'អាទិភាពមធ្យម',
-        'high' => 'អាទិភាពខ្ពស់',
+        'low' => 'ទាប',
+        'medium' => 'មធ្យម',
+        'high' => 'ខ្ពស់',
         'urgent' => 'បន្ទាន់'
     ],
 
@@ -44,9 +44,102 @@ return [
     // Page Titles
     'titles' => [
         'maintenance_request' => 'សំណើថែទាំ',
+        'maintenance_requests' => 'សំណើថែទាំ',
         'new_request' => 'សំណើថែទាំថ្មី',
         'edit_request' => 'កែប្រែសំណើថែទាំ',
         'request_details' => 'ព័ត៌មានលម្អិតនៃសំណើ'
+    ],
+
+    // Descriptions
+    'descriptions' => [
+        'landlord_list' => 'មើល និងគ្រប់គ្រងសំណើថែទាំសម្រាប់អចលនទ្រព្យរបស់អ្នក។',
+        'tenant_list' => 'ដាក់ស្នើ និងតាមដានសំណើថែទាំសម្រាប់បន្ទប់របស់អ្នក។',
+        'manage_request' => 'ធ្វើបច្ចុប្បន្នភាពស្ថានភាព និងបន្ថែមកំណត់ចំណាំសម្រាប់សំណើថែទាំនេះ។',
+    ],
+
+    // Filters
+    'filters' => [
+        'search_requests' => 'ស្វែងរកសំណើ...',
+        'all_statuses' => 'ស្ថានភាពទាំងអស់',
+        'all_priorities' => 'អាទិភាពទាំងអស់',
+    ],
+
+    // Table Columns
+    'columns' => [
+        'title' => 'ចំណងជើង',
+        'property' => 'អចលនទ្រព្យ',
+        'unit' => 'បន្ទប់',
+        'priority' => 'អាទិភាព',
+        'status' => 'ស្ថានភាព',
+        'date' => 'កាលបរិច្ឆេទ',
+        'actions' => 'សកម្មភាព',
+    ],
+
+    // Actions
+    'actions' => [
+        'new_request' => 'សំណើថ្មី',
+        'accept' => 'ទទួលយក',
+        'reject' => 'បដិសេធ',
+        'complete' => 'បញ្ចប់',
+        'manage' => 'គ្រប់គ្រង',
+        'view' => 'មើល',
+        'view_details' => 'មើលលម្អិត',
+        'edit' => 'កែប្រែ',
+        'accept_request' => 'ទទួលយកសំណើ',
+        'reject_request' => 'បដិសេធសំណើ',
+        'update_status' => 'ធ្វើបច្ចុប្បន្នភាពស្ថានភាព',
+        'back_to_list' => 'ត្រឡប់ទៅបញ្ជី',
+        'save_changes' => 'រក្សាទុកការផ្លាស់ប្តូរ',
+    ],
+
+    // Sections
+    'sections' => [
+        'property_details' => 'ព័ត៌មានអចលនទ្រព្យ',
+        'request_information' => 'ព័ត៌មានសំណើ',
+        'quick_actions' => 'សកម្មភាពរហ័ស',
+        'notes' => 'កំណត់ចំណាំ',
+        'submitted' => 'បានដាក់ស្នើ',
+    ],
+
+    // Select Options
+    'select' => [
+        'select_property' => '-- ជ្រើសរើសអចលនទ្រព្យ --',
+        'select_room' => '-- ជ្រើសរើសបន្ទប់ --',
+        'room_label' => 'បន្ទប់',
+    ],
+
+    // Placeholders
+    'placeholders' => [
+        'title' => 'បញ្ចូលចំណងជើងខ្លីសម្រាប់សំណើថែទាំរបស់អ្នក',
+        'description' => 'ពិពណ៌នាបញ្ហាថែទាំឱ្យលម្អិត',
+        'request_notes' => 'បន្ថែមកំណត់ចំណាំរបស់អ្នកសម្រាប់សំណើថែទាំនេះ',
+        'maintenance_work_notes' => 'បន្ថែមកំណត់ចំណាំអំពីការងារថែទាំ...',
+    ],
+
+    // Photo Labels
+    'photos' => [
+        'upload_after' => 'បញ្ចូលរូបថតបន្ទាប់ពីការងារថែទាំ',
+        'upload_issue' => 'បញ្ចូលរូបថតនៃបញ្ហាថែទាំ',
+        'maintenance_photo' => 'រូបថតថែទាំ',
+        'temporary_photo' => 'រូបថតបណ្តោះអាសន្ន',
+        'image_not_found' => 'រកមិនឃើញរូបភាព',
+        'photo' => 'រូបថត',
+        'by' => 'ដោយ',
+        'type' => [
+            'before' => 'មុន',
+            'after' => 'បន្ទាប់',
+        ],
+        'uploaded_by' => [
+            'tenant' => 'អ្នកជួល',
+            'landlord' => 'ម្ចាស់ផ្ទះ',
+        ],
+    ],
+
+    // Auto Notes
+    'note_templates' => [
+        'accepted_on' => 'សំណើត្រូវបានទទួលយកនៅ :datetime។',
+        'rejected_on' => 'សំណើត្រូវបានបដិសេធនៅ :datetime។',
+        'completed_on' => 'សំណើត្រូវបានសម្គាល់ថាបានបញ្ចប់នៅ :datetime។',
     ],
 
     // Messages
@@ -54,9 +147,14 @@ return [
         'request_submitted' => 'សំណើថែទាំត្រូវបានដាក់ជូនដោយជោគជ័យ',
         'request_updated' => 'សំណើថែទាំត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ',
         'request_deleted' => 'សំណើថែទាំត្រូវបានលុបដោយជោគជ័យ',
-        'status_updated' => 'ស្ថានភាពត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ',
+        'status_updated' => 'ស្ថានភាពសំណើថែទាំត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។',
         'photo_uploaded' => 'រូបថតត្រូវបានបញ្ចូលដោយជោគជ័យ',
-        'note_added' => 'កំណត់ចំណាំត្រូវបានបន្ថែមដោយជោគជ័យ'
+        'note_added' => 'កំណត់ចំណាំត្រូវបានបន្ថែមដោយជោគជ័យ',
+        'request_accepted' => 'សំណើថែទាំត្រូវបានទទួលយកដោយជោគជ័យ។',
+        'request_rejected' => 'សំណើថែទាំត្រូវបានបដិសេធ។',
+        'request_completed' => 'សំណើថែទាំត្រូវបានសម្គាល់ថាបានបញ្ចប់។',
+        'request_created' => 'សំណើថែទាំត្រូវបានបង្កើតដោយជោគជ័យ។',
+        'no_requests_found' => 'មិនមានសំណើថែទាំទេ។',
     ],
 
     // Errors
@@ -65,7 +163,10 @@ return [
         'invalid_status' => 'ស្ថានភាពដែលបានជ្រើសរើសមិនត្រឹមត្រូវ',
         'invalid_priority' => 'អាទិភាពដែលបានជ្រើសរើសមិនត្រឹមត្រូវ',
         'photo_upload_failed' => 'ការបញ្ចូលរូបថតបានបរាជ័យ',
-        'not_authorized' => 'អ្នកមិនមានសិទ្ធិធ្វើសកម្មភាពនេះទេ'
+        'not_authorized' => 'អ្នកមិនមានសិទ្ធិធ្វើសកម្មភាពនេះទេ',
+        'landlord_cannot_create' => 'ម្ចាស់ផ្ទះមិនអាចបង្កើតសំណើថែទាំបានទេ។',
+        'request_not_found' => 'រកមិនឃើញសំណើថែទាំ។',
+        'cannot_edit_request' => 'អ្នកមិនអាចកែប្រែសំណើថែទាំនេះបានទេ។',
     ],
 
     // Dashboard
@@ -77,4 +178,4 @@ return [
         'recent_requests' => 'សំណើថ្មីៗ',
         'average_completion_time' => 'រយៈពេលបញ្ចប់ជាមធ្យម'
     ]
-]; 
+];

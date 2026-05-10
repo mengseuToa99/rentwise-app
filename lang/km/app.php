@@ -64,4 +64,11 @@ return [
     'remember_me' => 'ចងចាំខ្ញុំ',
     'password' => 'លេខសម្ងាត់',
     'email' => 'អ៊ីមែល',
-]; 
+
+    // UI Controls
+    'theme_toggle' => 'ប្តូររូបរាង',
+    'switch_to_khmer' => 'ប្តូរទៅភាសាខ្មែរ',
+    'switch_to_english' => 'ប្តូរទៅភាសាអង់គ្លេស',
+    'english' => 'EN',
+    'khmer' => 'ខ្មែរ',
+];

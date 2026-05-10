@@ -64,7 +64,7 @@ class MaintenanceRequestForm extends Component
         if ($routeName === 'maintenance.create') {
             $this->mode = 'create';
             if ($this->isLandlord) {
-                abort(403, 'Landlords cannot create maintenance requests.');
+                abort(403, __('maintenance.errors.landlord_cannot_create'));
             }
             // Load properties for tenant
             $this->loadProperties();
@@ -73,7 +73,7 @@ class MaintenanceRequestForm extends Component
         
         // For show/edit modes, we need a request ID
         if (!$request_id) {
-            abort(404, 'Maintenance request not found.');
+            abort(404, __('maintenance.errors.request_not_found'));
         }
         
         $this->requestId = $request_id;
@@ -84,7 +84,7 @@ class MaintenanceRequestForm extends Component
             $this->mode = 'edit';
             // Only tenants can edit their pending requests
             if ($this->isLandlord || $this->status !== 'pending') {
-                abort(403, 'You cannot edit this maintenance request.');
+                abort(403, __('maintenance.errors.cannot_edit_request'));
             }
         } else {
             $this->mode = 'show';
@@ -257,7 +257,7 @@ class MaintenanceRequestForm extends Component
                 }
             }
             
-            session()->flash('success', 'Maintenance request created successfully.');
+            session()->flash('success', __('maintenance.messages.request_created'));
         } else {
             $request = MaintenanceRequest::findOrFail($this->requestId);
             
@@ -309,7 +309,7 @@ class MaintenanceRequestForm extends Component
                 }
             }
             
-            session()->flash('success', 'Maintenance request updated successfully.');
+            session()->flash('success', __('maintenance.messages.request_updated'));
         }
         
         return redirect()->route('maintenance.index');
@@ -324,16 +324,16 @@ class MaintenanceRequestForm extends Component
 
         return view('livewire.maintenance.maintenance-request-form', [
             'priorities' => [
-                'low' => 'Low',
-                'medium' => 'Medium',
-                'high' => 'High',
-                'urgent' => 'Urgent'
+                'low' => __('maintenance.priority.low'),
+                'medium' => __('maintenance.priority.medium'),
+                'high' => __('maintenance.priority.high'),
+                'urgent' => __('maintenance.priority.urgent')
             ],
             'statuses' => [
-                'pending' => 'Pending',
-                'in_progress' => 'In Progress',
-                'completed' => 'Completed',
-                'rejected' => 'Rejected'
+                'pending' => __('maintenance.status.pending'),
+                'in_progress' => __('maintenance.status.in_progress'),
+                'completed' => __('maintenance.status.completed'),
+                'rejected' => __('maintenance.status.rejected')
             ],
             'isLandlord' => $isLandlord
         ]);

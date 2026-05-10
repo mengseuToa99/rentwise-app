@@ -409,12 +409,9 @@
                 calendar.render();
                 console.log('Calendar rendered successfully');
                 
-                // Fix contrast issues in dark mode
+                // Fix contrast issues in dark mode (follows app theme, not OS preference)
                 fixDarkModeContrast();
-                
-                // Listen for dark mode changes
-                const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                darkModeMediaQuery.addEventListener('change', fixDarkModeContrast);
+                window.addEventListener('theme:changed', fixDarkModeContrast);
             } catch (error) {
                 console.error('Error initializing calendar:', error);
                 showFallbackMessage();
@@ -428,8 +425,8 @@
         }
 
         function fixDarkModeContrast() {
-            // Fix contrast issues in dark mode
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            // Follow the app's theme (set on <html class="dark">), not OS preference
+            const isDark = document.documentElement.classList.contains('dark');
             const calendarContainer = document.querySelector('#landlord-calendar .fc');
             
             if (calendarContainer) {

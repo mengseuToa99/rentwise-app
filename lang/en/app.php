@@ -64,4 +64,11 @@ return [
     'remember_me' => 'Remember Me',
     'password' => 'Password',
     'email' => 'Email',
-]; 
+
+    // UI Controls
+    'theme_toggle' => 'Toggle theme',
+    'switch_to_khmer' => 'Switch to Khmer',
+    'switch_to_english' => 'Switch to English',
+    'english' => 'EN',
+    'khmer' => 'ខ្មែរ',
+];

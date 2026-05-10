@@ -3,10 +3,10 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Edit Property</h1>
             <div class="flex space-x-2">
-                <a href="{{ route('properties.show', $propertyId) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-black dark:text-black shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                <a href="{{ route('properties.show', $propertyId) }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-black dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                     View Property
                 </a>
-                <a href="{{ route('properties.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-black dark:text-black shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                <a href="{{ route('properties.index') }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-black dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                     Back to Properties
                 </a>
             </div>
@@ -102,7 +102,7 @@
                     </div>
                     
                     <div class="flex justify-end">
-                        <button type="submit" class="inline-flex justify-center rounded-md bg-white border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2">
+                        <button type="submit" class="inline-flex justify-center rounded-md bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2">
                             <span wire:loading.remove wire:target="update">Update Property</span>
                             <span wire:loading wire:target="update">Loading...</span>
                         </button>

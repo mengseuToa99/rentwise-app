@@ -79,7 +79,7 @@
                                         type="text"
                                         wire:model.live.debounce.300ms="searchPermission"
                                         class="flex-1 min-w-0 block w-full px-3 py-2 rounded-md sm:text-sm border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Search by name or description..."
+                                        placeholder="{{ __('Search by name or description...') }}"
                                     >
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                                 </div>
                             @empty
                                 <div class="text-center py-4">
-                                    <p class="text-gray-500 dark:text-gray-400 text-sm">No permissions found. Try a different search or create a new permission.</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm">{{ __('No permissions found. Try a different search or create a new permission.') }}</p>
                                 </div>
                             @endforelse
                         </div>

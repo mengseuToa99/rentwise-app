@@ -77,7 +77,7 @@
                                 wire:model.live.debounce.300ms="search" 
                                 type="text" 
                                 id="search"
-                                placeholder="Search invoices..." 
+                                placeholder="{{ __('Search invoices...') }}" 
                                 class="block w-full pl-10 py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                         </div>
@@ -90,7 +90,7 @@
                             id="statusFilter" 
                             class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
-                            <option value="">All Statuses</option>
+                            <option value="">{{ __('All Statuses') }}</option>
                             <option value="pending">Pending</option>
                             <option value="paid">Paid</option>
                             <option value="overdue">Overdue</option>
@@ -104,7 +104,7 @@
                             id="propertyFilter" 
                             class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
-                            <option value="">All Properties</option>
+                            <option value="">{{ __('All Properties') }}</option>
                             @foreach ($properties as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
                             @endforeach
@@ -188,12 +188,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No invoices found</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('No invoices found') }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">
                     @if($viewMode === 'tenant')
                         You don't have any invoices yet.
                     @else
-                        No invoices found matching your criteria.
+                        {{ __('No invoices found matching your criteria.') }}
                     @endif
                 </p>
                 @if($viewMode !== 'tenant')
@@ -297,7 +297,7 @@
                                                 @click="isFlipped = !isFlipped" 
                                                 class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs"
                                             >
-                                                <span>View Details</span>
+                                                <span>{{ __('View Details') }}</span>
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                 </svg>

@@ -21,14 +21,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing data safely
-        DB::statement('TRUNCATE TABLE user_roles CASCADE');
-        DB::statement('TRUNCATE TABLE roles CASCADE');
-        DB::statement('TRUNCATE TABLE users CASCADE');
-        DB::statement('TRUNCATE TABLE property_details CASCADE');
-        DB::statement('TRUNCATE TABLE room_details CASCADE');
-        DB::statement('TRUNCATE TABLE rental_details CASCADE');
-        DB::statement('TRUNCATE TABLE maintenance_requests CASCADE');
+        // Clear existing data safely for MySQL/MariaDB
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        try {
+            DB::table('user_roles')->truncate();
+            DB::table('roles')->truncate();
+            DB::table('users')->truncate();
+            DB::table('property_details')->truncate();
+            DB::table('room_details')->truncate();
+            DB::table('rental_details')->truncate();
+            DB::table('maintenance_requests')->truncate();
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
 
         // Create basic roles
         $roles = [

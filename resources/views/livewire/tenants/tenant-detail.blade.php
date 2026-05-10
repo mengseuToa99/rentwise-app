@@ -202,7 +202,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No rental history found.</td>
+                                    <td colspan="5" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No rental history found.') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -263,7 +263,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No invoice history found.</td>
+                                    <td colspan="5" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No invoice history found.') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -306,7 +306,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No payment history found.</td>
+                                    <td colspan="6" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No payment history found.') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>

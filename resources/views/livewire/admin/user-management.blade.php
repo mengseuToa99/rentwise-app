@@ -37,7 +37,7 @@
                         wire:model.live.debounce.300ms="search"
                         class="peer h-full w-full outline-none text-sm text-gray-700 dark:text-gray-200 pr-2 dark:bg-zinc-800 dark:placeholder-gray-400"
                         type="text"
-                        placeholder="Search users..." 
+                        placeholder="{{ __('Search users...') }}" 
                     />
                 </div>
             </div>
@@ -106,7 +106,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
-                                    No users found. Try a different search or add a new user.
+                                    {{ __('No users found. Try a different search or add a new user.') }}
                                 </td>
                             </tr>
                         @endforelse

@@ -34,7 +34,7 @@
                         <input 
                             wire:model.live.debounce.300ms="search" 
                             type="text" 
-                            placeholder="Search pricing groups..." 
+                            placeholder="{{ __('Search pricing groups...') }}" 
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                         >
                     </div>
@@ -44,7 +44,7 @@
         
         @if ($pricingGroups->isEmpty())
             <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                <p class="text-gray-500">No pricing groups found for this property.</p>
+                <p class="text-gray-500">{{ __('No pricing groups found for this property.') }}</p>
                 <a href="{{ route('pricing-groups.create', $property->property_id) }}" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">Create your first pricing group</a>
             </div>
         @else

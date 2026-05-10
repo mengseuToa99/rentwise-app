@@ -455,16 +455,12 @@ window.initializeRentCollectionChart = (elementId, data) => {
 
 // Function to reinitialize all charts
 window.reinitializeAllCharts = () => {
-    console.log('Reinitializing all charts...');
-    console.log('Chart options:', Object.keys(window.chartOptions));
     
     for (const elementId in window.chartOptions) {
         const chartData = window.chartOptions[elementId];
         const element = document.querySelector(elementId);
         
         if (element) {
-            console.log(`Reinitializing chart: ${elementId}, type: ${chartData.type}`);
-            
             try {
                 if (chartData.type === 'spending') {
                     window.initializeSpendingChart(elementId, chartData.data);
@@ -501,10 +497,8 @@ let observer = new MutationObserver(function(mutations) {
 
 // Immediately attempt to render charts on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, setting up chart observers');
-    
     // Start observing DOM changes to detect chart containers
-    observer.observe(document.body, { 
+    observer.observe(document.body, {
         childList: true,
         subtree: true
     });
@@ -516,21 +510,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // Re-render all charts on tab visibility change
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible') {
-        console.log('Tab became visible, reinitializing charts');
-        // Re-render all charts when tab becomes visible
         window.debouncedReinitializeCharts();
     }
 });
 
-// Also handle navigation events via Livewire
 document.addEventListener('livewire:navigated', function() {
-    console.log('Livewire navigation detected, reinitializing charts');
     window.debouncedReinitializeCharts();
 });
 
-// Also handle Livewire updates which might affect charts
 document.addEventListener('livewire:update', function() {
-    console.log('Livewire update detected, reinitializing charts');
     window.debouncedReinitializeCharts();
 });
 

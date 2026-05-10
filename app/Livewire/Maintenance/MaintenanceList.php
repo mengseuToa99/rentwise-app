@@ -48,21 +48,21 @@ class MaintenanceList extends Component
             case 'in_progress':
                 $request->status = 'in_progress';
                 $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
-                    "Request accepted on " . now()->format('M d, Y H:i') . ".";
-                $message = 'Maintenance request accepted successfully.';
+                    __('maintenance.note_templates.accepted_on', ['datetime' => now()->format('M d, Y H:i')]);
+                $message = __('maintenance.messages.request_accepted');
                 break;
             case 'rejected':
                 $request->status = 'rejected';
                 $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
-                    "Request rejected on " . now()->format('M d, Y H:i') . ".";
-                $message = 'Maintenance request rejected.';
+                    __('maintenance.note_templates.rejected_on', ['datetime' => now()->format('M d, Y H:i')]);
+                $message = __('maintenance.messages.request_rejected');
                 break;
             case 'completed':
                 $request->status = 'completed';
                 $request->completed_at = now();
                 $request->landlord_notes = ($request->landlord_notes ? $request->landlord_notes . "\n\n" : '') . 
-                    "Request marked as completed on " . now()->format('M d, Y H:i') . ".";
-                $message = 'Maintenance request marked as completed.';
+                    __('maintenance.note_templates.completed_on', ['datetime' => now()->format('M d, Y H:i')]);
+                $message = __('maintenance.messages.request_completed');
                 break;
             default:
                 return;
@@ -112,17 +112,17 @@ class MaintenanceList extends Component
             'maintenanceRequests' => $query->paginate($this->perPage),
             'isLandlord' => $this->isLandlord,
             'statuses' => [
-                'pending' => 'Pending',
-                'in_progress' => 'In Progress',
-                'completed' => 'Completed',
-                'rejected' => 'Rejected'
+                'pending' => __('maintenance.status.pending'),
+                'in_progress' => __('maintenance.status.in_progress'),
+                'completed' => __('maintenance.status.completed'),
+                'rejected' => __('maintenance.status.rejected')
             ],
             'priorities' => [
-                'low' => 'Low',
-                'medium' => 'Medium',
-                'high' => 'High',
-                'urgent' => 'Urgent'
+                'low' => __('maintenance.priority.low'),
+                'medium' => __('maintenance.priority.medium'),
+                'high' => __('maintenance.priority.high'),
+                'urgent' => __('maintenance.priority.urgent')
             ]
         ]);
     }
-} 
+}

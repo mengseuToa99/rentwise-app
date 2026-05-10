@@ -45,14 +45,14 @@ class LandlordMaintenanceManager extends Component
             case 'in_progress':
                 $this->status = 'in_progress';
                 $this->landlord_notes = ($this->landlord_notes ? $this->landlord_notes . "\n\n" : '') . 
-                    "Request accepted on " . now()->format('M d, Y H:i') . ".";
-                $message = 'Maintenance request accepted successfully.';
+                    __('maintenance.note_templates.accepted_on', ['datetime' => now()->format('M d, Y H:i')]);
+                $message = __('maintenance.messages.request_accepted');
                 break;
             case 'rejected':
                 $this->status = 'rejected';
                 $this->landlord_notes = ($this->landlord_notes ? $this->landlord_notes . "\n\n" : '') . 
-                    "Request rejected on " . now()->format('M d, Y H:i') . ".";
-                $message = 'Maintenance request rejected.';
+                    __('maintenance.note_templates.rejected_on', ['datetime' => now()->format('M d, Y H:i')]);
+                $message = __('maintenance.messages.request_rejected');
                 break;
             default:
                 return;
@@ -80,7 +80,7 @@ class LandlordMaintenanceManager extends Component
             'completed_at' => $this->status === 'completed' ? now() : null,
         ]);
 
-        session()->flash('success', 'Maintenance request status updated successfully.');
+        session()->flash('success', __('maintenance.messages.status_updated'));
         return redirect()->route('maintenance.index');
     }
 
@@ -88,11 +88,11 @@ class LandlordMaintenanceManager extends Component
     {
         return view('livewire.maintenance.landlord-maintenance-manager', [
             'statuses' => [
-                'pending' => 'Pending',
-                'in_progress' => 'In Progress',
-                'completed' => 'Completed',
-                'rejected' => 'Rejected'
+                'pending' => __('maintenance.status.pending'),
+                'in_progress' => __('maintenance.status.in_progress'),
+                'completed' => __('maintenance.status.completed'),
+                'rejected' => __('maintenance.status.rejected')
             ],
         ]);
     }
-} 
+}

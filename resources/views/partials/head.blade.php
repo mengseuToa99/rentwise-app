@@ -2,33 +2,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>{{ $title ?? config('app.name') }}</title>
+<script>window.__APP_LOCALE__ = @json(app()->getLocale());</script>
 
-<!-- Prevent flash of wrong theme -->
-<script>
-    // Immediately set theme to prevent flashing
-    (function() {
-        function applyTheme() {
-            if (localStorage.theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-        
-        // Ensure we always have a theme preference set
-        if (!localStorage.theme) {
-            localStorage.theme = 'light';
-        }
-        
-        // Apply theme now
-        applyTheme();
-        
-        // Re-apply theme on each page navigation
-        document.addEventListener('livewire:navigated', applyTheme);
-        document.addEventListener('turbolinks:load', applyTheme);
-        window.addEventListener('load', applyTheme);
-    })();
-</script>
+@include('partials.theme-init')
 
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">

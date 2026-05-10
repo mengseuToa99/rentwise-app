@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
@@ -26,6 +27,8 @@ class SetLocale
             Session::put('locale', 'en');
         }
 
+        Carbon::setLocale(App::getLocale());
+
         return $next($request);
     }
-} 
+}

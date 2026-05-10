@@ -1,79 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeToggle()" x-bind:class="{ 'dark': dark }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     @include('partials.head')
-    <!-- Prevent flash of wrong theme -->
-    <script>
-        // Immediately set theme based ONLY on user preference, not system preference
-        if (localStorage.theme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
-        // FORCE LIGHT MODE if nothing specifically set
-        if (!localStorage.theme) {
-            localStorage.theme = 'light';
-        }
-
-        // Debug and fix theme during navigation
-        document.addEventListener('livewire:navigated', () => {
-            console.log("Navigation occurred, theme:", localStorage.theme);
-            // Apply the current theme preference
-            const isDark = localStorage.theme === 'dark';
-
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-
-            // Sync Alpine.js components
-            if (window.Alpine) {
-                document.querySelectorAll('[x-data]').forEach(el => {
-                    if (el.__x && el.__x.$data.dark !== undefined) {
-                        el.__x.$data.dark = isDark;
-                    }
-                });
-            }
-        });
-    </script>
-    <style>
-        /* Add smooth transitions for theme changes */
-        *,
-        *::before,
-        *::after {
-            transition-property: color, background-color, border-color, outline-color, fill, stroke;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 200ms;
-        }
-
-        /* But disable transitions on page load to prevent flashing */
-        .no-transitions * {
-            transition: none !important;
-        }
-    </style>
-    <script>
-        // Add no-transitions class on load/navigation to prevent flash
-        document.documentElement.classList.add('no-transitions');
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.documentElement.classList.remove('no-transitions');
-            }, 10);
-        });
-        document.addEventListener('livewire:navigated', () => {
-            document.documentElement.classList.add('no-transitions');
-            setTimeout(() => {
-                document.documentElement.classList.remove('no-transitions');
-            }, 10);
-        });
-    </script>
 </head>
 
 <body class="min-h-screen bg-white dark:bg-black">
-    <!-- Add reset-theme utility -->
-    <script src="{{ asset('reset-theme.js') }}"></script>
     <flux:sidebar sticky stashable="{{ !($preserveSidebar ?? false) }}" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-black">
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
@@ -164,21 +96,14 @@
         <div class="mb-4 flex w-full items-center justify-between space-x-2">
             <!-- Theme Toggle Button - Icon only -->
             <button
-                x-data="{
-                        isDark: localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches),
-                        toggle() {
-                            this.isDark = !this.isDark;
-                            localStorage.theme = this.isDark ? 'dark' : 'light';
-                            document.documentElement.classList.toggle('dark', this.isDark);
-                        }
-                    }"
+                x-data="themeToggle()"
                 @click="toggle()"
                 class="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 title="{{ __('app.theme_toggle') }}"
             >
                 <!-- Sun icon for dark mode -->
                 <svg
-                    x-show="isDark"
+                    x-show="dark"
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -200,7 +125,7 @@
 
                 <!-- Moon icon for light mode -->
                 <svg
-                    x-show="!isDark"
+                    x-show="!dark"
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -212,6 +137,9 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
+
+            <!-- Language Switcher -->
+            @livewire('language-switcher')
 
             <!-- Logout Button -->
             <form method="POST" action="{{ route('logout') }}">
@@ -236,20 +164,15 @@
 
         <flux:spacer />
 
+        @livewire('language-switcher')
+
         <!-- Theme Toggle Button -->
         <button
-            x-data="{
-                    isDark: localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches),
-                    toggle() {
-                        this.isDark = !this.isDark;
-                        localStorage.theme = this.isDark ? 'dark' : 'light';
-                        document.documentElement.classList.toggle('dark', this.isDark);
-                    }
-                }"
+            x-data="themeToggle()"
             @click="toggle()"
             class="mx-2 inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
             <!-- Sun icon for dark mode -->
-            <svg x-show="isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg x-show="dark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
                 <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -261,7 +184,7 @@
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
             <!-- Moon icon for light mode -->
-            <svg x-show="!isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg x-show="!dark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
         </button>

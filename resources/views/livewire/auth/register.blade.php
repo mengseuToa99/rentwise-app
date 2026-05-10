@@ -134,7 +134,7 @@
                         
                         <button 
                             type="submit"
-                            class="inline-flex justify-center rounded-md bg-white border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 w-full mt-1"
+                            class="inline-flex justify-center rounded-md bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 w-full mt-1"
                         >
                             <span wire:loading.remove wire:target="register">Create account</span>
                             <span wire:loading wire:target="register">Processing...</span>
@@ -162,21 +162,9 @@
     </div>
 </div> 
 
-<!-- Alpine.js is now loaded via Vite bundle -->
+<!-- Alpine.js is now loaded via Vite bundle. themeToggle is registered globally in resources/js/app.js -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Initialize Alpine.js globally for the theme toggle
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('themeToggle', () => ({
-            dark: localStorage.theme === 'dark',
-            toggle() {
-                this.dark = !this.dark;
-                localStorage.theme = this.dark ? 'dark' : 'light';
-                document.documentElement.classList.toggle('dark', this.dark);
-            }
-        }));
-    });
-
     // Listen for Livewire events
     document.addEventListener('livewire:initialized', () => {
         Livewire.on('showSuccess', (message) => {

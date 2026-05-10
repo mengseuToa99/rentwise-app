@@ -19,7 +19,7 @@
                         id="property"
                         class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
-                        <option value="">All Properties</option>
+                        <option value="">{{ __('All Properties') }}</option>
                         @foreach($properties as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
@@ -34,7 +34,7 @@
                         id="utility"
                         class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
-                        <option value="">All Utilities</option>
+                        <option value="">{{ __('All Utilities') }}</option>
                         @foreach($utilities as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
@@ -118,7 +118,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    No utility usage records found for the selected filters.
+                                    {{ __('No utility usage records found for the selected filters.') }}
                                 </td>
                             </tr>
                         @endforelse

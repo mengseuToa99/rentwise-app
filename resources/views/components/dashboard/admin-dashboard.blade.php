@@ -166,7 +166,7 @@
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Maintenance Overview</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 p-3 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
-                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Maintenance Requests by Status</h4>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">{{ __('Maintenance Requests by Status') }}</h4>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         @foreach($stats['maintenance_by_status'] ?? [] as $status => $count)
                             <div class="flex items-center">
@@ -225,10 +225,10 @@
         </div>
     </div>
     
-    <!-- Recent Maintenance Requests -->
+    <!-- Recent maintenance section -->
     <div>
         <div class="flex justify-between items-center mb-2">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Maintenance Requests</h2>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ __('Recent Maintenance Requests') }}</h2>
             <a href="{{ route('admin.dashboard') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">View all</a>
         </div>
         <a href="{{ route('admin.dashboard') }}" class="block overflow-hidden rounded-lg bg-white shadow dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-all">
@@ -429,12 +429,9 @@
                 calendar.render();
                 console.log('Admin calendar rendered successfully');
                 
-                // Fix contrast issues in dark mode
+                // Fix contrast issues in dark mode (follows app theme, not OS preference)
                 fixDarkModeContrast();
-                
-                // Listen for dark mode changes
-                const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                darkModeMediaQuery.addEventListener('change', fixDarkModeContrast);
+                window.addEventListener('theme:changed', fixDarkModeContrast);
             } catch (error) {
                 console.error('Error initializing admin calendar:', error);
                 
@@ -446,7 +443,8 @@
         }
 
         function fixDarkModeContrast() {
-            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            // Follow the app's theme (set on <html class="dark">), not OS preference
+            const isDarkMode = document.documentElement.classList.contains('dark');
             if (isDarkMode) {
                 const fcHeaderElements = document.querySelectorAll('.fc-header-toolbar, .fc-daygrid-day-number, .fc-col-header-cell');
                 fcHeaderElements.forEach(el => {

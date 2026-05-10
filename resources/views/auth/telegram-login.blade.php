@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-    <div class="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-zinc-900">
+    <div class="max-w-md w-full bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
         <div class="px-6 py-8">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Login with Telegram</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-zinc-100 mb-8">Login with Telegram</h2>
             
             <div class="flex justify-center mb-6">
                 <!-- Telegram Login Widget -->
@@ -18,8 +18,8 @@
             </div>
             
             <div class="text-center">
-                <p class="text-gray-600 mb-4">Click the button above to log in with your Telegram account.</p>
-                <p id="status-message" class="text-sm text-gray-500"></p>
+                <p class="text-gray-600 dark:text-zinc-400 mb-4">Click the button above to log in with your Telegram account.</p>
+                <p id="status-message" class="text-sm text-gray-500 dark:text-zinc-400"></p>
             </div>
             
             <div class="mt-6 text-center">

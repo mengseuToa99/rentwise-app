@@ -91,7 +91,7 @@
                         </div>
                         <input wire:model.live.debounce.300ms="search" 
                                class="block w-full pl-10 pr-3 py-2 text-sm text-[hsl(var(--foreground))] dark:text-gray-300 placeholder-[hsl(var(--muted-foreground))] dark:placeholder-gray-500 border border-[hsl(var(--input))] dark:border-gray-600 rounded-md bg-[hsl(var(--background))] dark:bg-[#0f172a] focus:border-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-400" 
-                               placeholder="Search logs..." 
+                               placeholder="{{ __('Search logs...') }}" 
                                type="text" />
                     </div>
                 </div>
@@ -216,7 +216,7 @@
                                         <svg class="w-12 h-12 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                         </svg>
-                                        <p class="mt-3 text-lg font-semibold text-[hsl(var(--foreground))]">No logs found</p>
+                                        <p class="mt-3 text-lg font-semibold text-[hsl(var(--foreground))]">{{ __('No logs found') }}</p>
                                         <p class="text-[hsl(var(--muted-foreground))]">Try adjusting your search or filter parameters</p>
                                     </div>
                                 </td>

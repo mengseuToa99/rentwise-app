@@ -7,12 +7,12 @@
 
 @php
     $variantClasses = [
-        'default' => 'bg-indigo-600 text-white shadow hover:bg-indigo-500',
-        'destructive' => 'bg-red-600 text-white shadow-sm hover:bg-red-500',
-        'outline' => 'border border-gray-300 bg-white shadow-sm hover:bg-gray-100 hover:text-gray-900',
-        'secondary' => 'bg-gray-200 text-gray-900 shadow-sm hover:bg-gray-100',
-        'ghost' => 'hover:bg-gray-100 hover:text-gray-900',
-        'link' => 'text-indigo-600 underline-offset-4 hover:underline',
+        'default' => 'bg-indigo-600 text-white shadow hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400',
+        'destructive' => 'bg-red-600 text-white shadow-sm hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400',
+        'outline' => 'border border-gray-300 bg-white text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700 dark:hover:text-white',
+        'secondary' => 'bg-gray-200 text-gray-900 shadow-sm hover:bg-gray-100 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600',
+        'ghost' => 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100',
+        'link' => 'text-indigo-600 underline-offset-4 hover:underline dark:text-indigo-400',
     ];
     
     $sizeClasses = [

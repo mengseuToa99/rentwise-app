@@ -85,7 +85,7 @@
 
                         <button 
                             type="submit"
-                            class="inline-flex justify-center rounded-md bg-white border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-black shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 w-full"
+                            class="inline-flex justify-center rounded-md bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-black dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 w-full"
                         >
                             <span wire:loading.remove wire:target="login">Login</span>
                             <span wire:loading wire:target="login">Loading...</span>

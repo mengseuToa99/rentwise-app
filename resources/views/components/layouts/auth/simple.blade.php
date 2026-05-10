@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeToggle()" x-bind:class="{ 'dark': dark }" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,71 +7,7 @@
 
         <title>{{ config('app.name', 'Rentwise') }}</title>
 
-        <!-- CRITICAL: Theme toggle function must be available before Alpine starts -->
-        <script>
-            // Immediately set theme to prevent flashing
-            (function() {
-                function applyTheme() {
-                    if (localStorage.theme === 'dark') {
-                        document.documentElement.classList.add('dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                    }
-                }
-                
-                // Ensure we always have a theme preference set
-                if (!localStorage.theme) {
-                    localStorage.theme = 'light';
-                }
-                
-                // Apply theme now
-                applyTheme();
-                
-                // CRITICAL: Define themeToggle globally before Alpine loads
-                window.themeToggle = function() {
-                    return {
-                        dark: localStorage.theme === 'dark',
-                        init() {
-                            this.applyTheme();
-                            
-                            // Listen for storage events (theme changes in other tabs)
-                            window.addEventListener('storage', (event) => {
-                                if (event.key === 'theme') {
-                                    this.dark = event.newValue === 'dark';
-                                    this.applyTheme();
-                                }
-                            });
-                            
-                            // Track page navigation
-                            document.addEventListener('livewire:navigated', () => {
-                                this.applyTheme();
-                            });
-                        },
-                        
-                        applyTheme() {
-                            // Force light mode unless explicitly set to dark  
-                            if (localStorage.theme !== 'dark') {
-                                localStorage.theme = 'light';
-                                document.documentElement.classList.remove('dark');
-                                this.dark = false;
-                            } else {
-                                document.documentElement.classList.add('dark');
-                                this.dark = true;
-                            }
-                        },
-                        
-                        toggle() {
-                            this.dark = !this.dark;
-                            localStorage.theme = this.dark ? 'dark' : 'light';
-                            this.applyTheme();
-                        }
-                    };
-                };
-                
-                // Re-apply theme on each page navigation
-                document.addEventListener('livewire:navigated', applyTheme);
-            })();
-        </script>
+        @include('partials.theme-init')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -82,6 +18,10 @@
         @livewireStyles
     </head>
     <body class="font-sans antialiased h-full overflow-hidden">
+        <div class="fixed top-4 right-4 z-50">
+            @livewire('language-switcher')
+        </div>
+
         {{ $slot }}
         
         <!-- Theme Toggle Button - Fixed to bottom right of screen -->
@@ -108,17 +48,5 @@
         </div>
         
         @livewireScripts
-        
-        <!-- Theme persistence for Livewire navigation -->
-        <script>
-            // Listen for Livewire navigation to ensure theme persists
-            document.addEventListener('livewire:navigated', () => {
-                if (localStorage.theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            });
-        </script>
     </body>
 </html>

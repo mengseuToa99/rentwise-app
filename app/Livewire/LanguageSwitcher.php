@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class LanguageSwitcher extends Component
 {
@@ -24,8 +25,19 @@ class LanguageSwitcher extends Component
         Session::put('locale', $newLocale);
         $this->currentLocale = $newLocale;
 
-        // Redirect to refresh the page with new locale
-        return redirect(request()->header('Referer'));
+        // Livewire actions post to /livewire/update; always redirect the user
+        // back to the last real page URL instead of the update endpoint.
+        $referer = request()->headers->get('referer');
+
+        if (! $referer || Str::contains($referer, '/livewire/update')) {
+            $referer = url()->previous();
+        }
+
+        if (! $referer || Str::contains($referer, '/livewire/update')) {
+            $referer = route('dashboard');
+        }
+
+        return redirect($referer);
     }
 
     public function render()

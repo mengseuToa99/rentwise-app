@@ -74,7 +74,7 @@
                             wire:model.live.debounce.300ms="search" 
                             type="text" 
                             id="search"
-                            placeholder="Search invoices..." 
+                            placeholder="{{ __('Search invoices...') }}" 
                             class="block w-full pl-10 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
                     </div>
@@ -87,7 +87,7 @@
                         id="statusFilter" 
                         class="block w-full py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                        <option value="">All Statuses</option>
+                        <option value="">{{ __('All Statuses') }}</option>
                         <option value="pending">Pending</option>
                         <option value="paid">Paid</option>
                         <option value="overdue">Overdue</option>
@@ -228,9 +228,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No invoices found</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('No invoices found') }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">
-                    No invoices found matching your criteria.
+                    {{ __('No invoices found matching your criteria.') }}
                 </p>
             </div>
         @elseif($invoice)
@@ -309,7 +309,7 @@
                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                             </svg>
-                            View Details
+                            {{ __('View Details') }}
                         </button>
                         </div>
                         
@@ -536,9 +536,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No invoices found</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('No invoices found') }}</h3>
                     <p class="text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">
-                        No invoices found matching your criteria.
+                        {{ __('No invoices found matching your criteria.') }}
                     </p>
                 </div>
             @endif

@@ -45,7 +45,7 @@
                         wire:model.live.debounce.300ms="search"
                         class="peer h-full w-full outline-none text-sm text-gray-700 dark:text-gray-200 pr-2 dark:bg-zinc-800 dark:placeholder-gray-400"
                         type="text"
-                        placeholder="Search roles..." 
+                        placeholder="{{ __('Search roles...') }}" 
                     />
                 </div>
             </div>
@@ -109,7 +109,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
-                                            No roles found. Try a different search or add a new role.
+                                            {{ __('No roles found. Try a different search or add a new role.') }}
                                         </td>
                                     </tr>
                                 @endforelse
