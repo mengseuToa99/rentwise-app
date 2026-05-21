@@ -1,0 +1,30 @@
+# Rebuilt inside the image — never copy local copies
+node_modules
+vendor
+public/build
+public/hot
+
+# Secrets & local-only files (set env vars in the Railway dashboard instead)
+.env
+.env.*
+auth.json
+storage/*.key
+
+# VCS / editor / CI noise
+.git
+.github
+.idea
+.vscode
+.zed
+
+# Logs & caches
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+.phpunit.cache
+.phpunit.result.cache
+
+# Docs & local scripts not needed at runtime
+*.md
+tests
