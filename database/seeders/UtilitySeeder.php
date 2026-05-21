@@ -37,7 +37,7 @@ class UtilitySeeder extends Seeder
                 UtilityPrice::create([
                     'utility_id' => $utility->utility_id,
                     'price' => $defaultPrice,
-                    'effective_date' => now(),
+                    'effective_from' => now()->toDateString(),
                 ]);
             }
         }

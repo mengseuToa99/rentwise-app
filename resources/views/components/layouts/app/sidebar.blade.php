@@ -57,8 +57,22 @@
             </flux:navlist.group>
 
                 @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }))
-                <!-- Property Management - For Landlords only -->
-                <flux:navlist.group :heading="__('app.property_management')" class="grid">
+                    @if(session('simple_mode'))
+                    {{-- Locked-in Simple Mode: minimal navigation only --}}
+                    <div class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-300">
+                        ✨ Simple Mode is ON
+                    </div>
+                    <flux:navlist.group class="grid">
+                        <flux:navlist.item icon="sparkles" :href="route('simple-mode.home')" :current="request()->routeIs('simple-mode.home')" wire:navigate>Simple Mode Home</flux:navlist.item>
+                    </flux:navlist.group>
+                    @else
+                    {{-- Full landlord navigation --}}
+                    <flux:navlist.group class="grid">
+                        <flux:navlist.item icon="sparkles" :href="route('simple-mode.home')" :current="request()->routeIs('simple-mode.home')" wire:navigate>Simple Mode</flux:navlist.item>
+                    </flux:navlist.group>
+
+                    <!-- Property Management - For Landlords only -->
+                    <flux:navlist.group :heading="__('app.property_management')" class="grid">
                     <flux:navlist.item icon="building-office-2" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('app.properties') }}</flux:navlist.item>
                     <flux:navlist.item icon="squares-2x2" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('app.units') }}</flux:navlist.item>
                     <flux:navlist.item icon="wrench-screwdriver" :href="route('maintenance.index')" :current="request()->routeIs('maintenance.*')" wire:navigate>{{ __('app.maintenance') }}</flux:navlist.item>
@@ -76,11 +90,15 @@
                     <flux:navlist.item icon="bolt" :href="route('utilities.index')" :current="request()->routeIs('utilities.index')" wire:navigate>{{ __('app.utilities') }}</flux:navlist.item>
                     <flux:navlist.item icon="chart-bar" :href="route('utilities.usage')" :current="request()->routeIs('utilities.usage')" wire:navigate>{{ __('app.utility_usage') }}</flux:navlist.item>
                 </flux:navlist.group>
-                @endif
+                    @endif {{-- simple_mode --}}
+                @endif {{-- landlord role --}}
            
 
             @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }))
             <!-- Tenant Access Only -->
+            <flux:navlist.group class="grid">
+                <flux:navlist.item icon="sparkles" :href="route('simple-mode.home')" :current="request()->routeIs('simple-mode.home')" wire:navigate>{{ __('app.simple_mode.title') }}</flux:navlist.item>
+            </flux:navlist.group>
             <flux:navlist.group :heading="__('app.my_rentals')" class="grid">
                 <flux:navlist.item icon="currency-dollar" :href="route('tenant.invoices')" :current="request()->routeIs('tenant.invoices')" wire:navigate>{{ __('app.my_invoices') }}</flux:navlist.item>
                 <flux:navlist.item icon="building-office" :href="route('tenant.property')" :current="request()->routeIs('tenant.property')" wire:navigate>{{ __('app.my_property') }}</flux:navlist.item>
@@ -91,6 +109,18 @@
         </flux:navlist>
 
         <flux:spacer />
+
+        @if(session('simple_mode'))
+            <form method="POST" action="{{ route('simple-mode.exit') }}" class="mb-3">
+                @csrf
+                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-800 shadow-sm hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Exit Simple Mode
+                </button>
+            </form>
+        @endif
 
         <!-- Bottom Controls -->
         <div class="mb-4 flex w-full items-center justify-between space-x-2">

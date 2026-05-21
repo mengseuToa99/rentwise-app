@@ -97,7 +97,7 @@ class UtilityManagement extends Component
                     UtilityPrice::create([
                         'utility_id' => $utility->utility_id,
                         'price' => $this->price,
-                        'effective_date' => now()
+                        'effective_from' => now()->toDateString()
                     ]);
                 }
                 
@@ -120,7 +120,7 @@ class UtilityManagement extends Component
                 UtilityPrice::create([
                     'utility_id' => $utility->utility_id,
                     'price' => $this->price,
-                    'effective_date' => now()
+                    'effective_from' => now()->toDateString()
                 ]);
                 
                 session()->flash('success', 'Utility created successfully');

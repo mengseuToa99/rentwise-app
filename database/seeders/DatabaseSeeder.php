@@ -134,6 +134,7 @@ class DatabaseSeeder extends Seeder
         // Create test maintenance request
         DB::table('maintenance_requests')->insert([
             'tenant_id' => $tenant->user_id,
+            'landlord_id' => $landlord->user_id,
             'property_id' => $property->property_id,
             'room_id' => $unit->room_id,
             'title' => 'Test Maintenance Request',

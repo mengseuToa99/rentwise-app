@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('chat_messages', function (Blueprint $table) {
@@ -16,17 +13,17 @@ return new class extends Migration
             $table->foreignId('chat_room_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
             $table->text('message');
-            $table->string('type')->default('text'); // text, image, file
+            $table->enum('type', ['text', 'image', 'file', 'system'])->default('text');
             $table->string('file_url')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['chat_room_id', 'created_at'], 'idx_chat_messages_room_time');
+            $table->index('user_id', 'idx_chat_messages_user');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('chat_messages');

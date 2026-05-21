@@ -2,29 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Payment extends Model
+/**
+ * Backwards-compat alias for PaymentHistory.
+ * Old code referenced `Payment` but pointed at a non-existent `payment_detail` table —
+ * this keeps existing imports working against the real `payment_histories` table.
+ */
+class Payment extends PaymentHistory
 {
-    use HasFactory;
-
-    protected $table = 'payment_detail';
-    protected $primaryKey = 'payment_id';
-    public $timestamps = true;
-
-    protected $fillable = [
-        'invoice_id',
-        'amount',
-        'payment_date',
-        'payment_method',
-        'status',
-        'created_at',
-        'updated_at'
-    ];
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class, 'invoice_id', 'invoice_id');
-    }
-} 
+}

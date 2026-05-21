@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'invoice_details';
     protected $primaryKey = 'invoice_id';
@@ -15,19 +17,24 @@ class Invoice extends Model
 
     protected $fillable = [
         'rental_id',
+        'invoice_number',
         'amount_due',
+        'amount_paid',
+        'period_start',
+        'period_end',
+        'issue_date',
         'due_date',
-        'paid',
-        'payment_method',
         'payment_status',
-        'created_at',
-        'updated_at'
+        'notes',
     ];
 
     protected $casts = [
-        'due_date' => 'datetime',
-        'paid' => 'boolean',
-        'amount_due' => 'decimal:2'
+        'period_start' => 'date',
+        'period_end' => 'date',
+        'issue_date' => 'date',
+        'due_date' => 'date',
+        'amount_due' => 'decimal:2',
+        'amount_paid' => 'decimal:2',
     ];
 
     public function rental()
@@ -46,9 +53,52 @@ class Invoice extends Model
             ->withTimestamps();
     }
 
-    // Helper method to get pending invoices
-    public function scopePending($query)
+    public function documents()
     {
-        return $query->where('payment_status', 'pending');
+        return $this->morphMany(Document::class, 'documentable');
     }
-} 
+
+    public function getIsPaidAttribute(): bool
+    {
+        return $this->payment_status === 'paid';
+    }
+
+    public function getOutstandingAttribute()
+    {
+        return max(0, (float) $this->amount_due - (float) $this->amount_paid);
+    }
+
+    public function recomputeStatus(): void
+    {
+        $paid = (float) $this->amount_paid;
+        $due  = (float) $this->amount_due;
+
+        if ($paid <= 0) {
+            $status = $this->due_date && now()->gt($this->due_date) ? 'overdue' : 'pending';
+        } elseif ($paid >= $due) {
+            $status = 'paid';
+        } else {
+            $status = 'partial';
+        }
+
+        if ($this->payment_status !== $status) {
+            $this->payment_status = $status;
+            $this->save();
+        }
+    }
+
+    public function scopePending($q)
+    {
+        return $q->whereIn('payment_status', ['pending', 'partial', 'overdue']);
+    }
+
+    public function scopePaid($q)
+    {
+        return $q->where('payment_status', 'paid');
+    }
+
+    public function scopeOverdue($q)
+    {
+        return $q->where('payment_status', 'overdue');
+    }
+}

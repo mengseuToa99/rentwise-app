@@ -8,39 +8,47 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Log extends Model
 {
     use HasFactory;
-    
+
     protected $primaryKey = 'log_id';
-    
+
     protected $fillable = [
         'user_id',
         'action',
         'description',
-        'timestamp'
+        'subject_id',
+        'subject_type',
+        'ip_address',
+        'user_agent',
+        'changes',
+        'timestamp',
     ];
-    
-    /**
-     * Get the user that created the log entry
-     */
+
+    protected $casts = [
+        'changes' => 'array',
+        'timestamp' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
-    
-    /**
-     * Create a new log entry
-     *
-     * @param int $userId
-     * @param string $action
-     * @param string $description
-     * @return Log
-     */
-    public static function createLog(int $userId, string $action, string $description): Log
+
+    public function subject()
+    {
+        return $this->morphTo();
+    }
+
+    public static function createLog(?int $userId, string $action, string $description, ?Model $subject = null): Log
     {
         return self::create([
             'user_id' => $userId,
             'action' => $action,
             'description' => $description,
-            'timestamp' => now()
+            'subject_id' => $subject?->getKey(),
+            'subject_type' => $subject ? get_class($subject) : null,
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
+            'timestamp' => now(),
         ]);
     }
-} 
+}

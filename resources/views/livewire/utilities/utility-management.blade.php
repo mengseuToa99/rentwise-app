@@ -118,7 +118,7 @@
                                         @if($currentPrice)
                                             ${{ number_format($currentPrice->price, 2) }} / unit
                                             <span class="text-xs text-gray-400 dark:text-gray-500 block">
-                                                as of {{ \Carbon\Carbon::parse($currentPrice->effective_date)->format('M d, Y') }}
+                                                as of {{ \Carbon\Carbon::parse($currentPrice->effective_from)->format('M d, Y') }}
                                             </span>
                                         @else
                                             <span class="text-gray-400 dark:text-gray-500">No price set</span>
@@ -170,7 +170,7 @@
             x-transition:leave-end="opacity-0"
         >
             <!-- Overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-zinc-900 dark:bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-gray-900/30 dark:bg-black/30 transition-opacity" aria-hidden="true"></div>
             
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -293,7 +293,7 @@
             x-transition:leave-end="opacity-0"
         >
             <!-- Overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-zinc-900 dark:bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-gray-900/30 dark:bg-black/30 transition-opacity" aria-hidden="true"></div>
             
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>

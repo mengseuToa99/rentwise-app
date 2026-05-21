@@ -43,9 +43,7 @@ class InvoiceForm extends Component
         'selectedRental' => 'required|exists:rental_details,rental_id',
         'amount_due' => 'required|numeric|min:0',
         'due_date' => 'required|date',
-        'paid' => 'boolean',
-        'payment_method' => 'required|in:cash,credit_card,bank_transfer',
-        'payment_status' => 'required|in:pending,paid,overdue',
+        'payment_status' => 'required|in:draft,pending,partial,paid,overdue,cancelled',
     ];
     
     protected $messages = [
@@ -93,8 +91,6 @@ class InvoiceForm extends Component
         $this->selectedRental = $invoice->rental_id;
         $this->amount_due = $invoice->amount_due;
         $this->due_date = Carbon::parse($invoice->due_date)->format('Y-m-d');
-        $this->paid = $invoice->paid;
-        $this->payment_method = $invoice->payment_method;
         $this->payment_status = $invoice->payment_status;
 
         // Load the units for the selected property
@@ -272,11 +268,11 @@ class InvoiceForm extends Component
             $invoice = Invoice::create([
                 'rental_id' => $this->selectedRental,
                 'amount_due' => $totalAmount,
+                'amount_paid' => 0,
+                'issue_date' => now()->toDateString(),
                 'due_date' => $this->due_date,
                 'payment_status' => $this->payment_status,
-                'payment_method' => $this->payment_method,
-                'paid' => $this->paid,
-                'description' => implode("\n", $descriptions)
+                'notes' => implode("\n", $descriptions),
             ]);
             
             // Link utility usages to the invoice

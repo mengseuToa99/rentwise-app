@@ -191,12 +191,12 @@ class BulkInvoiceGenerator extends Component
                         Invoice::create([
                             'rental_id' => $reading['rental_id'],
                             'amount_due' => $reading['total_charge'],
+                            'amount_paid' => 0,
+                            'issue_date' => $readingDate,
                             'due_date' => $dueDate,
                             'payment_status' => 'pending',
-                            'payment_method' => 'cash',
-                            'paid' => false,
-                            'description' => "{$utilityName} usage ({$reading['amount_used']} units) from {$previousDate} to " . 
-                                Carbon::parse($readingDate)->format('d M Y')
+                            'notes' => "{$utilityName} usage ({$reading['amount_used']} units) from {$previousDate} to " .
+                                Carbon::parse($readingDate)->format('d M Y'),
                         ]);
                         
                         $invoicesCreated++;
@@ -258,12 +258,12 @@ class BulkInvoiceGenerator extends Component
                         Invoice::create([
                             'rental_id' => $reading['rental_id'],
                             'amount_due' => $reading['total_charge'],
+                            'amount_paid' => 0,
+                            'issue_date' => $readingDate,
                             'due_date' => $dueDate,
                             'payment_status' => 'pending',
-                            'payment_method' => 'cash',
-                            'paid' => false,
-                            'description' => "{$utilityName} usage ({$reading['amount_used']} units) from {$previousDate} to " . 
-                                Carbon::parse($readingDate)->format('d M Y')
+                            'notes' => "{$utilityName} usage ({$reading['amount_used']} units) from {$previousDate} to " .
+                                Carbon::parse($readingDate)->format('d M Y'),
                         ]);
                         
                         $invoicesCreated++;

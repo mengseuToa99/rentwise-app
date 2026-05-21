@@ -14,8 +14,10 @@ use App\Livewire\Units\UnitEdit;
 // New components
 use App\Livewire\Rentals\RentalList;
 use App\Livewire\Rentals\RentalForm;
+use App\Livewire\Invoices\InvoiceSimpleMode;
 use App\Livewire\Invoices\InvoiceList;
 use App\Livewire\Invoices\InvoiceForm;
+use App\Livewire\Invoices\SimpleInvoiceForm;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Appearance;
@@ -89,6 +91,15 @@ Route::get('/auth/phone', \App\Livewire\Auth\PhoneVerification::class)->name('ph
 Route::middleware(['auth'])->group(function () {
     // Dashboard - accessible to all authenticated users
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+    // Simple Mode exit - clears the session flag and returns to dashboard
+    Route::post('/simple-mode/exit', function () {
+        session()->forget('simple_mode');
+        return redirect()->route('dashboard');
+    })->name('simple-mode.exit');
+
+    // Simple Mode home — available to all authenticated users; content adapts by role
+    Route::get('/simple-mode', InvoiceSimpleMode::class)->name('simple-mode.home');
     
     // Profile - accessible to all authenticated users
     Route::get('/profile', \App\Livewire\Profile::class)->name('profile');
@@ -127,7 +138,12 @@ Route::middleware(['auth'])->group(function () {
         
         // Invoices management
         Route::get('/invoices', InvoiceList::class)->name('invoices.index');
+        Route::get('/simple-mode/add-room', \App\Livewire\SimpleMode\SimpleAddRoom::class)->name('simple-mode.add-room');
+        Route::get('/simple-mode/add-tenant', \App\Livewire\SimpleMode\SimpleAddTenant::class)->name('simple-mode.add-tenant');
         Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
+        Route::get('/invoices/create-simple', SimpleInvoiceForm::class)->name('invoices.create-simple');
+        Route::get('/invoices/quick', \App\Livewire\Invoices\QuickInvoiceForm::class)->name('invoices.quick');
+        Route::get('/invoices/batch', \App\Livewire\Invoices\BatchInvoiceForm::class)->name('invoices.batch');
         Route::get('/invoices/bulk-create', \App\Livewire\Invoices\BulkInvoiceGenerator::class)->name('invoices.bulk-create');
         Route::get('/invoices/{invoiceId}/edit', InvoiceForm::class)->name('invoices.edit');
         Route::get('/invoices/{invoiceId}/view', \App\Livewire\Invoices\InvoiceDisplay::class)->name('invoices.view');

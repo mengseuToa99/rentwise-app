@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant;
+use App\Models\User;
 use App\Models\Invoice;
-use App\Models\Lease;
+use App\Models\Rental;
 use App\Models\UtilityUsage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +84,7 @@ class DashboardController extends Controller
     /**
      * Get spending history data for tenant charts
      * 
-     * @param Tenant $tenant
+     * @param User $tenant
      * @return array
      */
     private function getTenantSpendingHistory($tenant)
@@ -142,7 +142,7 @@ class DashboardController extends Controller
     /**
      * Get utility usage data for tenant charts
      * 
-     * @param Tenant $tenant
+     * @param User $tenant
      * @return array
      */
     private function getTenantUtilityUsage($tenant)

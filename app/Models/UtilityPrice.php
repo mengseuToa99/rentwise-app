@@ -15,18 +15,25 @@ class UtilityPrice extends Model
 
     protected $fillable = [
         'utility_id',
+        'property_id',
         'price',
-        'effective_date'
+        'effective_from',
+        'effective_until',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'effective_date' => 'datetime'
+        'price' => 'decimal:4',
+        'effective_from' => 'date',
+        'effective_until' => 'date',
     ];
 
-    // A price belongs to a utility
     public function utility()
     {
         return $this->belongsTo(Utility::class, 'utility_id', 'utility_id');
     }
-} 
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'property_id');
+    }
+}

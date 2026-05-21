@@ -38,11 +38,13 @@ class GenerateRentInvoices extends Command
                     Invoice::create([
                         'rental_id' => $rental->rental_id,
                         'amount_due' => $rental->unit->rent_amount,
-                        'due_date' => $dueDate,
-                        'paid' => false,
-                        'payment_method' => 'cash', // Default payment method
+                        'amount_paid' => 0,
+                        'issue_date' => now()->toDateString(),
+                        'due_date' => $dueDate->toDateString(),
+                        'period_start' => now()->startOfMonth()->toDateString(),
+                        'period_end' => now()->endOfMonth()->toDateString(),
                         'payment_status' => 'pending',
-                        'description' => 'Monthly Rent - ' . now()->format('F Y')
+                        'notes' => 'Monthly Rent - ' . now()->format('F Y'),
                     ]);
 
                     $this->info("Generated invoice for rental ID: {$rental->rental_id}");

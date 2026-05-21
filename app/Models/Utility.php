@@ -15,26 +15,50 @@ class Utility extends Model
 
     protected $fillable = [
         'utility_name',
-        'description'
+        'unit_of_measure',
+        'description',
     ];
 
-    // A utility has many prices (over time)
     public function prices()
     {
         return $this->hasMany(UtilityPrice::class, 'utility_id', 'utility_id');
     }
 
-    // A utility has many usage records
     public function usages()
     {
         return $this->hasMany(UtilityUsage::class, 'utility_id', 'utility_id');
     }
-    
-    // Get the current price for this utility
-    public function getCurrentPrice()
+
+    public function meters()
     {
-        return $this->prices()
-            ->orderBy('effective_date', 'desc')
+        return $this->hasMany(UtilityMeter::class, 'utility_id', 'utility_id');
+    }
+
+    /**
+     * Get the current price for this utility, optionally for a specific property.
+     * Property-specific prices take precedence over global ones.
+     */
+    public function getCurrentPrice($propertyId = null)
+    {
+        $today = now()->toDateString();
+        $query = $this->prices()
+            ->where('effective_from', '<=', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('effective_until')->orWhere('effective_until', '>=', $today);
+            });
+
+        if ($propertyId !== null) {
+            $propertyPrice = (clone $query)
+                ->where('property_id', $propertyId)
+                ->orderBy('effective_from', 'desc')
+                ->first();
+            if ($propertyPrice) {
+                return $propertyPrice;
+            }
+        }
+
+        return $query->whereNull('property_id')
+            ->orderBy('effective_from', 'desc')
             ->first();
     }
-} 
+}

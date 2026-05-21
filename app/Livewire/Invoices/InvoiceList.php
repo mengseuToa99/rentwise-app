@@ -372,7 +372,7 @@ class InvoiceList extends Component
                 return;
             }
             
-            $invoice->paid = true;
+            $invoice->amount_paid = $invoice->amount_due;
             $invoice->payment_status = 'paid';
             $invoice->save();
             

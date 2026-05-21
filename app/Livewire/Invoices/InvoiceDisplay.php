@@ -143,10 +143,10 @@ class InvoiceDisplay extends Component
                 return;
             }
             
-            $invoice->paid = true;
+            $invoice->amount_paid = $invoice->amount_due;
             $invoice->payment_status = 'paid';
             $invoice->save();
-            
+
             $this->loadInvoice(); // Reload the invoice to reflect changes
             session()->flash('success', 'Invoice marked as paid successfully');
         } catch (\Exception $e) {

@@ -1,5 +1,12 @@
 <div class="py-2 sm:py-4 bg-gray-50 dark:bg-zinc-950">
     <div class="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
+        @if (session('error'))
+            <div class="mb-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
         <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
         
         <!-- Admin Dashboard Link - Only for admin users -->

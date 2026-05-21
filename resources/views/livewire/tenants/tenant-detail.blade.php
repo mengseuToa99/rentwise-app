@@ -40,7 +40,7 @@
                         <div class="ml-5 w-0 flex-1">
                             <dl>
                                 <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Total Paid</dt>
-                                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">${{ number_format($statistics['total_paid'], 2) }}</dd>
+                                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">${{ number_format((float) $statistics['total_paid'], 2) }}</dd>
                             </dl>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                         <div class="ml-5 w-0 flex-1">
                             <dl>
                                 <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Amount Due</dt>
-                                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">${{ number_format($statistics['total_due'], 2) }}</dd>
+                                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">${{ number_format((float) $statistics['total_due'], 2) }}</dd>
                             </dl>
                         </div>
                     </div>
@@ -98,9 +98,9 @@
                             <dl>
                                 <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Lease Status</dt>
                                 <dd class="mt-1 flex items-center">
-                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">{{ @number_format($statistics['lease_status'], 0) }}</span>
+                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">{{ $statistics['lease_status'] }}</span>
                                     @if($statistics['remaining_days'] > 0)
-                                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">({{ @number_format($statistics['remaining_days'], 0) }} days left)</span>
+                                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">({{ number_format((float) $statistics['remaining_days'], 0) }} days left)</span>
                                     @endif
                                 </dd>
                             </dl>
@@ -183,7 +183,7 @@
                                         <div class="text-sm text-gray-500 dark:text-gray-400">Unit {{ $rental->room_number }}</div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 truncate">{{ $rental->room_type }}</td>
-                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${{ number_format($rental->rent_amount, 2) }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${{ number_format((float) $rental->rent_amount, 2) }}</td>
                                     <td class="px-4 py-3">
                                         <div class="text-sm text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($rental->start_date)) }}</div>
                                         <div class="text-sm text-gray-500 dark:text-gray-400">to {{ date('M d, Y', strtotime($rental->end_date)) }}</div>
@@ -248,7 +248,7 @@
                                         <div class="text-sm text-gray-500 dark:text-gray-400">Issued: {{ date('M d, Y', strtotime($invoice->created_at)) }}</div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">Due: {{ date('M d, Y', strtotime($invoice->due_date)) }}</div>
                                     </td>
-                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${{ number_format($invoice->amount_due, 2) }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${{ number_format((float) $invoice->amount_due, 2) }}</td>
                                     <td class="px-4 py-3">
                                         @if($invoice->payment_status === 'paid')
                                             <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">Paid</span>
@@ -301,7 +301,7 @@
                                         <div class="text-sm text-gray-500 dark:text-gray-400">Unit {{ $payment->room_number }}</div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ date('M d, Y', strtotime($payment->payment_date)) }}</td>
-                                    <td class="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">${{ number_format($payment->amount, 2) }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">${{ number_format((float) $payment->amount, 2) }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900 dark:text-white truncate">{{ ucfirst($payment->payment_method) }}</td>
                                 </tr>
                             @empty

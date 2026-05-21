@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -25,7 +22,53 @@ return new class extends Migration
             $table->integer('failed_login_attempts')->default(0);
             $table->string('first_name');
             $table->string('last_name');
+
+            // Social login
+            $table->string('provider')->nullable();
+            $table->string('provider_id')->nullable();
+            $table->string('avatar')->nullable();
+            $table->string('google_id')->nullable();
+            $table->string('facebook_id')->nullable();
+            $table->string('telegram_id')->nullable();
+
             $table->rememberToken();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['email', 'email_verified_at'], 'idx_users_email_verified');
+            $table->index(['first_name', 'last_name'], 'idx_users_names');
+            $table->index('phone_number', 'idx_users_phone');
+            $table->index('created_at', 'idx_users_created');
+            $table->index(['provider', 'provider_id'], 'idx_users_provider');
+        });
+
+        // Role-specific profile data (avoids polluting users table)
+        Schema::create('landlord_profiles', function (Blueprint $table) {
+            $table->id('profile_id');
+            $table->foreignId('user_id')->unique()->references('user_id')->on('users')->onDelete('cascade');
+            $table->string('business_name')->nullable();
+            $table->string('tax_id')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account_number')->nullable();
+            $table->string('bank_account_holder')->nullable();
+            $table->string('payout_method')->nullable(); // bank_transfer, wing, aba, etc.
+            $table->json('payout_details')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('tenant_profiles', function (Blueprint $table) {
+            $table->id('profile_id');
+            $table->foreignId('user_id')->unique()->references('user_id')->on('users')->onDelete('cascade');
+            $table->string('emergency_contact_name')->nullable();
+            $table->string('emergency_contact_phone')->nullable();
+            $table->string('emergency_contact_relationship')->nullable();
+            $table->string('occupation')->nullable();
+            $table->string('employer')->nullable();
+            $table->decimal('monthly_income', 12, 2)->nullable();
+            $table->string('guarantor_name')->nullable();
+            $table->string('guarantor_phone')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
 
@@ -45,13 +88,12 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('tenant_profiles');
+        Schema::dropIfExists('landlord_profiles');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

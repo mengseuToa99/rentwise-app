@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CheckRole
 {
@@ -45,16 +46,32 @@ class CheckRole
                 Log::debug('CheckRole: User has required role - access granted');
                 return $next($request);
             }
-            
+
             Log::debug('CheckRole: User lacks required roles - access denied');
+
+            // Soft-redirect tenants to their dashboard instead of slapping them with 403
+            $isTenant = DB::table('user_roles')
+                ->join('roles', 'user_roles.role_id', '=', 'roles.role_id')
+                ->where('user_roles.user_id', $userId)
+                ->where('roles.role_name', 'tenant')
+                ->exists();
+
+            if ($isTenant) {
+                return redirect()
+                    ->route('dashboard')
+                    ->with('error', "That area is for landlords only.");
+            }
+
             return abort(403, 'Unauthorized. You need one of these roles: ' . implode(', ', $requiredRoles));
             
-        } catch (\Exception $e) {
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
             Log::error('CheckRole error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return abort(500, 'Server error while checking permissions');
         }
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -14,7 +15,7 @@ use App\Traits\LogsActivity;
 class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, CanResetPassword, LogsActivity;
+    use HasFactory, Notifiable, CanResetPassword, LogsActivity, SoftDeletes;
 
     /**
      * The primary key for the model.
@@ -45,6 +46,8 @@ class User extends Authenticatable implements CanResetPasswordContract
         'telegram_id',
         'phone',
         'avatar',
+        'provider',
+        'provider_id',
     ];
 
     /**
@@ -144,6 +147,82 @@ class User extends Authenticatable implements CanResetPasswordContract
     public function sessions()
     {
         return $this->hasMany(UserSession::class, 'user_id');
+    }
+
+    /**
+     * Role-specific profile (only one of these will exist per user).
+     */
+    public function landlordProfile()
+    {
+        return $this->hasOne(LandlordProfile::class, 'user_id', 'user_id');
+    }
+
+    public function tenantProfile()
+    {
+        return $this->hasOne(TenantProfile::class, 'user_id', 'user_id');
+    }
+
+    /** Properties owned (landlord) */
+    public function properties()
+    {
+        return $this->hasMany(Property::class, 'landlord_id', 'user_id');
+    }
+
+    /** Rentals as tenant */
+    public function tenantRentals()
+    {
+        return $this->hasMany(Rental::class, 'tenant_id', 'user_id');
+    }
+
+    /** Rentals as landlord */
+    public function landlordRentals()
+    {
+        return $this->hasMany(Rental::class, 'landlord_id', 'user_id');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    /**
+     * Every utility reading attributed to this user as a tenant —
+     * across all their rentals, past and present.
+     */
+    public function utilityUsages()
+    {
+        return $this->hasManyThrough(
+            UtilityUsage::class,
+            Rental::class,
+            'tenant_id',  // FK on rentals
+            'rental_id',  // FK on utility_usages
+            'user_id',    // local key on users
+            'rental_id'   // local key on rentals
+        );
+    }
+
+    /**
+     * Per-utility totals for this tenant across all their rentals.
+     * Returns: [['utility_id'=>1,'utility_name'=>'Electricity','total'=>1234.5], ...]
+     */
+    public function utilityConsumptionByType(): array
+    {
+        $rentalIds = $this->tenantRentals()->pluck('rental_id');
+        if ($rentalIds->isEmpty()) {
+            return [];
+        }
+        return UtilityUsage::whereIn('rental_id', $rentalIds)
+            ->selectRaw('utility_id, SUM(amount_used) as total')
+            ->groupBy('utility_id')
+            ->with('utility:utility_id,utility_name,unit_of_measure')
+            ->get()
+            ->map(fn ($row) => [
+                'utility_id' => $row->utility_id,
+                'utility_name' => $row->utility?->utility_name,
+                'unit_of_measure' => $row->utility?->unit_of_measure,
+                'total' => (float) $row->total,
+            ])
+            ->toArray();
     }
 
     /**

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {
@@ -17,6 +14,8 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->foreignId('parent_role_id')->nullable()->references('role_id')->on('roles')->onDelete('set null');
             $table->timestamps();
+
+            $table->index('role_name', 'idx_roles_name');
         });
 
         Schema::create('user_roles', function (Blueprint $table) {
@@ -24,6 +23,7 @@ return new class extends Migration
             $table->foreignId('role_id')->references('role_id')->on('roles')->onDelete('cascade');
             $table->timestamps();
             $table->primary(['user_id', 'role_id']);
+            $table->index(['user_id', 'role_id'], 'idx_user_roles_composite');
         });
 
         Schema::create('permission_groups', function (Blueprint $table) {
@@ -44,9 +44,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('access_permissions');
@@ -54,4 +51,4 @@ return new class extends Migration
         Schema::dropIfExists('user_roles');
         Schema::dropIfExists('roles');
     }
-}; 
+};

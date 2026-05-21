@@ -45,6 +45,10 @@ class Dashboard extends Component
 
     public function mount()
     {
+        if (session('simple_mode')) {
+            return redirect()->route('simple-mode.home');
+        }
+
         $this->loadDashboardStats();
         
         // Load tenant-specific data if user is a tenant
@@ -165,7 +169,7 @@ class Dashboard extends Component
                         'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
                         'property_name' => $invoice->rental->unit->property->property_name,
                         'unit_name' => $invoice->rental->unit->room_number,
-                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                        'days_until_due' => (int) round(now()->diffInDays($invoice->due_date, false))
                     ];
                 });
                 
@@ -202,7 +206,7 @@ class Dashboard extends Component
                         'tenant_name' => $rental->tenant->first_name . ' ' . $rental->tenant->last_name,
                         'property_name' => $rental->unit->property->property_name,
                         'unit_name' => $rental->unit->room_number,
-                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                        'days_until_expiry' => (int) round(now()->diffInDays($rental->end_date, false))
                     ];
                 });
                 
@@ -275,7 +279,7 @@ class Dashboard extends Component
                         'tenant_name' => $invoice->rental->tenant->first_name . ' ' . $invoice->rental->tenant->last_name,
                         'property_name' => $invoice->rental->unit->property->property_name,
                         'unit_name' => $invoice->rental->unit->room_number,
-                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                        'days_until_due' => (int) round(now()->diffInDays($invoice->due_date, false))
                     ];
                 });
                 
@@ -314,7 +318,7 @@ class Dashboard extends Component
                         'tenant_name' => $rental->tenant->first_name . ' ' . $rental->tenant->last_name,
                         'property_name' => $rental->unit->property->property_name,
                         'unit_name' => $rental->unit->room_number,
-                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                        'days_until_expiry' => (int) round(now()->diffInDays($rental->end_date, false))
                     ];
                 });
                 
@@ -373,7 +377,7 @@ class Dashboard extends Component
                         'due_date' => $invoice->due_date->format('M d, Y'),
                         'property_name' => $invoice->rental->unit->property->property_name,
                         'unit_name' => $invoice->rental->unit->room_number,
-                        'days_until_due' => now()->diffInDays($invoice->due_date, false)
+                        'days_until_due' => (int) round(now()->diffInDays($invoice->due_date, false))
                     ];
                 });
                 
@@ -408,7 +412,7 @@ class Dashboard extends Component
                         'end_date' => $rental->end_date->format('M d, Y'),
                         'property_name' => $rental->unit->property->property_name,
                         'unit_name' => $rental->unit->room_number,
-                        'days_until_expiry' => now()->diffInDays($rental->end_date, false)
+                        'days_until_expiry' => (int) round(now()->diffInDays($rental->end_date, false))
                     ];
                 });
                 

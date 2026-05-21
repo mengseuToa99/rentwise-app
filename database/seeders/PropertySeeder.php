@@ -124,22 +124,23 @@ class PropertySeeder extends Seeder
                     
                     // Create invoices for the rental
                     $invoiceCount = rand(3, 6);
-                    $paymentMethods = ['cash', 'credit_card', 'bank_transfer'];
-                    
+
                     for ($j = 1; $j <= $invoiceCount; $j++) {
                         $invoiceDate = $startDate->copy()->addMonths($j - 1);
                         $dueDate = $invoiceDate->copy()->addDays(15);
                         $isPaid = $j < $invoiceCount - 1; // All except the most recent are paid
-                        
+
                         Invoice::create([
                             'rental_id' => $rental->rental_id,
                             'amount_due' => $rent,
-                            'due_date' => $dueDate,
-                            'paid' => $isPaid,
-                            'payment_method' => $paymentMethods[array_rand($paymentMethods)],
+                            'amount_paid' => $isPaid ? $rent : 0,
+                            'issue_date' => $invoiceDate->format('Y-m-d'),
+                            'due_date' => $dueDate->format('Y-m-d'),
+                            'period_start' => $invoiceDate->copy()->startOfMonth()->format('Y-m-d'),
+                            'period_end' => $invoiceDate->copy()->endOfMonth()->format('Y-m-d'),
                             'payment_status' => $isPaid ? 'paid' : 'pending',
                             'created_at' => $now,
-                            'updated_at' => $now
+                            'updated_at' => $now,
                         ]);
                     }
                 }

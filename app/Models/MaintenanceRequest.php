@@ -4,25 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class MaintenanceRequest extends Model
 {
     use HasFactory;
-    
+    use SoftDeletes;
+
     protected $table = 'maintenance_requests';
     protected $primaryKey = 'request_id';
-    
+
     protected $fillable = [
         'tenant_id',
+        'landlord_id',
         'property_id',
         'room_id',
+        'rental_id',
         'title',
         'description',
         'priority',
         'status',
         'landlord_notes',
-        'completed_at'
+        'completed_at',
     ];
     
     protected $casts = [
@@ -83,11 +87,46 @@ class MaintenanceRequest extends Model
     }
     
     /**
-     * Get the landlord through the property relationship
+     * Get the landlord directly (now stored as FK on the request).
      */
     public function landlord()
     {
-        return $this->property->landlord();
+        return $this->belongsTo(User::class, 'landlord_id', 'user_id');
+    }
+
+    public function rental()
+    {
+        return $this->belongsTo(Rental::class, 'rental_id', 'rental_id');
+    }
+
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    /**
+     * Auto-attribute the request to the rental that's active for this room
+     * when the request is created (so historical records survive turnover).
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (MaintenanceRequest $req) {
+            if (!$req->rental_id && $req->room_id) {
+                $rental = Rental::where('room_id', $req->room_id)
+                    ->where('tenant_id', $req->tenant_id)
+                    ->whereIn('status', ['active', 'expired', 'terminated'])
+                    ->orderByDesc('start_date')
+                    ->first();
+                if ($rental) {
+                    $req->rental_id = $rental->rental_id;
+                }
+            }
+        });
     }
 
     /**
