@@ -45,6 +45,7 @@ In the service's **Variables** tab, add the following. Copy `APP_KEY` and the
 | `SESSION_DRIVER` | `database` |
 | `CACHE_STORE` | `database` |
 | `QUEUE_CONNECTION` | `database` |
+| `BROADCAST_DRIVER` | `log` |
 | `BROADCAST_CONNECTION` | `log` |
 | `FILESYSTEM_DISK` | `local` |
 | `MAIL_MAILER` | `log` |

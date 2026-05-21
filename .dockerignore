@@ -18,6 +18,9 @@ storage/*.key
 .zed
 
 # Logs & caches
+# Stale provider/service manifests (generated WITH dev deps locally — they
+# reference dev-only providers like Pail). Regenerated fresh at startup.
+bootstrap/cache/*.php
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
