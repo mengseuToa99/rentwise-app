@@ -31,9 +31,13 @@ class Register extends Component
     public function register(): void
     {
         try {
+            // Collapse extra whitespace and split into first/last name.
+            // Trimming first prevents a leading/trailing space (common on mobile
+            // keyboards) from producing an empty first_name or last_name.
+            $this->name = trim(preg_replace('/\s+/', ' ', $this->name));
             $name_parts = explode(' ', $this->name, 2);
             $this->first_name = $name_parts[0];
-            $this->last_name = isset($name_parts[1]) ? $name_parts[1] : $name_parts[0]; // Default to first name if no last name provided
+            $this->last_name = (isset($name_parts[1]) && $name_parts[1] !== '') ? $name_parts[1] : $name_parts[0]; // Default to first name if no last name provided
 
             $validated = $this->validate([
                 'name' => ['required', 'string', 'max:255'],
