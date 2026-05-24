@@ -435,6 +435,7 @@
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tenant</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Property & Room</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Amount</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Utilities</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Due Date</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status</th>
                                         <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Actions</th>
@@ -454,6 +455,21 @@
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                                 ${{ number_format($invoice->amount_due, 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                                @if(isset($invoice->utility_readings) && count($invoice->utility_readings) > 0)
+                                                    <div class="space-y-0.5">
+                                                        @foreach($invoice->utility_readings as $reading)
+                                                            <div class="flex items-center gap-1.5 whitespace-nowrap">
+                                                                <span class="text-gray-700 dark:text-gray-300">{{ $reading->utility_name }}</span>
+                                                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ $reading->previous_reading }}&rarr;{{ $reading->new_reading }}</span>
+                                                                <span class="font-medium text-gray-900 dark:text-white">${{ number_format($reading->charge, 2) }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                                @endif
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                 {{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}

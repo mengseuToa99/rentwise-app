@@ -96,22 +96,6 @@
             <h2 class="mb-3 px-1 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.section_make_invoice') }}</h2>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <a
-                    href="{{ route('invoices.quick') }}"
-                    wire:navigate
-                    class="group flex items-center gap-4 rounded-2xl border border-blue-200 bg-white p-5 shadow-sm transition hover:border-blue-400 hover:shadow-md dark:border-blue-900/50 dark:bg-zinc-900 dark:hover:border-blue-700"
-                >
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.new_invoice') }}</div>
-                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.new_invoice_desc') }}</div>
-                    </div>
-                </a>
-
-                <a
                     href="{{ route('invoices.batch') }}"
                     wire:navigate
                     class="group flex items-center gap-4 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm transition hover:border-emerald-400 hover:shadow-md dark:border-emerald-900/50 dark:bg-zinc-900 dark:hover:border-emerald-700"
@@ -122,8 +106,8 @@
                         </svg>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.many_rooms') }}</div>
-                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.many_rooms_desc') }}</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.new_invoice') }}</div>
+                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.new_invoice_desc') }}</div>
                     </div>
                 </a>
             </div>
@@ -134,18 +118,18 @@
             <h2 class="mb-3 px-1 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.section_property_setup') }}</h2>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <a
-                    href="{{ route('simple-mode.add-room') }}"
+                    href="{{ route('simple-mode.move-out') }}"
                     wire:navigate
-                    class="group flex items-center gap-4 rounded-2xl border border-purple-200 bg-white p-5 shadow-sm transition hover:border-purple-400 hover:shadow-md dark:border-purple-900/50 dark:bg-zinc-900 dark:hover:border-purple-700"
+                    class="group flex items-center gap-4 rounded-2xl border border-rose-200 bg-white p-5 shadow-sm transition hover:border-rose-400 hover:shadow-md dark:border-rose-900/50 dark:bg-zinc-900 dark:hover:border-rose-700"
                 >
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-sm">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.add_room') }}</div>
-                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.add_room_desc') }}</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.move_out') }}</div>
+                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.move_out_desc') }}</div>
                     </div>
                 </a>
 
@@ -172,7 +156,7 @@
             <h2 class="mb-3 px-1 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.section_daily_tasks') }}</h2>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <a
-                    href="{{ route('utilities.usage') }}"
+                    href="{{ route('utilities.usage.cards') }}"
                     wire:navigate
                     class="group flex items-center gap-4 rounded-2xl border border-amber-200 bg-white p-5 shadow-sm transition hover:border-amber-400 hover:shadow-md dark:border-amber-900/50 dark:bg-zinc-900 dark:hover:border-amber-700"
                 >
@@ -188,7 +172,7 @@
                 </a>
 
                 <a
-                    href="{{ route('invoices.index', ['displayMode' => 'card']) }}"
+                    href="{{ route('simple-mode.invoices') }}"
                     wire:navigate
                     class="group flex items-center gap-4 rounded-2xl border border-teal-200 bg-white p-5 shadow-sm transition hover:border-teal-400 hover:shadow-md dark:border-teal-900/50 dark:bg-zinc-900 dark:hover:border-teal-700"
                 >

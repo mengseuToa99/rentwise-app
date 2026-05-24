@@ -221,6 +221,7 @@ class InvoiceList extends Component
         
         // Build the invoice query
         $query = Invoice::query()
+            ->with(['utilityUsages.utility', 'utilityUsages.meter', 'utilityUsages.room'])
             ->join('rental_details', 'invoice_details.rental_id', '=', 'rental_details.rental_id')
             ->join('users as tenants', 'rental_details.tenant_id', '=', 'tenants.user_id')
             ->join('room_details', 'rental_details.room_id', '=', 'room_details.room_id')
@@ -305,7 +306,33 @@ class InvoiceList extends Component
         } else {
             $invoices = $query->paginate($this->perPage);
         }
-        
+
+        // Attach a compact `utility_readings` summary to each invoice so the list
+        // (card + table) can show the meter readings behind the charge.
+        $attachReadings = function ($invoice) {
+            $invoice->utility_readings = $invoice->utilityUsages->map(function ($u) {
+                $propertyId = $u->meter?->property_id ?? $u->room?->property_id;
+                $price = $u->utility?->getCurrentPrice($propertyId);
+
+                return (object) [
+                    'utility_name' => $u->utility->utility_name ?? '—',
+                    'previous_reading' => number_format((float) $u->old_meter_reading, 2),
+                    'new_reading' => number_format((float) $u->new_meter_reading, 2),
+                    'usage_amount' => number_format((float) $u->amount_used, 2),
+                    'rate' => $price ? (float) $price->price : 0,
+                    'charge' => (float) $u->calculateCharge(),
+                ];
+            });
+
+            return $invoice;
+        };
+
+        if ($invoices instanceof \Illuminate\Pagination\AbstractPaginator) {
+            $invoices->getCollection()->each($attachReadings);
+        } else {
+            $invoices->each($attachReadings);
+        }
+
         return view('livewire.invoices.invoice-list', [
             'invoices' => $invoices,
             'rentals' => $rentals,

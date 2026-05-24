@@ -52,6 +52,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Livewire\Utilities\UtilityManagement;
 use App\Livewire\Utilities\UtilityUsageHistory;
+use App\Livewire\Utilities\MeterReadingCards;
+use App\Http\Controllers\MeterReadingExportController;
 use App\Livewire\Utilities\UtilityReadingForm;
 
 // Public routes
@@ -140,6 +142,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/invoices', InvoiceList::class)->name('invoices.index');
         Route::get('/simple-mode/add-room', \App\Livewire\SimpleMode\SimpleAddRoom::class)->name('simple-mode.add-room');
         Route::get('/simple-mode/add-tenant', \App\Livewire\SimpleMode\SimpleAddTenant::class)->name('simple-mode.add-tenant');
+        Route::get('/simple-mode/invoices', \App\Livewire\SimpleMode\SimpleInvoiceCheck::class)->name('simple-mode.invoices');
+        Route::get('/simple-mode/move-out', \App\Livewire\SimpleMode\SimpleMoveOut::class)->name('simple-mode.move-out');
         Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
         Route::get('/invoices/create-simple', SimpleInvoiceForm::class)->name('invoices.create-simple');
         Route::get('/invoices/quick', \App\Livewire\Invoices\QuickInvoiceForm::class)->name('invoices.quick');
@@ -151,6 +155,11 @@ Route::middleware(['auth'])->group(function () {
         // Utilities management
         Route::get('/utilities', UtilityManagement::class)->name('utilities.index');
         Route::get('/utilities/usage', UtilityUsageHistory::class)->name('utilities.usage');
+        // Mobile-friendly card view of meter readings, with CSV / Excel / PDF export
+        Route::get('/utilities/usage/cards', MeterReadingCards::class)->name('utilities.usage.cards');
+        Route::get('/utilities/usage/export/csv', [MeterReadingExportController::class, 'csv'])->name('utilities.usage.csv');
+        Route::get('/utilities/usage/export/excel', [MeterReadingExportController::class, 'excel'])->name('utilities.usage.excel');
+        Route::get('/utilities/usage/export/pdf', [MeterReadingExportController::class, 'pdf'])->name('utilities.usage.pdf');
         
         // Landlord-specific named routes (for dashboard links)
         Route::get('/landlord/properties', PropertyList::class)->name('landlord.properties');

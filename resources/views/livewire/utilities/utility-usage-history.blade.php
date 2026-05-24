@@ -8,15 +8,25 @@
                     {{ __('app.utility_usage_history.subtitle') }}
                 </p>
             </div>
-            @if (session('simple_mode'))
+            <div class="flex shrink-0 items-center gap-2">
                 <a
-                    href="{{ route('simple-mode.home') }}"
+                    href="{{ route('utilities.usage.cards') }}"
                     wire:navigate
-                    class="inline-flex shrink-0 items-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-300 dark:hover:bg-zinc-800"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-300 dark:hover:bg-zinc-800"
                 >
-                    {{ __('app.utility_usage_history.back') }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM12 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1h-6a1 1 0 01-1-1v-6z"/></svg>
+                    {{ __('app.meter_reading_cards.title') }}
                 </a>
-            @endif
+                @if (session('simple_mode'))
+                    <a
+                        href="{{ route('simple-mode.home') }}"
+                        wire:navigate
+                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-300 dark:hover:bg-zinc-800"
+                    >
+                        {{ __('app.utility_usage_history.back') }}
+                    </a>
+                @endif
+            </div>
         </div>
         
         <!-- Filters -->

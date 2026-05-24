@@ -21,8 +21,13 @@
                         Add Invoice
                     </a>
                 @endif
-            <a 
-                href="{{ route('tenant.invoices') }}" 
+            @php
+                $authUser = auth()->user();
+                $isTenantOnly = $authUser?->hasRole('tenant') && !$authUser?->hasRole('landlord') && !$authUser?->hasRole('admin');
+                $backRoute = $isTenantOnly ? route('tenant.invoices') : route('invoices.index');
+            @endphp
+            <a
+                href="{{ $backRoute }}"
                 wire:navigate
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
@@ -110,17 +115,17 @@
                 
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Due Date Range</label>
-                    <div class="flex space-x-2">
-                        <input 
-                            type="date" 
+                    <div class="flex space-x-2 min-w-0">
+                        <input
+                            type="date"
                             wire:model.live="dateFrom"
-                            class="block w-full py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            class="block w-full min-w-0 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             placeholder="From"
                         >
-                        <input 
-                            type="date" 
+                        <input
+                            type="date"
                             wire:model.live="dateTo"
-                            class="block w-full py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            class="block w-full min-w-0 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm shadow-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             placeholder="To"
                         >
                     </div>
@@ -291,6 +296,22 @@
                         </div>
                     </div>
                     
+                    @if($invoice->utilityUsages && $invoice->utilityUsages->count())
+                        <div class="border-t border-gray-200 dark:border-gray-700 py-4 space-y-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Utility Usage</span>
+                            @foreach($invoice->utilityUsages as $usage)
+                                <div class="flex justify-between items-center gap-2 text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">{{ $usage->utility->utility_name ?? '—' }}</span>
+                                    <span class="text-gray-500 dark:text-gray-400 text-xs">
+                                        {{ number_format($usage->old_meter_reading, 2) }} &rarr; {{ number_format($usage->new_meter_reading, 2) }}
+                                        ({{ number_format($usage->amount_used, 2) }})
+                                    </span>
+                                    <span class="font-medium text-gray-900 dark:text-white">${{ number_format($usage->calculateCharge(), 2) }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                         <div class="flex justify-between items-center text-lg font-bold">
                             <span class="text-gray-900 dark:text-white">Total Amount:</span>
@@ -381,7 +402,38 @@
                             </table>
                         </div>
                     </div>
-                    
+
+                    <!-- Utility Usage Section -->
+                    @if($invoice->utilityUsages && $invoice->utilityUsages->count())
+                        <div class="border rounded-md p-4 mb-6">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Utility Usage</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">Utility</th>
+                                            <th class="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">Previous</th>
+                                            <th class="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">New</th>
+                                            <th class="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">Usage</th>
+                                            <th class="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($invoice->utilityUsages as $usage)
+                                            <tr class="border-b border-gray-100 dark:border-gray-800">
+                                                <td class="py-3 text-sm text-gray-900 dark:text-white">{{ $usage->utility->utility_name ?? '—' }}</td>
+                                                <td class="py-3 text-sm text-gray-900 dark:text-white text-right">{{ number_format($usage->old_meter_reading, 2) }}</td>
+                                                <td class="py-3 text-sm text-gray-900 dark:text-white text-right">{{ number_format($usage->new_meter_reading, 2) }}</td>
+                                                <td class="py-3 text-sm text-gray-900 dark:text-white text-right">{{ number_format($usage->amount_used, 2) }}</td>
+                                                <td class="py-3 text-sm text-gray-900 dark:text-white text-right">${{ number_format($usage->calculateCharge(), 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Payment Terms Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="border rounded-md p-4">

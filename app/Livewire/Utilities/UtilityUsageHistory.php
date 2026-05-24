@@ -8,6 +8,7 @@ use App\Models\Utility;
 use App\Models\UtilityUsage;
 use App\Models\Property;
 use App\Models\Unit;
+use App\Support\MeterReadingQuery;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -85,34 +86,15 @@ class UtilityUsageHistory extends Component
     
     public function render()
     {
-        $query = UtilityUsage::query()
-            ->join('utilities', 'utility_usages.utility_id', '=', 'utilities.utility_id')
-            ->join('room_details', 'utility_usages.room_id', '=', 'room_details.room_id')
-            ->join('property_details', 'room_details.property_id', '=', 'property_details.property_id')
-            ->select(
-                'utility_usages.*',
-                'utilities.utility_name',
-                'room_details.room_number',
-                'property_details.property_name'
-            );
-            
-        // Apply filters
-        if ($this->selectedProperty) {
-            $query->where('property_details.property_id', $this->selectedProperty);
-        }
-        
-        if ($this->selectedUtility) {
-            $query->where('utilities.utility_id', $this->selectedUtility);
-        }
-        
-        if ($this->selectedYear && $this->selectedMonth) {
-            $query->whereYear('usage_date', $this->selectedYear)
-                  ->whereMonth('usage_date', $this->selectedMonth);
-        }
-        
-        $usages = $query->orderBy('usage_date', 'desc')
-            ->paginate(10);
-            
+        // Shared with the card view and exports so all three show the same rows
+        // (and the same landlord scoping).
+        $usages = MeterReadingQuery::build([
+            'property' => $this->selectedProperty,
+            'utility' => $this->selectedUtility,
+            'year' => $this->selectedYear,
+            'month' => $this->selectedMonth,
+        ], Auth::user())->paginate(10);
+
         return view('livewire.utilities.utility-usage-history', [
             'usages' => $usages,
             'properties' => $this->properties,

@@ -29,7 +29,14 @@ class CheckRole
         try {
             $userId = Auth::id();
             $requiredRoles = explode('|', $role);
-            
+
+            // Admins are superusers: they may access any role-gated route. This
+            // matches how the data layer already treats admins (see the
+            // hasRole('admin') checks in MeterReadingQuery and the utility filters).
+            if (!in_array('admin', $requiredRoles, true)) {
+                $requiredRoles[] = 'admin';
+            }
+
             Log::debug('CheckRole: Starting role check', [
                 'user_id' => $userId,
                 'required_roles' => $requiredRoles

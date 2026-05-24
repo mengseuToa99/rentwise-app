@@ -46,8 +46,10 @@ class InvoiceDisplay extends Component
     public function loadInvoice()
     {
         if ($this->invoiceId) {
-        $this->invoice = Invoice::with(['rental', 'rental.tenant', 'rental.unit', 'rental.unit.property'])
-            ->findOrFail($this->invoiceId);
+        $this->invoice = Invoice::with([
+            'rental', 'rental.tenant', 'rental.unit', 'rental.unit.property',
+            'utilityUsages', 'utilityUsages.utility', 'utilityUsages.meter', 'utilityUsages.room',
+        ])->findOrFail($this->invoiceId);
         }
     }
     
