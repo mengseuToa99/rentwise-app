@@ -86,15 +86,36 @@ class Dashboard extends Component
             return strtolower($role->role_name) === 'admin';
         })) {
             $this->stats['totalProperties'] = Property::count();
-            $this->stats['totalUnits'] = Unit::count();
-            $this->stats['occupiedUnits'] = Unit::where('status', 'occupied')->count();
-            $this->stats['vacantUnits'] = Unit::where('status', 'vacant')->count();
-            $this->stats['totalRentals'] = Rental::count();
-            $this->stats['activeRentals'] = Rental::where('status', 'active')->count();
-            $this->stats['pendingInvoices'] = Invoice::where('payment_status', 'pending')->count();
-            $this->stats['paidInvoices'] = Invoice::where('payment_status', 'paid')->count();
-            $this->stats['totalIncome'] = Invoice::where('payment_status', 'paid')->sum('amount_due');
-            $this->stats['pendingIncome'] = Invoice::where('payment_status', 'pending')->sum('amount_due');
+
+            // Single query for all unit counts instead of 3 round-trips
+            $unitAgg = Unit::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied,
+                SUM(CASE WHEN status = 'vacant' THEN 1 ELSE 0 END) as vacant
+            ")->first();
+            $this->stats['totalUnits'] = (int) $unitAgg->total;
+            $this->stats['occupiedUnits'] = (int) $unitAgg->occupied;
+            $this->stats['vacantUnits'] = (int) $unitAgg->vacant;
+
+            // Single query for rental counts instead of 2 round-trips
+            $rentalAgg = Rental::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active
+            ")->first();
+            $this->stats['totalRentals'] = (int) $rentalAgg->total;
+            $this->stats['activeRentals'] = (int) $rentalAgg->active;
+
+            // Single query for invoice counts and sums instead of 4 round-trips
+            $invoiceAgg = Invoice::selectRaw("
+                SUM(CASE WHEN payment_status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) as paid_count,
+                SUM(CASE WHEN payment_status = 'paid' THEN amount_due ELSE 0 END) as paid_sum,
+                SUM(CASE WHEN payment_status = 'pending' THEN amount_due ELSE 0 END) as pending_sum
+            ")->first();
+            $this->stats['pendingInvoices'] = (int) $invoiceAgg->pending_count;
+            $this->stats['paidInvoices'] = (int) $invoiceAgg->paid_count;
+            $this->stats['totalIncome'] = (float) $invoiceAgg->paid_sum;
+            $this->stats['pendingIncome'] = (float) $invoiceAgg->pending_sum;
             
             // Calculate occupancy rate
             $this->stats['occupancyRate'] = $this->stats['totalUnits'] > 0 ? 
@@ -115,22 +136,23 @@ class Dashboard extends Component
                     ];
                 });
 
-            // Top properties by unit count
+            // Top properties by unit count.
+            // occupied_units_count is computed in the same query (withCount with a
+            // constraint) to avoid an N+1 lookup per property.
             $this->stats['topProperties'] = Property::select('property_id', 'property_name')
-                ->withCount('units')
+                ->withCount(['units', 'units as occupied_units_count' => function($query) {
+                    $query->where('status', 'occupied');
+                }])
                 ->orderByDesc('units_count')
                 ->limit(5)
                 ->get()
                 ->map(function($property) {
-                    $occupiedCount = Unit::where('property_id', $property->property_id)
-                        ->where('status', 'occupied')
-                        ->count();
                     return [
                         'name' => $property->property_name,
                         'total_units' => $property->units_count,
-                        'occupied_units' => $occupiedCount,
-                        'occupancy_rate' => $property->units_count > 0 ? 
-                            round(($occupiedCount / $property->units_count) * 100) : 0
+                        'occupied_units' => $property->occupied_units_count,
+                        'occupancy_rate' => $property->units_count > 0 ?
+                            round(($property->occupied_units_count / $property->units_count) * 100) : 0
                     ];
                 });
 

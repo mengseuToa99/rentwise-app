@@ -1,7 +1,9 @@
 # Deploying RentWise to Railway (demo)
 
-This app is Laravel 12 (PHP 8.2) + Vite/Tailwind. It deploys to Railway via the
-`Dockerfile` in the project root — Railway auto-detects it and builds the image.
+This app is Laravel 12 (PHP 8.2) + Vite/Tailwind, served by **Laravel Octane on
+FrankenPHP** (the app stays booted in memory between requests). It deploys to
+Railway via the `Dockerfile` in the project root — Railway auto-detects it and
+builds the image.
 
 > **Note:** This is a single-service demo setup. Reverb websockets and queue
 > workers are **not** run here (`BROADCAST_CONNECTION=log`, `QUEUE_CONNECTION=database`
@@ -63,10 +65,14 @@ automatically; the container already binds to it. Put that URL in `APP_URL`.
 
 Railway builds on every push to the connected branch. On boot the container:
 
-1. caches config + views,
+1. caches config,
 2. runs `php artisan migrate --force` (creates the sessions/cache/queue tables too),
 3. links storage,
-4. serves the app on `$PORT`.
+4. serves the app on `$PORT` via `php artisan octane:start --server=frankenphp`.
+
+After a deploy, workers start fresh, so no `octane:reload` is needed. To tune
+throughput vs. memory, set `OCTANE_WORKERS` (default: one per CPU) and
+`OCTANE_MAX_REQUESTS` (default: 500) in the Railway Variables tab.
 
 ## Test the image locally (optional)
 

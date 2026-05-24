@@ -50,9 +50,13 @@ class Dashboard extends Component
             ->pluck('count', 'role_name')
             ->toArray();
         
-        // Property occupancy rate
-        $totalUnits = \App\Models\Unit::count();
-        $occupiedUnits = \App\Models\Unit::where('status', 'occupied')->count();
+        // Property occupancy rate (single query instead of two counts)
+        $unitAgg = \App\Models\Unit::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied
+        ")->first();
+        $totalUnits = (int) $unitAgg->total;
+        $occupiedUnits = (int) $unitAgg->occupied;
         $this->stats['occupancy_rate'] = $totalUnits > 0 ? round(($occupiedUnits / $totalUnits) * 100, 2) : 0;
         
         // Financial stats
@@ -67,38 +71,46 @@ class Dashboard extends Component
     
     public function loadFinancialStats()
     {
-        // Payment status summary
-        $this->stats['payment_status'] = Invoice::select('payment_status', DB::raw('COUNT(*) as count'))
+        // Payment status counts and amounts in a single grouped query
+        // (replaces one count query plus three separate sum queries).
+        $invoiceAgg = Invoice::select(
+                'payment_status',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(amount_due) as total')
+            )
             ->groupBy('payment_status')
-            ->get()
-            ->pluck('count', 'payment_status')
-            ->toArray();
-        
-        // Calculate total revenue
-        $this->stats['total_revenue'] = Invoice::where('payment_status', 'paid')->sum('amount_due');
-        
-        // Calculate pending payments
-        $this->stats['pending_payments'] = Invoice::where('payment_status', 'pending')->sum('amount_due');
-        
-        // Calculate overdue payments
-        $this->stats['overdue_payments'] = Invoice::where('payment_status', 'overdue')->sum('amount_due');
+            ->get();
+
+        $this->stats['payment_status'] = $invoiceAgg->pluck('count', 'payment_status')->toArray();
+        $this->stats['total_revenue'] = (float) ($invoiceAgg->firstWhere('payment_status', 'paid')->total ?? 0);
+        $this->stats['pending_payments'] = (float) ($invoiceAgg->firstWhere('payment_status', 'pending')->total ?? 0);
+        $this->stats['overdue_payments'] = (float) ($invoiceAgg->firstWhere('payment_status', 'overdue')->total ?? 0);
         
         // Revenue by time period (month by default)
         $dateColumn = 'created_at';
-        $format = 'YYYY-MM';
         $days = 30;
-        
+        $driver = DB::connection()->getDriverName();
+        $isPgsql = $driver === 'pgsql';
+
+        // Pick the date-format token for the active driver:
+        //   Postgres uses TO_CHAR tokens, MySQL/MariaDB use DATE_FORMAT tokens.
         if ($this->timeframe == 'year') {
-            $format = 'YYYY';
             $days = 365;
+            $format = $isPgsql ? 'YYYY' : '%Y';
         } elseif ($this->timeframe == 'week') {
-            $format = 'YYYY-IW'; // Year and ISO week number
             $days = 7;
+            $format = $isPgsql ? 'YYYY-IW' : '%x-%v'; // ISO year + ISO week number
+        } else {
+            $format = $isPgsql ? 'YYYY-MM' : '%Y-%m';
         }
-        
+
+        $periodExpr = $isPgsql
+            ? "TO_CHAR($dateColumn, '$format')"
+            : "DATE_FORMAT($dateColumn, '$format')";
+
         $this->revenueSummary = Invoice::where('payment_status', 'paid')
             ->where($dateColumn, '>=', now()->subDays($days))
-            ->select(DB::raw("TO_CHAR($dateColumn, '$format') as period"), DB::raw('SUM(amount_due) as revenue'))
+            ->select(DB::raw("$periodExpr as period"), DB::raw('SUM(amount_due) as revenue'))
             ->groupBy('period')
             ->orderBy('period')
             ->get()

@@ -20,13 +20,14 @@ COPY . .
 COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
-# ---- Stage 3: PHP runtime ----
-FROM php:8.2-cli-bookworm
+# ---- Stage 3: PHP runtime (FrankenPHP, driven by Laravel Octane) ----
+# FrankenPHP bundles the PHP runtime + the `frankenphp` binary Octane launches,
+# and ships mlocati's install-php-extensions helper out of the box.
+FROM dunglas/frankenphp:1-php8.2
 
-# PHP extensions Laravel 12 needs (pdo_mysql for your Railway DB).
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions pdo_mysql mbstring bcmath zip gd exif intl pcntl
+# PHP extensions Laravel 12 needs (pdo_mysql for your Railway DB; pcntl for
+# Octane worker/signal handling).
+RUN install-php-extensions pdo_mysql mbstring bcmath zip gd exif intl pcntl
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

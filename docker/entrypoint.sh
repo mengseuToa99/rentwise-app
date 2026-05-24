@@ -7,6 +7,10 @@ set -e
 export BROADCAST_DRIVER="${BROADCAST_DRIVER:-log}"
 export BROADCAST_CONNECTION="${BROADCAST_CONNECTION:-log}"
 
+# Default Octane to FrankenPHP so `octane:*` helper commands resolve the right
+# server. The start command below also passes --server=frankenphp explicitly.
+export OCTANE_SERVER="${OCTANE_SERVER:-frankenphp}"
+
 # Discover packages now that env vars are present (skipped at build time).
 php artisan package:discover --ansi
 
@@ -22,5 +26,15 @@ php artisan migrate --force
 # Symlink storage/app/public -> public/storage for uploaded files.
 php artisan storage:link || true
 
-# Serve on the port Railway provides (defaults to 8080 locally).
-exec php artisan serve --host=0.0.0.0 --port="${PORT:-8080}"
+# Serve via Laravel Octane on FrankenPHP. The app boots once per worker and stays
+# resident in memory, so each request skips the framework bootstrap that made
+# `php artisan serve` slow. Octane keeps the (remote Railway) MySQL connection
+# alive between requests too. --max-requests recycles each worker periodically to
+# bound memory, a safeguard against leaks in long-lived Livewire workers.
+# Workers default to one per CPU core; override with OCTANE_WORKERS if needed.
+exec php artisan octane:start \
+    --server=frankenphp \
+    --host=0.0.0.0 \
+    --port="${PORT:-8080}" \
+    --workers="${OCTANE_WORKERS:-auto}" \
+    --max-requests="${OCTANE_MAX_REQUESTS:-500}"

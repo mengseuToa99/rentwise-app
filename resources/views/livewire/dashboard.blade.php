@@ -28,7 +28,14 @@
                 </div>
             </div>
         @endif
-        
+
+        <!-- Admin Dashboard View -->
+        @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'admin'; }))
+
+            @include('components.dashboard.admin-overview', ['stats' => $stats])
+
+        @endif
+
         <!-- Tenant Dashboard View -->
         @if(auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'tenant'; }) && 
             !auth()->user()->roles->contains(function($role) { return strtolower($role->role_name) === 'landlord'; }) && 
