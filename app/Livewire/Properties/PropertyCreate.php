@@ -124,27 +124,18 @@ class PropertyCreate extends Component
             $property->save();
             
             // Handle image uploads
-            $imageUrls = [];
             if (count($this->propertyImages) > 0) {
-                foreach ($this->propertyImages as $image) {
+                foreach ($this->propertyImages as $index => $image) {
                     $filename = 'property_' . $property->property_id . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
                     $path = $image->storeAs('property-images', $filename, 'public');
-                    $fullPath = $path; // Store relative path without /storage/ prefix
-                    
-                    // Store in property_images table
-                    \DB::table('property_images')->insert([
-                        'property_id' => $property->property_id,
-                        'image_path' => $fullPath,
-                        'created_at' => now(),
-                        'updated_at' => now()
+
+                    // Store via the polymorphic images relationship
+                    $property->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => $index === 0,
+                        'sort_order' => $index,
                     ]);
-                    
-                    $imageUrls[] = $fullPath;
                 }
-                
-                // Also store in the images JSON field as backup
-                $property->images = json_encode($imageUrls);
-                $property->save();
             }
             
             // Generate units if enabled

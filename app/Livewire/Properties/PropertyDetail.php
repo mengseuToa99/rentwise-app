@@ -55,9 +55,8 @@ class PropertyDetail extends Component
         //     abort(403, 'Unauthorized action.');
         // }
         
-        // Load property images from the property_images table
-        $this->propertyImages = DB::table('property_images')
-            ->where('property_id', $this->propertyId)
+        // Load property images via the polymorphic images relationship
+        $this->propertyImages = $property->images()
             ->pluck('image_path')
             ->toArray();
         
