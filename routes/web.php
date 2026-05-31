@@ -143,6 +143,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/simple-mode/add-room', \App\Livewire\SimpleMode\SimpleAddRoom::class)->name('simple-mode.add-room');
         Route::get('/simple-mode/add-tenant', \App\Livewire\SimpleMode\SimpleAddTenant::class)->name('simple-mode.add-tenant');
         Route::get('/simple-mode/invoices', \App\Livewire\SimpleMode\SimpleInvoiceCheck::class)->name('simple-mode.invoices');
+        Route::get('/simple-mode/mark-paid', \App\Livewire\SimpleMode\SimpleMarkPaid::class)->name('simple-mode.mark-paid');
         Route::get('/simple-mode/move-out', \App\Livewire\SimpleMode\SimpleMoveOut::class)->name('simple-mode.move-out');
         Route::get('/invoices/create', InvoiceForm::class)->name('invoices.create');
         Route::get('/invoices/create-simple', SimpleInvoiceForm::class)->name('invoices.create-simple');

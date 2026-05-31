@@ -119,6 +119,26 @@ return [
         'status_partial' => 'បង់ខ្លះ',
         'status_overdue' => 'ហួសកំណត់',
 
+        // Mark paid (record payments)
+        'pay_tile' => 'កត់ត្រាការបង់ប្រាក់',
+        'pay_tile_desc' => 'សម្គាល់វិក្កយបត្របានបង់ បង់ពាក់កណ្តាល ឬបោះបង់។',
+        'pay_title' => 'វិក្កយបត្រមិនទាន់បង់',
+        'pay_subtitle' => 'ចុចដើម្បីសម្គាល់បានបង់ បង់ពាក់កណ្តាល ឬបោះបង់។',
+        'pay_total_outstanding' => 'នៅជំពាក់',
+        'pay_paid' => 'បានបង់',
+        'pay_remaining' => 'នៅសល់',
+        'pay_full' => 'បង់ពេញ',
+        'pay_record' => 'កត់ត្រា',
+        'pay_other_placeholder' => 'បញ្ចូលចំនួន',
+        'pay_cancel' => 'បោះបង់វិក្កយបត្រនេះ',
+        'pay_cancel_confirm' => 'បោះបង់វិក្កយបត្រនេះ? វានឹងលែងត្រូវប្រមូលទៀតទេ។',
+        'pay_all_clear' => 'អស់ហើយ — គ្មានវិក្កយបត្រមិនទាន់បង់ទេ។',
+        'pay_done_full' => 'បានសម្គាល់ថាបង់ពេញ។ ✅',
+        'pay_done_partial' => 'បានកត់ត្រាការបង់ $:amount។ ✅',
+        'pay_done_cancel' => 'បានបោះបង់វិក្កយបត្រ។',
+        'pay_enter_amount' => 'សូមបញ្ចូលចំនួនជាមុនសិន។',
+        'pay_not_allowed' => 'អ្នកមិនអាចកែវិក្កយបត្រនោះបានទេ។',
+
         // Move out (tenant checkout)
         'move_out_title' => 'អ្នកជួលចេញ',
         'move_out_subtitle' => 'ដោះលែងបន្ទប់ និងកត់ត្រាការអានកុងទ័រចុងក្រោយ។',

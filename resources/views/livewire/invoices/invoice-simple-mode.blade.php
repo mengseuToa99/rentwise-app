@@ -186,6 +186,22 @@
                         <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.check_invoices_desc') }}</div>
                     </div>
                 </a>
+
+                <a
+                    href="{{ route('simple-mode.mark-paid') }}"
+                    wire:navigate
+                    class="group flex items-center gap-4 rounded-2xl border border-green-200 bg-white p-5 shadow-sm transition hover:border-green-400 hover:shadow-md dark:border-green-900/50 dark:bg-zinc-900 dark:hover:border-green-700"
+                >
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-green-600 text-white shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ __('app.simple_mode.pay_tile') }}</div>
+                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ __('app.simple_mode.pay_tile_desc') }}</div>
+                    </div>
+                </a>
             </div>
         </div>
 

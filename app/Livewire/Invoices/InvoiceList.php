@@ -27,7 +27,19 @@ class InvoiceList extends Component
     public $perPage = 10; // Default number of invoices per page
     public $dateRange = '';
     public $showCustomDateRange = false;
-    
+
+    // Record-payment modal state
+    public $showPaymentModal = false;
+    public $paymentInvoiceId = null;
+    public $paymentInvoiceLabel = '';
+    public $paymentAmountDue = 0;
+    public $paymentAmountPaid = 0;
+    public $paymentOutstanding = 0;
+    public $paymentAmount = '';
+    public $paymentMethod = 'cash';
+    public $paymentDate = '';
+    public $paymentNotes = '';
+
     protected $queryString = ['search', 'statusFilter', 'dateFrom', 'dateTo', 'displayMode', 'perPage', 'propertyFilter', 'dateRange'];
     
     public function mount($viewMode = null)
@@ -378,34 +390,122 @@ class InvoiceList extends Component
     public function markAsPaid($invoiceId)
     {
         try {
-            $invoice = Invoice::find($invoiceId);
-            
+            $invoice = $this->authorizedInvoice($invoiceId);
+
             if (!$invoice) {
-                session()->flash('error', 'Invoice not found');
                 return;
             }
-            
-            // Verify authorization
-            $user = Auth::user();
-            $rental = Rental::find($invoice->rental_id);
-            
-            if (!$rental) {
-                session()->flash('error', 'Related rental not found');
-                return;
+
+            // Settle the remaining balance by logging it as a payment so the
+            // payment_histories ledger stays consistent with the invoice total.
+            $outstanding = (float) $invoice->outstanding;
+            if ($outstanding > 0) {
+                $invoice->recordPayment($outstanding, ['notes' => 'Marked as fully paid']);
             }
-            
-            if ($rental->landlord_id !== $user->user_id) {
-                session()->flash('error', 'You are not authorized to update this invoice');
-                return;
+
+            if ($invoice->payment_status !== 'paid') {
+                $invoice->payment_status = 'paid';
+                $invoice->save();
             }
-            
-            $invoice->amount_paid = $invoice->amount_due;
-            $invoice->payment_status = 'paid';
-            $invoice->save();
-            
+
             session()->flash('success', 'Invoice marked as paid successfully');
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to update invoice: ' . $e->getMessage());
         }
     }
-} 
+
+    public function openPaymentModal($invoiceId)
+    {
+        $invoice = $this->authorizedInvoice($invoiceId);
+
+        if (!$invoice) {
+            return;
+        }
+
+        $this->resetValidation();
+        $this->paymentInvoiceId = $invoice->invoice_id;
+        $this->paymentInvoiceLabel = 'INV-' . str_pad($invoice->invoice_id, 5, '0', STR_PAD_LEFT);
+        $this->paymentAmountDue = (float) $invoice->amount_due;
+        $this->paymentAmountPaid = (float) $invoice->amount_paid;
+        $this->paymentOutstanding = (float) $invoice->outstanding;
+        // Prefill with the full remaining balance — the common case.
+        $this->paymentAmount = $this->paymentOutstanding > 0
+            ? number_format($this->paymentOutstanding, 2, '.', '')
+            : '';
+        $this->paymentMethod = 'cash';
+        $this->paymentDate = now()->format('Y-m-d');
+        $this->paymentNotes = '';
+        $this->showPaymentModal = true;
+    }
+
+    public function closePaymentModal()
+    {
+        $this->showPaymentModal = false;
+        $this->reset(['paymentInvoiceId', 'paymentInvoiceLabel', 'paymentAmountDue', 'paymentAmountPaid', 'paymentOutstanding', 'paymentAmount', 'paymentMethod', 'paymentDate', 'paymentNotes']);
+        $this->resetValidation();
+    }
+
+    public function recordPayment()
+    {
+        $invoice = $this->authorizedInvoice($this->paymentInvoiceId);
+
+        if (!$invoice) {
+            $this->closePaymentModal();
+            return;
+        }
+
+        $outstanding = (float) $invoice->outstanding;
+
+        $this->validate([
+            'paymentAmount' => 'required|numeric|min:0.01|max:' . max(0.01, $outstanding),
+            'paymentMethod' => 'required|in:cash,credit_card,bank_transfer,wing,aba,other',
+            'paymentDate'   => 'required|date',
+            'paymentNotes'  => 'nullable|string|max:500',
+        ], [], [
+            'paymentAmount' => 'amount',
+            'paymentMethod' => 'method',
+            'paymentDate'   => 'date',
+        ]);
+
+        try {
+            $invoice->recordPayment((float) $this->paymentAmount, [
+                'payment_method' => $this->paymentMethod,
+                'payment_date'   => $this->paymentDate,
+                'notes'          => $this->paymentNotes ?: null,
+            ]);
+
+            session()->flash('success', 'Payment of $' . number_format((float) $this->paymentAmount, 2) . ' recorded for ' . $this->paymentInvoiceLabel . '.');
+            $this->closePaymentModal();
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to record payment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Fetch an invoice the current landlord is allowed to act on, or flash an
+     * error and return null. Centralises the auth check shared by the actions.
+     */
+    protected function authorizedInvoice($invoiceId): ?Invoice
+    {
+        $invoice = Invoice::find($invoiceId);
+
+        if (!$invoice) {
+            session()->flash('error', 'Invoice not found');
+            return null;
+        }
+
+        $rental = Rental::find($invoice->rental_id);
+
+        if (!$rental) {
+            session()->flash('error', 'Related rental not found');
+            return null;
+        }
+
+        if ($rental->landlord_id !== Auth::user()->user_id) {
+            session()->flash('error', 'You are not authorized to update this invoice');
+            return null;
+        }
+
+        return $invoice;
+    }
+}

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Invoice extends Model
 {
@@ -66,6 +67,34 @@ class Invoice extends Model
     public function getOutstandingAttribute()
     {
         return max(0, (float) $this->amount_due - (float) $this->amount_paid);
+    }
+
+    /**
+     * Record a payment against this invoice. Creates a payment_histories row,
+     * bumps the running amount_paid total, and recomputes the payment_status
+     * (pending → partial → paid / overdue). Wrapped in a transaction so the
+     * ledger and the invoice total can never drift apart.
+     */
+    public function recordPayment(float $amount, array $attributes = []): PaymentHistory
+    {
+        return DB::transaction(function () use ($amount, $attributes) {
+            $payment = $this->payments()->create([
+                'recorded_by_user_id' => $attributes['recorded_by_user_id'] ?? auth()->id(),
+                'payment_amount'      => $amount,
+                'payment_date'        => $attributes['payment_date'] ?? now(),
+                'payment_method'      => $attributes['payment_method'] ?? 'cash',
+                'transaction_ref'     => $attributes['transaction_ref'] ?? null,
+                'receipt_number'      => $attributes['receipt_number'] ?? null,
+                'notes'               => $attributes['notes'] ?? null,
+            ]);
+
+            $this->amount_paid = (float) $this->amount_paid + $amount;
+            $this->save();
+
+            $this->recomputeStatus();
+
+            return $payment;
+        });
     }
 
     public function recomputeStatus(): void

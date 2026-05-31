@@ -102,8 +102,11 @@
                         >
                             <option value="">{{ __('All Statuses') }}</option>
                             <option value="pending">Pending</option>
+                            <option value="partial">Partial</option>
                             <option value="paid">Paid</option>
                             <option value="overdue">Overdue</option>
+                            <option value="draft">Draft</option>
+                            <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
                     
@@ -242,8 +245,11 @@
                                                 @php
                                                     $statusColors = [
                                                         'paid' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                                                        'partial' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
                                                         'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                                                         'overdue' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+                                                        'draft' => 'bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-gray-300',
+                                                        'cancelled' => 'bg-gray-200 text-gray-500 line-through dark:bg-zinc-800 dark:text-gray-500',
                                                     ];
                                                     $statusColor = $statusColors[$invoice->payment_status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
                                                 @endphp
@@ -401,16 +407,23 @@
                                             </button>
                                             
                                             <div class="flex space-x-3">
-                                                @if($viewMode !== 'tenant' && $invoice->payment_status !== 'paid')
-                                                    <button 
-                                                        wire:click="markAsPaid({{ $invoice->invoice_id }})" 
+                                                @if($viewMode !== 'tenant' && !in_array($invoice->payment_status, ['paid', 'cancelled']))
+                                                    <button
+                                                        @click.stop=""
+                                                        wire:click="openPaymentModal({{ $invoice->invoice_id }})"
+                                                        class="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 text-xs font-medium"
+                                                    >
+                                                        Record Payment
+                                                    </button>
+                                                    <button
+                                                        wire:click="markAsPaid({{ $invoice->invoice_id }})"
                                                         wire:confirm="Are you sure you want to mark this invoice as paid?"
                                                         class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 text-xs"
                                                     >
                                                         Mark Paid
                                                     </button>
                                                 @endif
-                                                
+
                                                 @if($viewMode !== 'tenant')
                                                     <a href="{{ route('invoices.edit', $invoice->invoice_id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs">Edit</a>
                                                     <button wire:click="deleteInvoice({{ $invoice->invoice_id }})" wire:confirm="Are you sure you want to delete this invoice?" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-xs">Delete</button>
@@ -478,8 +491,10 @@
                                                 @php
                                                     $statusClass = match($invoice->payment_status) {
                                                         'paid' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                                                        'partial' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
                                                         'overdue' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
                                                         'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                                        'cancelled' => 'bg-gray-200 text-gray-500 line-through dark:bg-zinc-800 dark:text-gray-500',
                                                         default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                                                     };
                                                 @endphp
@@ -489,9 +504,15 @@
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation();">
                                                 <div class="flex justify-end space-x-2">
-                                                    @if($viewMode !== 'tenant' && $invoice->payment_status !== 'paid')
-                                                        <button 
-                                                            wire:click="markAsPaid({{ $invoice->invoice_id }})" 
+                                                    @if($viewMode !== 'tenant' && !in_array($invoice->payment_status, ['paid', 'cancelled']))
+                                                        <button
+                                                            wire:click="openPaymentModal({{ $invoice->invoice_id }})"
+                                                            class="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 text-xs font-medium"
+                                                        >
+                                                            Record Payment
+                                                        </button>
+                                                        <button
+                                                            wire:click="markAsPaid({{ $invoice->invoice_id }})"
                                                             wire:confirm="Are you sure you want to mark this invoice as paid?"
                                                             class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 text-xs"
                                                         >
@@ -525,7 +546,96 @@
             </div>
         @endif
     </div>
-    
+
+    {{-- ============================================================ --}}
+    {{-- Record Payment modal                                          --}}
+    {{-- ============================================================ --}}
+    @if($showPaymentModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" wire:key="payment-modal">
+            <div class="absolute inset-0 bg-black/50" wire:click="closePaymentModal"></div>
+
+            <div class="relative w-full max-w-md rounded-lg bg-white dark:bg-zinc-900 shadow-xl border border-gray-200 dark:border-zinc-800">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-zinc-800">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                        Record Payment — {{ $paymentInvoiceLabel }}
+                    </h3>
+                    <button type="button" wire:click="closePaymentModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <form wire:submit.prevent="recordPayment" class="px-5 py-4 space-y-4">
+                    {{-- Balance summary --}}
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="rounded-md bg-gray-50 dark:bg-zinc-800 p-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">${{ number_format($paymentAmountDue, 2) }}</p>
+                        </div>
+                        <div class="rounded-md bg-gray-50 dark:bg-zinc-800 p-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Paid</p>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">${{ number_format($paymentAmountPaid, 2) }}</p>
+                        </div>
+                        <div class="rounded-md bg-amber-50 dark:bg-amber-900/20 p-2">
+                            <p class="text-xs text-amber-600 dark:text-amber-400">Outstanding</p>
+                            <p class="text-sm font-semibold text-amber-700 dark:text-amber-300">${{ number_format($paymentOutstanding, 2) }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="paymentAmount" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                            <input type="number" step="0.01" min="0.01" id="paymentAmount" wire:model="paymentAmount"
+                                class="block w-full pl-7 py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        @error('paymentAmount') <span class="text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="paymentMethod" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Method</label>
+                            <select id="paymentMethod" wire:model="paymentMethod"
+                                class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <option value="cash">Cash</option>
+                                <option value="aba">ABA</option>
+                                <option value="wing">Wing</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="credit_card">Credit Card</option>
+                                <option value="other">Other</option>
+                            </select>
+                            @error('paymentMethod') <span class="text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="paymentDate" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date</label>
+                            <input type="date" id="paymentDate" wire:model="paymentDate"
+                                class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            @error('paymentDate') <span class="text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="paymentNotes" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Notes (optional)</label>
+                        <input type="text" id="paymentNotes" wire:model="paymentNotes" placeholder="e.g. receipt #, reference"
+                            class="block w-full py-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        @error('paymentNotes') <span class="text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" wire:click="closePaymentModal"
+                            class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700">
+                            Cancel
+                        </button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="recordPayment"
+                            class="px-4 py-2 rounded-md text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-60">
+                            <span wire:loading.remove wire:target="recordPayment">Save Payment</span>
+                            <span wire:loading wire:target="recordPayment">Saving…</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
     <style>
         .perspective {
             perspective: 1500px;

@@ -119,6 +119,26 @@ return [
         'status_partial' => 'Partial',
         'status_overdue' => 'Overdue',
 
+        // Mark paid (record payments)
+        'pay_tile' => 'Record Payments',
+        'pay_tile_desc' => 'Mark unpaid invoices paid, half, or cancel.',
+        'pay_title' => 'Unpaid Invoices',
+        'pay_subtitle' => 'Tap to mark paid, pay half, or cancel.',
+        'pay_total_outstanding' => 'Still owed',
+        'pay_paid' => 'Paid',
+        'pay_remaining' => 'Remaining',
+        'pay_full' => 'Paid in full',
+        'pay_record' => 'Record',
+        'pay_other_placeholder' => 'Enter amount',
+        'pay_cancel' => 'Cancel this invoice',
+        'pay_cancel_confirm' => 'Cancel this invoice? It will no longer be collected.',
+        'pay_all_clear' => 'All caught up — no unpaid invoices.',
+        'pay_done_full' => 'Marked as paid in full. ✅',
+        'pay_done_partial' => 'Recorded a $:amount payment. ✅',
+        'pay_done_cancel' => 'Invoice cancelled.',
+        'pay_enter_amount' => 'Enter an amount first.',
+        'pay_not_allowed' => 'You can\'t change that invoice.',
+
         // Move out (tenant checkout)
         'move_out_title' => 'Tenant Move-Out',
         'move_out_subtitle' => 'Free up a room and record final meter readings.',
