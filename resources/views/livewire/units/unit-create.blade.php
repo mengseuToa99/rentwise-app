@@ -1,8 +1,8 @@
 <div class="py-4 bg-gray-50 dark:bg-zinc-950">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center mb-6">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Add New Unit</h1>
-            <div class="flex space-x-2">
+            <div class="flex flex-wrap gap-2">
                 @if (!empty($propertyId))
                     <a href="{{ route('properties.show', $propertyId) }}" class="inline-flex items-center px-4 py-2 bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-zinc-900 dark:focus:ring-gray-600">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -53,10 +53,10 @@
                         <h2 class="text-lg font-medium text-gray-900 dark:text-white">Property Information</h2>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <div class="col-span-2">
+                        <div class="md:col-span-2">
                             <label for="propertyId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property</label>
                             <div class="relative">
-                                <select wire:model.live="propertyId" id="propertyId" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 appearance-none" {{ !empty($propertyId) ? 'disabled' : '' }}>
+                                <select wire:model.live="propertyId" id="propertyId" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500" {{ !empty($propertyId) ? 'disabled' : '' }}>
                                     <option value="">Select a property</option>
                                     @foreach ($properties as $property)
                                         <option value="{{ $property->property_id }}">
@@ -67,19 +67,14 @@
                                 @error('propertyId') 
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                                 @enderror
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                                    </svg>
-                                </div>
                             </div>
                         </div>
                         
                         @if($pricing_groups && count($pricing_groups) > 0)
-                        <div class="col-span-2">
+                        <div class="md:col-span-2">
                             <label for="pricing_group_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pricing Group</label>
                             <div class="relative">
-                                <select wire:model="pricing_group_id" id="pricing_group_id" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 appearance-none">
+                                <select wire:model="pricing_group_id" id="pricing_group_id" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                     <option value="" class="bg-white dark:bg-zinc-800">Select a pricing group</option>
                                     @foreach ($pricing_groups as $group)
                                         <option value="{{ $group->group_id }}" class="bg-white dark:bg-zinc-800">
@@ -87,11 +82,6 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                                    </svg>
-                                </div>
                             </div>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Selecting a pricing group will automatically fill the room type and rent amount.</p>
                         </div>
@@ -110,26 +100,26 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                         <div>
                             <label for="roomName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit/Room Name</label>
-                            <input wire:model="roomName" type="text" id="roomName" placeholder="e.g. Master Bedroom, Studio A" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model="roomName" type="text" id="roomName" placeholder="e.g. Master Bedroom, Studio A" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             @error('roomName') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
                         <div>
                             <label for="roomNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit/Room Number</label>
-                            <input wire:model="roomNumber" type="text" id="roomNumber" placeholder="e.g. 101, A1, 202B" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model="roomNumber" type="text" id="roomNumber" placeholder="e.g. 101, A1, 202B" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             @error('roomNumber') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
                         <div>
                             <label for="floorNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Floor Number</label>
-                            <input wire:model="floorNumber" type="number" min="1" id="floorNumber" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model="floorNumber" type="number" min="1" id="floorNumber" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             @error('floorNumber') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
                         <div>
                             <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Type</label>
                             <div class="relative">
-                                <select wire:model="type" id="type" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 appearance-none">
+                                <select wire:model="type" id="type" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                     <option value="" class="bg-white dark:bg-zinc-800">Select a type</option>
                                     <option value="Single Room" class="bg-white dark:bg-zinc-800">Single Room</option>
                                     <option value="Studio" class="bg-white dark:bg-zinc-800">Studio</option>
@@ -138,25 +128,20 @@
                                     <option value="3 Bedroom" class="bg-white dark:bg-zinc-800">3 Bedroom</option>
                                     <option value="4+ Bedroom" class="bg-white dark:bg-zinc-800">4+ Bedroom</option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                                    </svg>
-                                </div>
                             </div>
                             @error('type') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
                         <div>
                             <label for="size" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Size</label>
-                            <input wire:model="size" type="text" id="size" placeholder="e.g. 500 sq ft" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model="size" type="text" id="size" placeholder="e.g. 500 sq ft" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Enter size in square feet or square meters</p>
                             @error('size') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
-                        <div class="col-span-2">
+                        <div class="md:col-span-2">
                             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Description</label>
-                            <textarea wire:model="description" id="description" rows="4" placeholder="Enter details about this unit, amenities, features, etc." class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
+                            <textarea wire:model="description" id="description" rows="4" placeholder="Enter details about this unit, amenities, features, etc." class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"></textarea>
                             @error('description') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -177,14 +162,14 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                                 </div>
-                                <input wire:model="rentAmount" type="number" min="0" step="0.01" id="rentAmount" placeholder="0.00" class="pl-7 block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                                <input wire:model="rentAmount" type="number" min="0" step="0.01" id="rentAmount" placeholder="0.00" class="pl-7 block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             </div>
                             @error('rentAmount') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         
                         <div>
                             <label for="dueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Due Date</label>
-                            <input wire:model="dueDate" type="date" id="dueDate" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input wire:model="dueDate" type="date" id="dueDate" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The day of the month when rent payment is due</p>
                             @error('dueDate') <span class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -219,7 +204,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                             </svg>
-                            Create Unit
+                            {{ __('app.save') }}
                         </button>
                     </div>
                 </div>

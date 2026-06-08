@@ -60,29 +60,48 @@ class Profile extends Component
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'phoneNumber' => 'required|string|max:20',
+            'newProfileImage' => 'nullable|image|max:2048', // up to 2MB (matches php upload_max_filesize)
         ]);
-        
+
         $user = Auth::user();
-        
+
         if (!$user) {
             session()->flash('error', 'User not authenticated');
             return;
         }
-        
+
         $user->username = $this->username;
         $user->email = $this->email;
         $user->first_name = $this->firstName;
         $user->last_name = $this->lastName;
         $user->phone_number = $this->phoneNumber;
-        
+
         if ($this->newProfileImage) {
             $imagePath = $this->newProfileImage->store('profile', 'public');
             $user->profile_picture = $imagePath;
             $this->profileImage = $imagePath;
+            $this->newProfileImage = null;
         }
-        
+
         $user->save();
-        
+
+        // Handle password change in the same submit (the form has a single Save button)
+        if (filled($this->password) || filled($this->currentPassword)) {
+            $this->validate([
+                'currentPassword' => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            if (!Hash::check($this->currentPassword, $user->password_hash)) {
+                session()->flash('error', 'Current password is incorrect');
+                return;
+            }
+
+            $user->password_hash = Hash::make($this->password);
+            $user->save();
+            $this->reset(['currentPassword', 'password', 'password_confirmation']);
+        }
+
         session()->flash('success', 'Profile updated successfully');
     }
     

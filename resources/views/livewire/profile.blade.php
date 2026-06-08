@@ -32,7 +32,9 @@
                 <div class="px-6 pt-6">
                     <div class="flex flex-col sm:flex-row items-center gap-6">
                         <div class="relative">
-                            @if ($profileImage)
+                            @if ($newProfileImage)
+                                <img src="{{ $newProfileImage->temporaryUrl() }}" alt="Profile preview" class="h-28 w-28 rounded-full object-cover border-4 border-white dark:border-zinc-800 shadow-sm">
+                            @elseif ($profileImage)
                                 <img src="{{ asset('storage/' . $profileImage) }}" alt="Profile Image" class="h-28 w-28 rounded-full object-cover border-4 border-white dark:border-zinc-800 shadow-sm">
                             @else
                                 <div class="h-28 w-28 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center border border-gray-200 dark:border-zinc-700 text-gray-400 dark:text-zinc-500">
@@ -48,7 +50,7 @@
                                     <circle cx="12" cy="13" r="4"></circle>
                                 </svg>
                             </label>
-                            <input wire:model="newProfileImage" type="file" id="profileImage" class="hidden">
+                            <input wire:model="newProfileImage" type="file" accept="image/*" id="profileImage" class="hidden">
                         </div>
                         
                         <div class="text-center sm:text-left">

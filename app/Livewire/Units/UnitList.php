@@ -16,6 +16,7 @@ class UnitList extends Component
     public $propertyFilter = '';
     public $availabilityFilter = '';
     public $perPage = 10; // Default number of units per page
+    public $confirmingDeleteId = null; // Unit pending delete confirmation (in-app modal)
     
     protected $queryString = ['search', 'propertyFilter', 'availabilityFilter', 'perPage'];
     
@@ -137,10 +138,12 @@ class UnitList extends Component
             }
             
             $unit->delete();
-            
+
             session()->flash('success', 'Unit deleted successfully');
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to delete unit: ' . $e->getMessage());
+        } finally {
+            $this->confirmingDeleteId = null;
         }
     }
 } 

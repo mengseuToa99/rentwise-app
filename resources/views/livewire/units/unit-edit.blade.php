@@ -1,5 +1,5 @@
 <div class="py-4 bg-gray-50 dark:bg-zinc-950">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 py-4">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit Unit</h1>
             <div class="flex space-x-2">
@@ -41,7 +41,7 @@
                     <div>
                         <label for="propertyId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Property</label>
                         <div class="mt-1">
-                            <select wire:model.live="propertyId" id="propertyId" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <select wire:model.live="propertyId" id="propertyId" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                 <option value="">Select a property</option>
                                 @foreach ($properties as $property)
                                     <option value="{{ $property->property_id }}">
@@ -59,7 +59,7 @@
                     <div>
                         <label for="roomNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Room Number</label>
                         <div class="mt-1">
-                            <input type="text" wire:model="roomNumber" id="roomNumber" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input type="text" wire:model="roomNumber" id="roomNumber" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                         </div>
                         @error('roomNumber') 
                             <p class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
@@ -70,7 +70,7 @@
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit Type</label>
                         <div class="mt-1">
-                            <select wire:model="type" id="type" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <select wire:model="type" id="type" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                 <option value="">Select type</option>
                                 <option value="Single Room">Single Room</option>
                                 <option value="Studio">Studio</option>
@@ -92,7 +92,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                             </div>
-                            <input type="number" wire:model="rentAmount" id="rentAmount" step="0.01" min="0" class="pl-7 block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <input type="number" wire:model="rentAmount" id="rentAmount" step="0.01" min="0" class="pl-7 block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                         </div>
                         @error('rentAmount') 
                             <p class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
@@ -103,7 +103,7 @@
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                         <div class="mt-1">
-                            <select wire:model="status" id="status" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-md text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                            <select wire:model="status" id="status" class="block w-full rounded-md bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 px-4 py-3 text-base text-gray-900 dark:text-white shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500">
                                 <option value="vacant">Vacant</option>
                                 <option value="occupied">Occupied</option>
                             </select>

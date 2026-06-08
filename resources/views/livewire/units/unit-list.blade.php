@@ -110,7 +110,43 @@
                 </a>
             </div>
         @else
-            <div class="bg-white dark:bg-zinc-900 overflow-hidden rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
+            <!-- Mobile card layout -->
+            <div class="md:hidden space-y-3">
+                @foreach ($units as $unit)
+                    <div class="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm p-4">
+                        <div class="flex justify-between items-start gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $unit->room_name ?: 'N/A' }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $unit->property_name }}</p>
+                            </div>
+                            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $unit->status === 'vacant' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
+                                {{ ucfirst($unit->status) }}
+                            </span>
+                        </div>
+                        <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Room #</dt>
+                                <dd class="text-gray-700 dark:text-gray-300">{{ $unit->room_number }}@if($unit->floor_number) <span class="text-xs text-gray-400">(Fl {{ $unit->floor_number }})</span>@endif</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Type</dt>
+                                <dd class="text-gray-700 dark:text-gray-300">{{ $unit->room_type ?: 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Rent</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">${{ number_format($unit->rent_amount, 2) }}</dd>
+                            </div>
+                        </dl>
+                        <div class="mt-3 flex justify-end gap-4 border-t border-gray-100 dark:border-zinc-800 pt-3">
+                            <a href="{{ route('units.edit', $unit->room_id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium">Edit</a>
+                            <button wire:click="$set('confirmingDeleteId', {{ $unit->room_id }})" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium">Delete</button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Desktop table layout -->
+            <div class="hidden md:block bg-white dark:bg-zinc-900 overflow-hidden rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                         <thead class="bg-gray-50 dark:bg-zinc-800">
@@ -153,7 +189,7 @@
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
                                             <a href="{{ route('units.edit', $unit->room_id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs">Edit</a>
-                                            <button wire:click="deleteUnit({{ $unit->room_id }})" wire:confirm="Are you sure you want to delete this unit?" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-xs">Delete</button>
+                                            <button wire:click="$set('confirmingDeleteId', {{ $unit->room_id }})" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-xs">Delete</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -173,5 +209,34 @@
                 @endif
             </div>
         @endif
+
+        <!-- Delete confirmation modal (centered & responsive on every screen) -->
+        @if($confirmingDeleteId)
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+                 wire:click.self="$set('confirmingDeleteId', null)"
+                 x-on:keydown.escape.window="$wire.set('confirmingDeleteId', null)">
+                <div class="w-full max-w-sm rounded-lg bg-white dark:bg-zinc-900 shadow-xl border border-gray-200 dark:border-zinc-800 p-6">
+                    <div class="flex items-start gap-3">
+                        <div class="shrink-0 rounded-full bg-red-100 dark:bg-red-900/30 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Delete unit</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this unit? This action cannot be undone.</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 flex justify-end gap-2">
+                        <button type="button" wire:click="$set('confirmingDeleteId', null)" class="px-4 py-2 rounded-md border border-gray-300 dark:border-zinc-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                            Cancel
+                        </button>
+                        <button type="button" wire:click="deleteUnit({{ $confirmingDeleteId }})" wire:loading.attr="disabled" class="px-4 py-2 rounded-md bg-red-600 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
-</div> 
+</div>

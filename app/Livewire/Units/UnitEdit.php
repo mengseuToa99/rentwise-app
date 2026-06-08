@@ -50,9 +50,10 @@ class UnitEdit extends Component
         
         $this->propertyId = $unit->property_id;
         $this->roomNumber = $unit->room_number;
-        $this->type = $unit->type;
+        // Units created via UnitCreate only populate `room_type`, so fall back to it
+        $this->type = $unit->type ?: $unit->room_type;
         $this->rentAmount = $unit->rent_amount;
-        $this->status = $unit->status;
+        $this->status = $unit->status ?: 'vacant';
     }
     
     public function update()
