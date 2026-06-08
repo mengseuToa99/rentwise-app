@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline — RentWise</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+        :root { color-scheme: light dark; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+            background: #f9fafb; color: #111827; padding: 24px;
+        }
+        @media (prefers-color-scheme: dark) { body { background: #09090b; color: #fafafa; } }
+        .card { max-width: 360px; text-align: center; }
+        img { width: 72px; height: 72px; margin-bottom: 20px; }
+        h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 8px; }
+        p { font-size: 0.9rem; color: #6b7280; margin: 0 0 24px; line-height: 1.5; }
+        @media (prefers-color-scheme: dark) { p { color: #a1a1aa; } }
+        button {
+            appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 600;
+            background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 8px;
+        }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="/icons/icon-192.png" alt="RentWise">
+        <h1>You're offline</h1>
+        <p>RentWise needs an internet connection to load this page. Please reconnect and try again.</p>
+        <button onclick="location.reload()">Retry</button>
+    </div>
+</body>
+</html>

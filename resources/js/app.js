@@ -2,6 +2,7 @@ import './theme.js';
 import './echo.js';
 import './charts.js';
 import './khmer-ui-translator.js';
+import './pwa.js';
 import 'flowbite';
 
 // window.themeToggle is defined synchronously in resources/views/partials/head.blade.php.
