@@ -1,5 +1,5 @@
 <div class="py-4 bg-gray-50 dark:bg-zinc-950">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         @if ($property)
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
@@ -23,7 +23,7 @@
                         {{ implode(', ', $addressParts) }}
                     </p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <a href="{{ route('properties.edit', $propertyId) }}" class="inline-flex items-center px-3 py-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md font-medium text-sm text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -271,7 +271,31 @@
                     </div>
                     
                     @if (count($units) > 0)
-                        <div class="overflow-x-auto">
+                        <!-- Mobile card layout -->
+                        <div class="md:hidden divide-y divide-gray-200 dark:divide-zinc-700">
+                            @foreach ($units as $unit)
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start gap-3">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $unit['number'] }}</p>
+                                        <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $unit['status'] === 'occupied' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' }}">
+                                            {{ ucfirst($unit['status']) }}
+                                        </span>
+                                    </div>
+                                    <dl class="mt-2 grid grid-cols-2 gap-2 text-sm">
+                                        <div><dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Type</dt><dd class="text-gray-700 dark:text-gray-300">{{ $unit['type'] }}</dd></div>
+                                        <div><dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Size</dt><dd class="text-gray-700 dark:text-gray-300">{{ $unit['size'] }}</dd></div>
+                                        <div><dt class="text-xs text-gray-400 dark:text-gray-500 uppercase">Rent</dt><dd class="font-medium text-gray-900 dark:text-white">${{ number_format($unit['rent'], 2) }}</dd></div>
+                                    </dl>
+                                    <div class="mt-3 flex justify-end gap-4 border-t border-gray-100 dark:border-zinc-800 pt-2">
+                                        <a href="{{ route('units.edit', $unit['id']) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium">Edit</a>
+                                        <button wire:click="deleteUnit({{ $unit['id'] }})" wire:confirm="Are you sure you want to delete this unit?" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium">Delete</button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Desktop table layout -->
+                        <div class="hidden md:block overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                                 <thead class="bg-gray-50 dark:bg-zinc-800">
                                     <tr>
